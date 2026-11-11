@@ -68,11 +68,9 @@ self.addEventListener("fetch", event => {
   );
 });
 
-self.addEventListener("message", event => {
-  if (
-    event.data === "SKIP_WAITING" ||
-    event.data?.type === "SKIP_WAITING"
-  ) {
+// Allow the page to activate an update
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
     self.skipWaiting();
   }
 });
