@@ -21,7 +21,7 @@ h2{color:#e8bd62;margin:0;font-size:24px}
 .cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .card,.panel{background:#151e2b;border-radius:14px;padding:15px;min-width:0}
 .label{color:#a4aab4;font-size:12px}
-.value{font-size:22px;font-weight:bold;margin-top:8px}
+.value{font-size:22px;font-weight:bold;margin-top:8px;overflow-wrap:anywhere}
 .green{color:#00d69a}
 .red{color:#ff5268}
 .gold{color:#e8bd62}
@@ -39,6 +39,8 @@ tbody tr{cursor:pointer}
 .note{font-size:11px;color:#a4aab4;line-height:1.5;margin:16px 2px}
 .trade-row{padding:10px 0;border-bottom:1px solid #303846}
 .trade-time{font-size:11px;color:#a4aab4}
+.level-row{padding:10px 0;border-bottom:1px solid #303846;display:flex;justify-content:space-between;gap:12px}
+.level-row span:last-child{text-align:right;font-weight:bold;overflow-wrap:anywhere}
 #updateBanner{display:none;background:#263447;padding:12px;text-align:center;color:#e8bd62}
 @media(min-width:650px){
 .cards{grid-template-columns:repeat(4,minmax(0,1fr))}
@@ -152,7 +154,7 @@ New version available.
 
 <div class="panel">
 <h3 class="gold">TRADE LEVEL ESTIMATES</h3>
-<div id="levels" class="small">Waiting...</div>
+<div id="levels" class="small">Calculating...</div>
 </div>
 
 <p class="note">
@@ -176,18 +178,23 @@ let sockets={};
 let selectionId=0;
 let trades=[];
 let seen=new Set();
+let currentScore=0;
 
 const $=id=>document.getElementById(id);
 
 async function getJSON(url){
 const r=await fetch(url,{cache:"no-store"});
-if(!r.ok)throw Error("API error");
+if(!r.ok)throw Error("API error: "+r.status);
 return r.json();
 }
 
 function fmt(n,d=8){
-return Number(n).toLocaleString("en-US",{maximumFractionDigits:d});
+return Number(n).toLocaleString("en-US",{
+maximumFractionDigits:d
+});
 }
+
+/* MARKET SCANNER */
 
 async function loadMarkets(){
 try{
@@ -205,9 +212,11 @@ s.status==="TRADING"
 markets=tickers.filter(t=>valid.has(t.symbol));
 
 $("connection").textContent=
-"BINANCE CONNECTED • "+markets.length+" USDT PERPETUAL COINS";
+"BINANCE CONNECTED • "+markets.length+
+" USDT PERPETUAL COINS";
 
 render();
+
 }catch(e){
 $("connection").textContent="Connection unavailable. Retrying...";
 }
@@ -220,8 +229,10 @@ const sort=$("sort").value;
 let list=markets.filter(x=>x.symbol.includes(q));
 
 list.sort((a,b)=>
-sort==="change"?Number(b.priceChangePercent)-Number(a.priceChangePercent):
-sort==="losers"?Number(a.priceChangePercent)-Number(b.priceChangePercent):
+sort==="change"?
+Number(b.priceChangePercent)-Number(a.priceChangePercent):
+sort==="losers"?
+Number(a.priceChangePercent)-Number(b.priceChangePercent):
 Number(b.quoteVolume)-Number(a.quoteVolume)
 );
 
@@ -249,12 +260,17 @@ $("search").addEventListener("input",render);
 $("sort").addEventListener("change",render);
 $("analyseBtn").addEventListener("click",selectCoin);
 
+/* WEBSOCKETS */
+
 function closeSockets(){
-Object.values(sockets).forEach(s=>s.close());
+Object.values(sockets).forEach(s=>{
+try{s.close()}catch(e){}
+});
 sockets={};
 }
 
 function connect(name,stream,callback,id){
+
 const ws=new WebSocket(
 WS+selected.toLowerCase()+stream
 );
@@ -263,17 +279,28 @@ sockets[name]=ws;
 
 ws.onmessage=e=>{
 if(id!==selectionId)return;
+
+try{
 callback(JSON.parse(e.data));
+}catch(err){}
+};
+
+ws.onerror=()=>{
+try{ws.close()}catch(e){}
 };
 
 ws.onclose=()=>{
 if(id===selectionId){
 setTimeout(()=>{
-if(id===selectionId)connect(name,stream,callback,id);
+if(id===selectionId){
+connect(name,stream,callback,id);
+}
 },3000);
 }
 };
 }
+
+/* SELECT COIN */
 
 async function selectCoin(){
 
@@ -288,44 +315,72 @@ const id=++selectionId;
 selected=symbol;
 
 closeSockets();
-bids=[];asks=[];trades=[];seen=new Set();
+
+bids=[];
+asks=[];
+trades=[];
+seen=new Set();
+currentScore=0;
 
 $("trades").innerHTML="";
 $("tradeStatus").textContent="Loading trades...";
 $("reason").textContent="Loading "+symbol+"...";
+$("levels").textContent="Calculating trade levels...";
+
+$("change").textContent="--";
+$("buy").textContent="--";
+$("sell").textContent="--";
+$("bids").textContent="--";
+$("asks").textContent="--";
+$("book").textContent="Waiting...";
 
 try{
-const [k,t]=await Promise.all([
-getJSON(API+"/fapi/v1/klines?symbol="+symbol+"&interval=5m&limit=150"),
-getJSON(API+"/fapi/v1/ticker/price?symbol="+symbol)
+
+const [k,ticker]=await Promise.all([
+
+getJSON(
+API+"/fapi/v1/klines?symbol="+symbol+
+"&interval=5m&limit=150"
+),
+
+getJSON(
+API+"/fapi/v1/ticker/24hr?symbol="+symbol
+)
+
 ]);
 
 if(id!==selectionId)return;
 
 klines=k;
-lastPrice=Number(t.price);
 
-$("price").textContent=fmt(lastPrice);
+lastPrice=Number(ticker.lastPrice);
+
+updatePriceDisplay();
+update24hChange(ticker);
+
 analyse();
 
 loadHistoricalTrades(id);
 
 connect("price","@markPrice@1s",d=>{
 lastPrice=Number(d.p);
-$("price").textContent=fmt(lastPrice);
+updatePriceDisplay();
 },id);
 
 connect("depth","@depth20@100ms",d=>{
+
 bids=d.b.map(x=>[+x[0],+x[1]]);
 asks=d.a.map(x=>[+x[0],+x[1]]);
 
 const b=bids.reduce((s,x)=>s+x[1],0);
 const a=asks.reduce((s,x)=>s+x[1],0);
 const total=b+a;
+
 const bp=total?b/total*100:0;
 
 $("buy").textContent=bp.toFixed(1)+"%";
 $("sell").textContent=(100-bp).toFixed(1)+"%";
+
 $("bids").textContent=fmt(b,4);
 $("asks").textContent=fmt(a,4);
 
@@ -335,28 +390,90 @@ $("book").innerHTML=
 "<br>Bid Share: "+bp.toFixed(1)+"%";
 
 analyse();
+
 },id);
 
 connect("trades","@aggTrade",addTrade,id);
 
 }catch(e){
-$("reason").textContent="Unable to load coin data.";
+
+if(id===selectionId){
+$("reason").textContent="Unable to load coin data. Check connection or symbol.";
+$("levels").textContent="Unable to calculate levels.";
+}
+
 }
 }
 
-async function loadHistoricalTrades(id){
+/* PRICE AND 24H CHANGE */
+
+function updatePriceDisplay(){
+if(lastPrice>0){
+$("price").textContent=fmt(lastPrice);
+}
+}
+
+function update24hChange(ticker){
+
+const change=Number(ticker.priceChangePercent);
+
+$("change").textContent=
+(change>=0?"+":"")+change.toFixed(2)+"%";
+
+$("change").className=
+"value "+(change>=0?"green":"red");
+
+}
+
+/* REFRESH SELECTED COIN 24H DATA */
+
+async function refresh24h(){
+
+const symbol=selected;
+const id=selectionId;
+
 try{
+
+const ticker=await getJSON(
+API+"/fapi/v1/ticker/24hr?symbol="+symbol
+);
+
+if(id!==selectionId)return;
+
+update24hChange(ticker);
+
+}catch(e){
+console.log("24H refresh failed");
+}
+}
+
+/* HISTORICAL TRADES */
+
+async function loadHistoricalTrades(id){
+
+try{
+
 const data=await getJSON(
 API+"/fapi/v1/aggTrades?symbol="+selected+"&limit=20"
 );
+
 if(id!==selectionId)return;
+
 data.reverse().forEach(addTrade);
-}catch(e){}
+
+}catch(e){
+$("tradeStatus").textContent="Historical trades unavailable.";
+}
 }
 
+/* LIVE TRADES */
+
 function addTrade(d){
+
 const id=String(d.a);
+
 if(seen.has(id))return;
+
 seen.add(id);
 
 const side=d.m?"SELL":"BUY";
@@ -383,96 +500,321 @@ $("trades").innerHTML=trades.map(t=>`
 
 $("tradeStatus").textContent=
 "Latest "+trades.length+" trades • Live feed";
+
 }
 
+/* EMA */
+
 function ema(data,p){
-let k=2/(p+1),v=data[0],out=[v];
+
+const k=2/(p+1);
+let v=data[0];
+let out=[v];
+
 for(let i=1;i<data.length;i++){
 v=data[i]*k+v*(1-k);
 out.push(v);
 }
+
 return out;
 }
 
+/* RSI */
+
 function calculateRSI(c,p=14){
+
 let g=0,l=0;
+
 for(let i=1;i<=p;i++){
 let d=c[i]-c[i-1];
+
 if(d>0)g+=d;
 else l-=d;
 }
-let ag=g/p,al=l/p;
+
+let ag=g/p;
+let al=l/p;
+
 for(let i=p+1;i<c.length;i++){
+
 let d=c[i]-c[i-1];
+
 ag=(ag*(p-1)+Math.max(d,0))/p;
 al=(al*(p-1)+Math.max(-d,0))/p;
-}
-return al===0?100:100-100/(1+ag/al);
+
 }
 
+return al===0?100:100-100/(1+ag/al);
+
+}
+
+/* ATR 14 */
+
+function calculateATR(data,p=14){
+
+if(data.length<p+1)return 0;
+
+const tr=[];
+
+for(let i=1;i<data.length;i++){
+
+const high=Number(data[i][2]);
+const low=Number(data[i][3]);
+const prevClose=Number(data[i-1][4]);
+
+const range=Math.max(
+high-low,
+Math.abs(high-prevClose),
+Math.abs(low-prevClose)
+);
+
+tr.push(range);
+
+}
+
+if(tr.length<p)return 0;
+
+let atr=tr.slice(0,p).reduce((a,b)=>a+b,0)/p;
+
+for(let i=p;i<tr.length;i++){
+atr=(atr*(p-1)+tr[i])/p;
+}
+
+return atr;
+
+}
+
+/* TRADE LEVEL ESTIMATES */
+
+function calculateTradeLevels(score,price,atr){
+
+if(!price||!atr){
+
+$("levels").innerHTML="Waiting for sufficient market data...";
+return;
+
+}
+
+const direction=
+score>=2?"LONG":
+score<=-2?"SHORT":
+"WAIT";
+
+const entry=price;
+
+if(direction==="WAIT"){
+
+$("levels").innerHTML=`
+
+<div class="level-row">
+<span>MARKET BIAS</span>
+<span class="gold">WAIT / NEUTRAL</span>
+</div>
+
+<div class="level-row">
+<span>REFERENCE PRICE</span>
+<span>${fmt(entry)}</span>
+</div>
+
+<div class="level-row">
+<span>ATR 14 (5M)</span>
+<span>${fmt(atr)}</span>
+</div>
+
+<div class="small" style="margin-top:12px">
+No clear BUY or SELL setup currently.
+Waiting for stronger market confirmation.
+</div>
+
+`;
+
+return;
+
+}
+
+const slDistance=atr*1.5;
+const tp1Distance=atr*1.5;
+const tp2Distance=atr*3;
+
+let sl,tp1,tp2;
+
+if(direction==="LONG"){
+
+sl=entry-slDistance;
+tp1=entry+tp1Distance;
+tp2=entry+tp2Distance;
+
+}else{
+
+sl=entry+slDistance;
+tp1=entry-tp1Distance;
+tp2=entry-tp2Distance;
+
+}
+
+const risk=Math.abs(entry-sl);
+const reward1=Math.abs(tp1-entry);
+const reward2=Math.abs(tp2-entry);
+
+const rr1=reward1/risk;
+const rr2=reward2/risk;
+
+const color=direction==="LONG"?"green":"red";
+
+$("levels").innerHTML=`
+
+<div class="level-row">
+<span>MARKET BIAS</span>
+<span class="${color}">${direction}</span>
+</div>
+
+<div class="level-row">
+<span>ENTRY PRICE</span>
+<span>${fmt(entry)}</span>
+</div>
+
+<div class="level-row">
+<span>STOP LOSS</span>
+<span class="red">${fmt(sl)}</span>
+</div>
+
+<div class="level-row">
+<span>TAKE PROFIT 1</span>
+<span class="green">${fmt(tp1)}</span>
+</div>
+
+<div class="level-row">
+<span>TAKE PROFIT 2</span>
+<span class="green">${fmt(tp2)}</span>
+</div>
+
+<div class="level-row">
+<span>ATR 14 (5M)</span>
+<span>${fmt(atr)}</span>
+</div>
+
+<div class="level-row">
+<span>RISK / REWARD TP1</span>
+<span>1 : ${rr1.toFixed(2)}</span>
+</div>
+
+<div class="level-row">
+<span>RISK / REWARD TP2</span>
+<span>1 : ${rr2.toFixed(2)}</span>
+</div>
+
+<div class="small" style="margin-top:12px">
+Estimated levels based on ATR × 1.5 and ATR × 3.
+These are technical estimates, not guaranteed targets.
+</div>
+
+`;
+
+}
+
+/* MAIN ANALYSIS */
+
 function analyse(){
+
 if(klines.length<40)return;
 
 const closed=klines.slice(0,-1);
+
 const c=closed.map(x=>Number(x[4]));
 
 const rsi=calculateRSI(c);
+
 const fast=ema(c,12);
 const slow=ema(c,26);
 
 const macdLine=fast.map((v,i)=>v-slow[i]);
 const signal=ema(macdLine,9);
-const hist=macdLine.at(-1)-signal.at(-1);
+
+const hist=
+macdLine[macdLine.length-1]-
+signal[signal.length-1];
 
 $("rsi").textContent=rsi.toFixed(2);
 $("macd").textContent=hist.toFixed(6);
 
 let score=0;
+
 if(hist>0)score++;
 else if(hist<0)score--;
 
 if(rsi>=50&&rsi<70)score++;
 else if(rsi<45)score--;
 
-const total=bids.reduce((s,x)=>s+x[1],0)+
-asks.reduce((s,x)=>s+x[1],0);
+const bidTotal=bids.reduce((s,x)=>s+x[1],0);
+const askTotal=asks.reduce((s,x)=>s+x[1],0);
+const total=bidTotal+askTotal;
 
 const share=total?
-bids.reduce((s,x)=>s+x[1],0)/total*100:null;
+bidTotal/total*100:null;
 
 if(share!==null){
+
 if(share>55)score++;
 else if(share<45)score--;
+
 }
 
-const sig=score>=2?"LONG BIAS":
-score<=-2?"SHORT BIAS":"WAIT";
+currentScore=score;
+
+const sig=
+score>=2?"LONG BIAS":
+score<=-2?"SHORT BIAS":
+"WAIT";
 
 $("signal").textContent=sig;
-$("signal").className="signal "+
+
+$("signal").className=
+"signal "+
 (score>=2?"green":score<=-2?"red":"gold");
 
 $("reason").textContent=
 "RSI "+rsi.toFixed(2)+
 " | MACD "+hist.toFixed(6)+
-" | Bid share "+(share===null?"--":share.toFixed(1)+"%");
+" | Bid share "+
+(share===null?"--":share.toFixed(1)+"%");
+
+const atr=calculateATR(closed,14);
+
+calculateTradeLevels(score,lastPrice,atr);
+
 }
 
+/* REFRESH CANDLES */
+
 async function refreshCandles(){
+
+const symbol=selected;
+const id=selectionId;
+
 try{
+
 const k=await getJSON(
-API+"/fapi/v1/klines?symbol="+selected+"&interval=5m&limit=150"
+API+"/fapi/v1/klines?symbol="+symbol+
+"&interval=5m&limit=150"
 );
+
+if(id!==selectionId)return;
+
 klines=k;
 analyse();
+
 }catch(e){}
+
 }
+
+/* START */
 
 loadMarkets();
 selectCoin();
 
 setInterval(loadMarkets,30000);
 setInterval(refreshCandles,20000);
+setInterval(refresh24h,15000);
 
 /* PWA SERVICE WORKER */
 
@@ -487,20 +829,28 @@ try{
 const reg=await navigator.serviceWorker.register("./sw.js");
 
 if(reg.waiting){
+
 waitingWorker=reg.waiting;
 $("updateBanner").style.display="block";
+
 }
 
 reg.addEventListener("updatefound",()=>{
+
 const worker=reg.installing;
 
 worker.addEventListener("statechange",()=>{
+
 if(worker.state==="installed" &&
 navigator.serviceWorker.controller){
+
 waitingWorker=worker;
 $("updateBanner").style.display="block";
+
 }
+
 });
+
 });
 
 navigator.serviceWorker.addEventListener(
@@ -509,7 +859,9 @@ navigator.serviceWorker.addEventListener(
 );
 
 }catch(e){
+
 console.log("PWA registration error",e);
+
 }
 
 });
@@ -517,9 +869,11 @@ console.log("PWA registration error",e);
 }
 
 $("updateBtn").onclick=()=>{
+
 if(waitingWorker){
 waitingWorker.postMessage({type:"SKIP_WAITING"});
 }
+
 };
 
 </script>
