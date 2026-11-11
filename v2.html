@@ -1,1 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090d14">
+<title>SHIJU BINANCE V2</title>
 
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#090d14;color:#eee;font-family:Arial,sans-serif}
+header{padding:18px;background:#111925;border-bottom:1px solid #303846;position:sticky;top:0;z-index:10}
+h2{color:#e8bd62;margin:0;font-size:24px}
+.sub{color:#a4aab4;font-size:12px;margin-top:8px;line-height:1.5}
+.container{padding:14px;max-width:1100px;margin:auto}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.card,.panel{background:#151e2b;border-radius:14px;padding:15px;min-width:0}
+.panel{margin-top:15px;overflow:hidden}
+h3{font-size:18px;margin:3px 0 15px}
+.gold{color:#e8bd62}
+.green{color:#00d69a}
+.red{color:#ff5268}
+.label{color:#a4aab4;font-size:12px}
+.value{font-size:22px;font-weight:bold;margin-top:8px;overflow-wrap:anywhere}
+input,select{width:100%;padding:14px;background:#111925;color:white;border:1px solid #46505f;border-radius:9px;margin:8px 0;font-size:15px}
+button{padding:13px 16px;background:#d8ad51;color:#111;border:0;border-radius:8px;font-weight:bold}
+.small{font-size:12px;color:#a4aab4;line-height:1.7;overflow-wrap:anywhere}
+.signal{text-align:center;font-size:27px;font-weight:bold;padding:18px}
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap}
+td,th{text-align:right;padding:12px 6px;border-bottom:1px solid #303846}
+td:first-child,th:first-child{text-align:left}
+tbody tr{cursor:pointer}
+.pill{background:#263447;color:#e8bd62;padding:4px 9px;border-radius:20px;font-size:11px}
+.trade{padding:10px 0;border-bottom:1px solid #303846}
+.note{font-size:11px;color:#a4aab4;line-height:1.6;margin-top:18px}
+@media(min-width:650px){
+.cards{grid-template-columns:repeat(4,minmax(0,1fr))}
+.container{padding:20px}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h2>SHIJU BINANCE V2</h2>
+<div class="sub">ADVANCED FUTURES TRADING INTELLIGENCE</div>
+<div class="sub green" id="connection">Connecting to Binance...</div>
+</header>
+
+<div class="container">
+
+<!-- MARKET OVERVIEW -->
+
+<div class="cards">
+<div class="card">
+<div class="label">BTC PRICE</div>
+<div class="value gold" id="btcPrice">--</div>
+</div>
+<div class="card">
+<div class="label">BTC 24H CHANGE</div>
+<div class="value" id="btcChange">--</div>
+</div>
+<div class="card">
+<div class="label">TOTAL FUTURES COINS</div>
+<div class="value gold" id="coinCount">--</div>
+</div>
+<div class="card">
+<div class="label">MARKET DIRECTION</div>
+<div class="value gold" id="marketTrend">WAIT</div>
+</div>
+</div>
+
+<!-- TOP SIGNAL SCANNER -->
+
+<div class="panel">
+<h3 class="gold">TOP LONG / SHORT SCANNER</h3>
+<div class="small" id="scanStatus">Preparing market scan...</div>
+<button id="scanBtn">SCAN MARKET NOW</button>
+
+<h3 class="green" style="margin-top:22px">TOP LONG CANDIDATES</h3>
+<div class="tablewrap">
+<table>
+<thead>
+<tr><th>COIN</th><th>PRICE</th><th>SCORE</th><th>STRENGTH</th></tr>
+</thead>
+<tbody id="longList">
+<tr><td colspan="4">Scanning...</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3 class="red" style="margin-top:22px">TOP SHORT CANDIDATES</h3>
+<div class="tablewrap">
+<table>
+<thead>
+<tr><th>COIN</th><th>PRICE</th><th>SCORE</th><th>STRENGTH</th></tr>
+</thead>
+<tbody id="shortList">
+<tr><td colspan="4">Scanning...</td></tr>
+</tbody>
+</table>
+</div>
+<div class="small">
+Scanner evaluates the 12 highest-volume eligible USDT perpetual markets.
+It is not an exhaustive indicator scan of every listed coin.
+</div>
+</div>
+
+<!-- COIN SELECTOR -->
+
+<div class="panel">
+<h3 class="gold">SELECTED COIN ANALYSIS</h3>
+<input id="symbol" value="BTCUSDT" placeholder="Enter coin e.g. BTCUSDT">
+<button id="analyseBtn">ANALYSE COIN</button>
+
+<div class="signal gold" id="signal">WAIT</div>
+<div class="small" id="reason">Loading analysis...</div>
+</div>
+
+<!-- PRICE -->
+
+<div class="cards" style="margin-top:15px">
+<div class="card">
+<div class="label">LIVE PRICE</div>
+<div class="value gold" id="price">--</div>
+</div>
+<div class="card">
+<div class="label">24H CHANGE</div>
+<div class="value" id="change">--</div>
+</div>
+<div class="card">
+<div class="label">BID SHARE</div>
+<div class="value green" id="buy">--</div>
+</div>
+<div class="card">
+<div class="label">ASK SHARE</div>
+<div class="value red" id="sell">--</div>
+</div>
+</div>
+
+<!-- MULTI TIMEFRAME -->
+
+<div class="panel">
+<h3 class="gold">MULTI-TIMEFRAME ANALYSIS</h3>
+<div class="tablewrap">
+<table>
+<thead>
+<tr>
+<th>TIMEFRAME</th>
+<th>EMA TREND</th>
+<th>RSI</th>
+<th>MACD</th>
+<th>BIAS</th>
+</tr>
+</thead>
+<tbody id="timeframes">
+<tr><td colspan="5">Loading...</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<!-- INDICATORS -->
+
+<div class="cards" style="margin-top:15px">
+<div class="card">
+<div class="label">RSI (14)</div>
+<div class="value" id="rsi">--</div>
+</div>
+<div class="card">
+<div class="label">MACD HISTOGRAM</div>
+<div class="value" id="macd">--</div>
+</div>
+<div class="card">
+<div class="label">EMA 9</div>
+<div class="value" id="ema9">--</div>
+</div>
+<div class="card">
+<div class="label">EMA 21</div>
+<div class="value" id="ema21">--</div>
+</div>
+</div>
+
+<div class="panel">
+<h3 class="gold">BOLLINGER BANDS</h3>
+<div id="bb" class="small">Waiting...</div>
+</div>
+
+<!-- SUPPORT RESISTANCE -->
+
+<div class="panel">
+<h3 class="gold">SUPPORT & RESISTANCE</h3>
+<div id="sr" class="small">Waiting...</div>
+</div>
+
+<!-- TRADE LEVELS -->
+
+<div class="panel">
+<h3 class="gold">TRADE LEVEL ESTIMATES</h3>
+<div id="levels" class="small">Waiting...</div>
+</div>
+
+<!-- ORDER BOOK -->
+
+<div class="cards" style="margin-top:15px">
+<div class="card">
+<div class="label">BID QUANTITY</div>
+<div class="value green" id="bids">--</div>
+</div>
+<div class="card">
+<div class="label">ASK QUANTITY</div>
+<div class="value red" id="asks">--</div>
+</div>
+</div>
+
+<div class="panel">
+<h3 class="gold">LARGE ORDERS / ORDER BOOK</h3>
+<div id="book" class="small">Waiting...</div>
+</div>
+
+<!-- WHALE DETECTOR -->
+
+<div class="panel">
+<h3 class="gold">WHALE ORDER DETECTOR</h3>
+<div class="small">Large aggregated trades above $25,000 USDT</div>
+<div id="whales" class="small">Waiting for large trades...</div>
+</div>
+
+<!-- RECENT TRADES -->
+
+<div class="panel">
+<h3 class="gold">RECENT 20 AGGREGATED TRADES</h3>
+<div id="trades" class="small">Loading...</div>
+</div>
+
+<!-- MARKET SCANNER -->
+
+<div class="panel">
+<h3 class="gold">FULL MARKET SCANNER</h3>
+<input id="search" placeholder="Search any Futures coin...">
+<select id="sort">
+<option value="volume">Highest Volume</option>
+<option value="change">Top Gainers</option>
+<option value="losers">Top Losers</option>
+</select>
+<div class="tablewrap">
+<table>
+<thead>
+<tr>
+<th>COIN</th><th>PRICE</th><th>24H %</th><th>VOLUME</th>
+</tr>
+</thead>
+<tbody id="markets">
+<tr><td colspan="4">Loading...</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<p class="note">
+SHIJU BINANCE V2 | Public Binance Futures market data only.
+No API keys and no automatic trading.
+Signals, entry estimates, support and resistance are analytical estimates.
+Order-book depth is not actual market-wide buying pressure.
+Always verify liquidity, candle confirmation and risk before trading.
+</p>
+
+</div>
+
+<script>
+"use strict";
+
+const API="https://fapi.binance.com";
+const WS="wss://fstream.binance.com/ws/";
+
+const $=id=>document.getElementById(id);
+
+let markets=[];
+let selected="BTCUSDT";
+let bids=[],asks=[],klines={};
+let lastPrice=0;
+let sockets={};
+let reconnect={};
+let retries={price:1000,depth:1000,trades:1000};
+let tradeRows=[];
+let whaleRows=[];
+let scanning=false;
+let scanTimer=null;
+
+const frames=["5m","15m","1h","4h"];
+
+async function getJSON(url){
+const controller=new AbortController();
+const timer=setTimeout(()=>controller.abort(),15000);
+try{
+const r=await fetch(url,{signal:controller.signal,cache:"no-store"});
+if(!r.ok)throw Error("HTTP "+r.status);
+return await r.json();
+}finally{
+clearTimeout(timer);
+}
+}
+
+function fmt(n,d=4){
+n=Number(n);
+return Number.isFinite(n)?n.toLocaleString("en-US",{maximumFractionDigits:d}):"--";
+}
+
+function ema(data,period){
+let k=2/(period+1);
+let v=data[0];
+for(let i=1;i<data.length;i++){
+v=data[i]*k+v*(1-k);
+}
+return v;
+}
+
+function emaSeries(data,period){
+let out=[];
+let k=2/(period+1);
+let v=data[0];
+out.push(v);
+for(let i=1;i<data.length;i++){
+v=data[i]*k+v*(1-k);
+out.push(v);
+}
+return out;
+}
+
+function rsiCalc(c,period=14){
+if(c.length<=period)return null;
+let g=0,l=0;
+for(let i=1;i<=period;i++){
+let d=c[i]-c[i-1];
+if(d>0)g+=d;
+else l-=d;
+}
+let ag=g/period,al=l/period;
+for(let i=period+1;i<c.length;i++){
+let d=c[i]-c[i-1];
+ag=(ag*(period-1)+Math.max(d,0))/period;
+al=(al*(period-1)+Math.max(-d,0))/period;
+}
+return al===0?100:100-100/(1+ag/al);
+}
+
+function macdCalc(c){
+let f=emaSeries(c,12);
+let s=emaSeries(c,26);
+let line=f.map((v,i)=>v-s[i]);
+let sig=emaSeries(line,9);
+return {
+line:line.at(-1),
+hist:line.at(-1)-sig.at(-1)
+};
+}
+
+function atrCalc(k,p=14){
+let tr=[];
+for(let i=1;i<k.length;i++){
+let h=Number(k[i][2]);
+let l=Number(k[i][3]);
+let prev=Number(k[i-1][4]);
+tr.push(Math.max(h-l,Math.abs(h-prev),Math.abs(l-prev)));
+}
+if(tr.length<p)return null;
+return tr.slice(-p).reduce((a,b)=>a+b,0)/p;
+}
+
+function indicators(k){
+const closed=k.slice(0,-1);
+const c=closed.map(x=>Number(x[4]));
+if(c.length<35)return null;
+
+const rsi=rsiCalc(c);
+const m=macdCalc(c);
+const e9=ema(c,9);
+const e21=ema(c,21);
+const atr=atrCalc(closed);
+
+const last=c.at(-1);
+const recent=closed.slice(-30);
+const highs=recent.map(x=>Number(x[2]));
+const lows=recent.map(x=>Number(x[3]));
+
+const mean=c.slice(-20).reduce((a,b)=>a+b,0)/20;
+const variance=c.slice(-20).reduce((a,b)=>a+(b-mean)**2,0)/20;
+const sd=Math.sqrt(variance);
+
+return {
+rsi,m,e9,e21,atr,last,
+upper:mean+2*sd,
+middle:mean,
+lower:mean-2*sd,
+support:Math.min(...lows),
+resistance:Math.max(...highs)
+};
+}
+
+function scoreIndicator(x){
+let s=0;
+if(x.e9>x.e21)s++;
+else s--;
+
+if(x.rsi>52)s++;
+else if(x.rsi<48)s--;
+
+if(x.m.hist>0)s++;
+else if(x.m.hist<0)s--;
+
+return s;
+}
+
+function analyseFrames(data){
+let total=0;
+let rows=[];
+let five=null;
+
+frames.forEach(tf=>{
+let x=indicators(data[tf]);
+if(!x)return;
+if(tf==="5m")five=x;
+let score=scoreIndicator(x);
+total+=score;
+rows.push({tf,x,score});
+});
+
+return {total,rows,five};
+}
+
+function signalFromScore(score){
+if(score>=7)return "STRONG LONG";
+if(score>=4)return "LONG BIAS";
+if(score<=-7)return "STRONG SHORT";
+if(score<=-4)return "SHORT BIAS";
+return "WAIT";
+}
+
+function strength(score){
+return Math.round(Math.abs(score)/12*100);
+}
+
+function signalColor(signal){
+return signal.includes("LONG")?"green":
+signal.includes("SHORT")?"red":"gold";
+}
+
+// MARKET DATA
+
+async function loadMarkets(){
+try{
+const [info,tickers]=await Promise.all([
+getJSON(API+"/fapi/v1/exchangeInfo"),
+getJSON(API+"/fapi/v1/ticker/24hr")
+]);
+
+const valid=new Set(info.symbols.filter(s=>
+s.contractType==="PERPETUAL"&&
+s.quoteAsset==="USDT"&&
+s.status==="TRADING"
+).map(s=>s.symbol));
+
+markets=tickers.filter(t=>valid.has(t.symbol));
+
+$("coinCount").textContent=markets.length;
+renderMarkets();
+updateBTC();
+$("connection").textContent=
+"BINANCE CONNECTED • "+markets.length+" USDT PERPETUAL MARKETS";
+
+}catch(e){
+$("connection").textContent="MARKET DATA DISCONNECTED • RETRYING";
+}
+}
+
+function updateBTC(){
+let b=markets.find(x=>x.symbol==="BTCUSDT");
+if(!b)return;
+$("btcPrice").textContent=fmt(b.lastPrice,2);
+let p=Number(b.priceChangePercent);
+$("btcChange").textContent=(p>=0?"+":"")+p.toFixed(2)+"%";
+$("btcChange").className="value "+(p>=0?"green":"red");
+
+let up=markets.filter(x=>Number(x.priceChangePercent)>0).length;
+let down=markets.filter(x=>Number(x.priceChangePercent)<0).length;
+
+$("marketTrend").textContent=
+up>down*1.15?"BULLISH":
+down>up*1.15?"BEARISH":"MIXED";
+
+$("marketTrend").className=
+"value "+(up>down*1.15?"green":down>up*1.15?"red":"gold");
+}
+
+function renderMarkets(){
+let q=$("search").value.trim().toUpperCase();
+let sort=$("sort").value;
+let list=markets.filter(x=>x.symbol.includes(q));
+
+list.sort((a,b)=>
+sort==="change"?Number(b.priceChangePercent)-Number(a.priceChangePercent):
+sort==="losers"?Number(a.priceChangePercent)-Number(b.priceChangePercent):
+Number(b.quoteVolume)-Number(a.quoteVolume)
+);
+
+$("markets").innerHTML=list.slice(0,100).map(x=>{
+let p=Number(x.priceChangePercent);
+return `<tr data-symbol="${x.symbol}">
+<td>${x.symbol}</td>
+<td>${fmt(x.lastPrice,8)}</td>
+<td class="${p>=0?"green":"red"}">${p.toFixed(2)}%</td>
+<td>${(Number(x.quoteVolume)/1e6).toFixed(2)}M</td>
+</tr>`;
+}).join("")||'<tr><td colspan="4">No results</td></tr>';
+}
+
+$("search").addEventListener("input",renderMarkets);
+$("sort").addEventListener("change",renderMarkets);
+
+$("markets").addEventListener("click",e=>{
+let row=e.target.closest("tr[data-symbol]");
+if(row){
+$("symbol").value=row.dataset.symbol;
+selectCoin();
+}
+});
+
+// WEBSOCKETS
+
+function closeSocket(name){
+if(reconnect[name])clearTimeout(reconnect[name]);
+reconnect[name]=null;
+let s=sockets[name];
+sockets[name]=null;
+if(s){
+s.onclose=null;
+try{s.close()}catch(e){}
+}
+}
+
+function closeAll(){
+["price","depth","trades"].forEach(closeSocket);
+}
+
+function makeSocket(name,stream,handler){
+closeSocket(name);
+let ws;
+try{
+ws=new WebSocket(WS+selected.toLowerCase()+stream);
+}catch(e){
+reconnect[name]=setTimeout(()=>makeSocket(name,stream,handler),2000);
+return;
+}
+sockets[name]=ws;
+
+ws.onopen=()=>{
+retries[name]=1000;
+updateWSStatus();
+};
+
+ws.onmessage=e=>{
+try{handler(JSON.parse(e.data))}catch(err){}
+};
+
+ws.onerror=()=>ws.close();
+
+ws.onclose=()=>{
+if(sockets[name]===ws)sockets[name]=null;
+updateWSStatus();
+if(selected){
+reconnect[name]=setTimeout(()=>{
+makeSocket(name,stream,handler);
+},retries[name]);
+retries[name]=Math.min(retries[name]*2,30000);
+}
+};
+}
+
+function updateWSStatus(){
+let n=["price","depth","trades"].filter(x=>
+sockets[x]&&sockets[x].readyState===WebSocket.OPEN
+).length;
+
+$("connection").textContent=
+"BINANCE FEED "+n+"/3 LIVE • "+markets.length+" MARKETS";
+}
+
+// TRADE HISTORY + WHALE DETECTOR
+
+function addTrade(d){
+let side=d.m?"SELL":"BUY";
+let amount=Number(d.p)*Number(d.q);
+let t={
+side,
+price:fmt(d.p,8),
+qty:fmt(d.q,6),
+amount:fmt(amount,2),
+time:new Date(Number(d.T)).toLocaleTimeString(),
+value:amount
+};
+
+tradeRows.unshift(t);
+tradeRows=tradeRows.slice(0,20);
+renderTrades();
+
+if(amount>=25000){
+whaleRows.unshift(t);
+whaleRows=whaleRows.slice(0,15);
+renderWhales();
+}
+}
+
+function renderTrades(){
+$("trades").innerHTML=tradeRows.map(t=>`
+<div class="trade">
+<b class="${t.side==="BUY"?"green":"red"}">${t.side}</b>
+| ${t.price} | Qty: ${t.qty} | ${t.amount} USDT
+<div class="small">${t.time}</div>
+</div>`).join("")||"Waiting for trades...";
+}
+
+function renderWhales(){
+$("whales").innerHTML=whaleRows.map(t=>`
+<div class="trade">
+<b class="${t.side==="BUY"?"green":"red"}">${t.side} WHALE</b>
+| ${t.price} | ${t.amount} USDT
+<div class="small">${t.time}</div>
+</div>`).join("")||"No large trades detected yet.";
+}
+
+// ORDER BOOK
+
+function updateDepth(d){
+bids=(d.b||[]).map(x=>[+x[0],+x[1]]);
+asks=(d.a||[]).map(x=>[+x[0],+x[1]]);
+
+let b=bids.reduce((s,x)=>s+x[1],0);
+let a=asks.reduce((s,x)=>s+x[1],0);
+let total=b+a;
+let bp=total?b/total*100:0;
+
+$("buy").textContent=bp.toFixed(1)+"%";
+$("sell").textContent=(100-bp).toFixed(1)+"%";
+$("bids").textContent=fmt(b,4);
+$("asks").textContent=fmt(a,4);
+
+if(bids.length&&asks.length){
+let lb=bids.reduce((x,y)=>y[1]>x[1]?y:x,bids[0]);
+let la=asks.reduce((x,y)=>y[1]>x[1]?y:x,asks[0]);
+
+$("book").innerHTML=
+"Best bid: "+fmt(bids[0][0])+
+" | Best ask: "+fmt(asks[0][0])+
+"<br>Largest bid: "+fmt(lb[0])+" / "+fmt(lb[1])+
+"<br>Largest ask: "+fmt(la[0])+" / "+fmt(la[1])+
+"<br>Displayed depth bid share: "+bp.toFixed(1)+"%";
+}
+}
+
+function connectStreams(){
+makeSocket("price","@markPrice@1s",d=>{
+lastPrice=Number(d.p);
+$("price").textContent=fmt(lastPrice,8);
+});
+
+makeSocket("depth","@depth20@100ms",updateDepth);
+
+makeSocket("trades","@aggTrade",d=>{
+if(d.e==="aggTrade")addTrade(d);
+});
+}
+
+// SELECT COIN
+
+async function selectCoin(){
+let sym=$("symbol").value.trim().toUpperCase();
+
+if(!/^[A-Z0-9]{2,30}USDT$/.test(sym)){
+$("reason").textContent="Enter a valid USDT perpetual symbol.";
+return;
+}
+
+selected=sym;
+closeAll();
+
+bids=[];asks=[];
+tradeRows=[];whaleRows=[];
+renderTrades();renderWhales();
+
+$("signal").textContent="LOADING";
+$("reason").textContent="Fetching multi-timeframe data...";
+$("timeframes").innerHTML="<tr><td colspan='5'>Loading...</td></tr>";
+
+try{
+let results=await Promise.all(frames.map(async tf=>[
+tf,
+await getJSON(API+"/fapi/v1/klines?symbol="+selected+"&interval="+tf+"&limit=100")
+]));
+
+let data={};
+results.forEach(x=>data[x[0]]=x[1]);
+klines=data;
+
+let ticker=await getJSON(API+"/fapi/v1/ticker/24hr?symbol="+selected);
+let price=await getJSON(API+"/fapi/v1/ticker/price?symbol="+selected);
+
+lastPrice=Number(price.price);
+$("price").textContent=fmt(lastPrice,8);
+
+let change=Number(ticker.priceChangePercent);
+$("change").textContent=change.toFixed(2)+"%";
+$("change").className="value "+(change>=0?"green":"red");
+
+showAnalysis(data);
+connectStreams();
+loadHistoricalTrades();
+
+}catch(e){
+$("reason").textContent="Could not load this coin. Verify it is a trading USDT perpetual.";
+$("signal").textContent="DATA ERROR";
+$("levels").textContent="Unavailable.";
+}
+}
+
+$("analyseBtn").addEventListener("click",selectCoin);
+
+function showAnalysis(data){
+let result=analyseFrames(data);
+let total=result.total;
+let signal=signalFromScore(total);
+let color=signalColor(signal);
+
+$("signal").textContent=signal;
+$("signal").className="signal "+color;
+
+$("reason").textContent=
+"Multi-timeframe score: "+total+
+" / 12 | Signal strength: "+strength(total)+
+"% | Confirmation required before entry.";
+
+$("timeframes").innerHTML=result.rows.map(r=>{
+let x=r.x;
+let trend=x.e9>x.e21?"BULLISH":"BEARISH";
+let bias=r.score>0?"LONG":r.score<0?"SHORT":"NEUTRAL";
+return `<tr>
+<td>${r.tf}</td>
+<td class="${trend==="BULLISH"?"green":"red"}">${trend}</td>
+<td>${x.rsi.toFixed(1)}</td>
+<td class="${x.m.hist>=0?"green":"red"}">${fmt(x.m.hist,5)}</td>
+<td class="${bias==="LONG"?"green":bias==="SHORT"?"red":"gold"}">${bias}</td>
+</tr>`;
+}).join("");
+
+let x=result.five;
+if(!x)return;
+
+$("rsi").textContent=x.rsi.toFixed(2);
+$("macd").textContent=fmt(x.m.hist,6);
+$("macd").className="value "+(x.m.hist>=0?"green":"red");
+$("ema9").textContent=fmt(x.e9,6);
+$("ema21").textContent=fmt(x.e21,6);
+
+$("bb").innerHTML=
+"Upper band: "+fmt(x.upper,8)+
+"<br>Middle band: "+fmt(x.middle,8)+
+"<br>Lower band: "+fmt(x.lower,8)+
+"<br>Current price: "+fmt(lastPrice,8);
+
+$("sr").innerHTML=
+"Recent support: "+fmt(x.support,8)+
+"<br>Recent resistance: "+fmt(x.resistance,8)+
+"<br>Calculated using recent 30 closed 5m candles.";
+
+let atr=x.atr||0;
+let ref=lastPrice||x.last;
+
+if(signal.includes("LONG")){
+$("levels").innerHTML=
+"Bias: <span class='green'>LONG</span>"+
+"<br>Illustrative entry reference: "+fmt(ref,8)+
+"<br>Stop-loss estimate: "+fmt(ref-atr*1.5,8)+
+"<br>TP1 estimate: "+fmt(ref+atr*1.5,8)+
+"<br>TP2 estimate: "+fmt(ref+atr*3,8)+
+"<br>Risk/Reward: 1:1 and 1:2";
+}else if(signal.includes("SHORT")){
+$("levels").innerHTML=
+"Bias: <span class='red'>SHORT</span>"+
+"<br>Illustrative entry reference: "+fmt(ref,8)+
+"<br>Stop-loss estimate: "+fmt(ref+atr*1.5,8)+
+"<br>TP1 estimate: "+fmt(ref-atr*1.5,8)+
+"<br>TP2 estimate: "+fmt(ref-atr*3,8)+
+"<br>Risk/Reward: 1:1 and 1:2";
+}else{
+$("levels").innerHTML=
+"Signal: WAIT"+
+"<br>5m ATR: "+fmt(atr,8)+
+"<br>No directional trade levels generated.";
+}
+}
+
+// HISTORICAL TRADES
+
+async function loadHistoricalTrades(){
+try{
+let data=await getJSON(API+"/fapi/v1/aggTrades?symbol="+selected+"&limit=20");
+if(!Array.isArray(data))return;
+
+data.reverse().forEach(d=>addTrade(d));
+}catch(e){
+$("trades").textContent="Historical trades unavailable.";
+}
+}
+
+// TOP LONG / SHORT SCANNER
+
+async function scanMarket(){
+if(scanning||!markets.length)return;
+scanning=true;
+$("scanStatus").textContent="Scanning highest-volume futures candidates...";
+
+try{
+let candidates=[...markets]
+.sort((a,b)=>Number(b.quoteVolume)-Number(a.quoteVolume))
+.slice(0,12);
+
+let results=[];
+let index=0;
+
+async function worker(){
+while(index<candidates.length){
+let item=candidates[index++];
+try{
+let data={};
+for(let tf of frames){
+data[tf]=await getJSON(
+API+"/fapi/v1/klines?symbol="+item.symbol+"&interval="+tf+"&limit=70"
+);
+}
+let r=analyseFrames(data);
+results.push({
+symbol:item.symbol,
+price:item.lastPrice,
+score:r.total,
+signal:signalFromScore(r.total)
+});
+}catch(e){}
+}
+}
+
+await Promise.all(Array.from({length:4},()=>worker()));
+
+let longs=results.filter(x=>x.score>=4)
+.sort((a,b)=>b.score-a.score).slice(0,10);
+
+let shorts=results.filter(x=>x.score<=-4)
+.sort((a,b)=>a.score-b.score).slice(0,10);
+
+function makeRows(list){
+return list.map(x=>`
+<tr data-symbol="${x.symbol}">
+<td>${x.symbol}</td>
+<td>${fmt(x.price,8)}</td>
+<td>${x.score}/12</td>
+<td class="${x.score>0?"green":"red"}">${x.signal}</td>
+</tr>`).join("")||'<tr><td colspan="4">No confirmed candidates</td></tr>';
+}
+
+$("longList").innerHTML=makeRows(longs);
+$("shortList").innerHTML=makeRows(shorts);
+
+$("scanStatus").textContent=
+"Scan complete • "+results.length+" candidates analysed • "+
+new Date().toLocaleTimeString();
+
+}catch(e){
+$("scanStatus").textContent="Scan failed. Retry shortly.";
+}finally{
+scanning=false;
+}
+}
+
+$("longList").addEventListener("click",e=>{
+let row=e.target.closest("tr[data-symbol]");
+if(row){
+$("symbol").value=row.dataset.symbol;
+selectCoin();
+}
+});
+
+$("shortList").addEventListener("click",e=>{
+let row=e.target.closest("tr[data-symbol]");
+if(row){
+$("symbol").value=row.dataset.symbol;
+selectCoin();
+}
+});
+
+$("scanBtn").addEventListener("click",scanMarket);
+
+// REFRESH
+
+async function refreshSelected(){
+if(!selected)return;
+try{
+let data={};
+for(let tf of frames){
+data[tf]=await getJSON(
+API+"/fapi/v1/klines?symbol="+selected+"&interval="+tf+"&limit=100"
+);
+}
+klines=data;
+showAnalysis(data);
+}catch(e){}
+}
+
+loadMarkets();
+selectCoin();
+
+setTimeout(scanMarket,5000);
+
+setInterval(loadMarkets,30000);
+setInterval(refreshSelected,60000);
+setInterval(scanMarket,180000);
+
+</script>
+</body>
+                                       </html>
