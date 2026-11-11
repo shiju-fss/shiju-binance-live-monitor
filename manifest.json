@@ -1,0 +1,23 @@
+{
+  "name": "SHIJU BINANCE",
+  "short_name": "SHIJU BINANCE",
+  "description": "Advanced Binance Futures Trading Intelligence",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#090d14",
+  "theme_color": "#090d14",
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
