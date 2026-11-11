@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SHIJU BINANCE LIVE MONITOR</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#090d14;color:#eee;font-family:Arial}
+header{padding:20px;background:#111925;border-bottom:1px solid #333}
+h2{color:#e8bd62;margin:0}
+.sub{color:#999;font-size:12px;margin-top:7px}
+.container{padding:14px;max-width:1000px;margin:auto}
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.card{background:#151e2b;padding:15px;border-radius:12px}
+.label{color:#999;font-size:12px}
+.value{font-size:22px;font-weight:bold;margin-top:8px}
+.green{color:#00d69a}
+.red{color:#ff5268}
+.gold{color:#e8bd62}
+input,select{width:100%;padding:14px;background:#151e2b;color:white;border:1px solid #444;border-radius:8px;margin:10px 0}
+button{padding:12px;background:#d8ad51;color:#111;border:0;border-radius:7px;font-weight:bold}
+table{width:100%;border-collapse:collapse;font-size:12px}
+td,th{padding:11px 5px;border-bottom:1px solid #303846;text-align:right}
+td:first-child,th:first-child{text-align:left}
+.panel{background:#151e2b;border-radius:12px;padding:14px;margin-top:15px;overflow:auto}
+.signal{text-align:center;padding:20px;font-size:25px;font-weight:bold}
+.small{font-size:12px;color:#999}
+</style>
+</head>
+<body>
+<header>
+<h2>SHIJU BINANCE</h2>
+<div class="sub">LIVE FUTURES MARKET MONITOR • ALL USDT PERPETUAL COINS</div>
+<div class="sub" id="connection">Connecting to Binance...</div>
+</header>
+
+<div class="container">
+
+<div class="cards">
+<div class="card"><div class="label">LIVE PRICE</div><div class="value gold" id="price">--</div></div>
+<div class="card"><div class="label">24H CHANGE</div><div class="value" id="change">--</div></div>
+<div class="card"><div class="label">BUY PRESSURE</div><div class="value green" id="buy">--</div></div>
+<div class="card"><div class="label">SELL PRESSURE</div><div class="value red" id="sell">--</div></div>
+</div>
+
+<div class="panel">
+<h3 class="gold">MARKET SCANNER</h3>
+<input id="search" placeholder="Search any Futures coin..." oninput="render()">
+<select id="sort" onchange="render()">
+<option value="volume">Highest Volume</option>
+<option value="change">Top Gainers</option>
+<option value="losers">Top Losers</option>
+</select>
+<table>
+<thead><tr><th>COIN</th><th>PRICE</th><th>24H %</th><th>VOLUME</th></tr></thead>
+<tbody id="markets"><tr><td colspan="4">Loading markets...</td></tr></tbody>
+</table>
+</div>
+
+<div class="panel">
+<h3 class="gold">SELECTED COIN ANALYSIS</h3>
+<input id="symbol" value="BTCUSDT" placeholder="Enter coin e.g. BTCUSDT">
+<button onclick="selectCoin()">ANALYSE COIN</button>
+<div class="signal" id="signal">WAIT</div>
+<div class="small" id="reason">Waiting for market data...</div>
+</div>
+
+<div class="cards">
+<div class="card"><div class="label">RSI (14)</div><div class="value" id="rsi">--</div></div>
+<div class="card"><div class="label">MACD</div><div class="value" id="macd">--</div></div>
+<div class="card"><div class="label">BID QUANTITY</div><div class="value green" id="bids">--</div></div>
+<div class="card"><div class="label">ASK QUANTITY</div><div class="value red" id="asks">--</div></div>
+</div>
+
+<div class="panel">
+<h3 class="gold">LARGE ORDERS / ORDER BOOK</h3>
+<div id="book" class="small">Waiting for data...</div>
+</div>
+
+<div class="panel">
+<h3 class="gold">RECENT TRADES</h3>
+<div id="trades" class="small">Waiting for trades...</div>
+</div>
+
+<div class="panel">
+<h3 class="gold">TRADE LEVEL ESTIMATES</h3>
+<div id="levels" class="small">Waiting for analysis...</div>
+</div>
+
+<p class="small">Market analysis only. No automated trading. Signals are estimates, not financial advice. Data may be delayed or disconnected.</p>
+</div>
+
+<script>
+const API="https://fapi.binance.com";
+let markets=[],selected="BTCUSDT",depthSocket,tradeSocket,priceSocket;
+let bids=[],asks=[],lastPrice=0,klines=[];
+
+async function loadMarkets(){
+try{
+const [info,tickers]=await Promise.all([
+fetch(API+"/fapi/v1/exchangeInfo").then(r=>r.json()),
+fetch(API+"/fapi/v1/ticker/24hr").then(r=>r.json())
+]);
+const valid=new Set(info.symbols.filter(s=>
+s.contractType==="PERPETUAL"&&s.quoteAsset==="USDT"&&s.status==="TRADING"
+).map(s=>s.symbol));
+markets=tickers.filter(t=>valid.has(t.symbol));
+document.getElementById("connection").textContent="● BINANCE CONNECTED | "+markets.length+" USDT PERPETUAL COINS";
+render();
+}catch(e){
+document.getElementById("connection").textContent="● DATA DISCONNECTED";
+}
+}
+
+function render(){
+let q=document.getElementById("search").value.toUpperCase();
+let sort=document.getElementById("sort").value;
+let list=markets.filter(x=>x.symbol.includes(q));
+list.sort((a,b)=>sort==="change"?Number(b.priceChangePercent)-Number(a.priceChangePercent):
+sort==="losers"?Number(a.priceChangePercent)-Number(b.priceChangePercent):
+Number(b.quoteVolume)-Number(a.quoteVolume));
+document.getElementById("markets").innerHTML=list.slice(0,100).map(x=>`
+<tr onclick="document.getElementById('symbol').value='${x.symbol}';selectCoin()">
+<td>${x.symbol}</td>
+<td>${Number(x.lastPrice).toPrecision(6)}</td>
+<td class="${Number(x.priceChangePercent)>=0?'green':'red'}">${Number(x.priceChangePercent).toFixed(2)}%</td>
+<td>${(Number(x.quoteVolume)/1e6).toFixed(2)}M</td>
+</tr>`).join("");
+}
+
+async function selectCoin(){
+selected=document.getElementById("symbol").value.toUpperCase().trim();
+if(!/^[A-Z0-9]+USDT$/.test(selected)){alert("Enter a valid USDT Futures symbol");return;}
+closeSockets();
+try{
+const k=await fetch(API+"/fapi/v1/klines?symbol="+selected+"&interval=5m&limit=100").then(r=>r.json());
+if(!Array.isArray(k)){throw Error("Invalid symbol");}
+klines=k;
+analyse();
+}catch(e){document.getElementById("reason").textContent="Unable to load coin data. Check symbol.";return;}
+
+connectPrice();
+connectDepth();
+connectTrades();
+}
+
+function closeSockets(){
+[depthSocket,tradeSocket,priceSocket].forEach(s=>{if(s)s.close()});
+}
+
+function connectPrice(){
+priceSocket=new WebSocket("wss://fstream.binance.com/ws/"+selected.toLowerCase()+"@markPrice");
+priceSocket.onmessage=e=>{
+let d=JSON.parse(e.data);
+lastPrice=Number(d.p);
+document.getElementById("price").textContent=lastPrice;
+};
+priceSocket.onclose=()=>document.getElementById("connection").textContent="Price feed disconnected";
+}
+
+function connectDepth(){
+depthSocket=new WebSocket("wss://fstream.binance.com/ws/"+selected.toLowerCase()+"@depth20@100ms");
+depthSocket.onmessage=e=>{
+let d=JSON.parse(e.data);
+bids=d.b.map(x=>[Number(x[0]),Number(x[1])]);
+asks=d.a.map(x=>[Number(x[0]),Number(x[1])]);
+let b=bids.reduce((s,x)=>s+x[1],0);
+let a=asks.reduce((s,x)=>s+x[1],0);
+let total=b+a;
+let bp=total?b/total*100:0;
+document.getElementById("buy").textContent=bp.toFixed(1)+"%";
+document.getElementById("sell").textContent=(100-bp).toFixed(1)+"%";
+document.getElementById("bids").textContent=b.toFixed(2);
+document.getElementById("asks").textContent=a.toFixed(2);
+document.getElementById("book").innerHTML=
+"Best Bid: "+bids[0][0]+" | Best Ask: "+asks[0][0]+
+"<br>Largest Bid: "+bids.reduce((x,y)=>y[1]>x[1]?y:x,bids[0]).join(" / ")+
+"<br>Largest Ask: "+asks.reduce((x,y)=>y[1]>x[1]?y:x,asks[0]).join(" / ");
+analyse();
+};
+}
+
+function connectTrades(){
+tradeSocket=new WebSocket("wss://fstream.binance.com/ws/"+selected.toLowerCase()+"@aggTrade");
+tradeSocket.onmessage=e=>{
+let d=JSON.parse(e.data);
+let buy=!d.m;
+let amount=Number(d.p)*Number(d.q);
+let el=document.getElementById("trades");
+el.innerHTML=`<span class="${buy?'green':'red'}">${buy?'BUY':'SELL'}</span> | ${d.p} | ${amount.toFixed(2)} USDT<br>`+el.innerHTML;
+el.innerHTML=el.innerHTML.split("<br>").slice(0,15).join("<br>");
+};
+}
+
+function analyse(){
+if(!klines.length)return;
+let closes=klines.map(x=>Number(x[4]));
+let gains=0,losses=0;
+for(let i=closes.length-14;i<closes.length;i++){
+let diff=closes[i]-closes[i-1];
+if(diff>0)gains+=diff;else losses-=diff;
+}
+let rsi=losses===0?100:100-(100/(1+gains/14/(losses/14)));
+let fast=ema(closes,9),slow=ema(closes,21);
+let macd=fast-slow;
+document.getElementById("rsi").textContent=rsi.toFixed(2);
+document.getElementById("macd").textContent=macd.toFixed(6);
+
+let buy=Number(document.getElementById("buy").textContent.replace("%",""))||50;
+let score=0;
+if(macd>0)score++;
+if(rsi>50&&rsi<70)score++;
+if(buy>55)score++;
+if(macd<0)score--;
+if(rsi<45)score--;
+if(buy<45)score--;
+
+let signal=score>=2?"LONG BIAS":score<=-2?"SHORT BIAS":"WAIT";
+let color=score>=2?"green":score<=-2?"red":"gold";
+document.getElementById("signal").textContent=signal;
+document.getElementById("signal").className="signal "+color;
+document.getElementById("reason").textContent=
+"RSI "+rsi.toFixed(1)+" | MACD "+macd.toFixed(5)+" | Order book buy "+buy.toFixed(1)+"%. Confirmation is limited; wait for candle close.";
+
+let atr=0;
+for(let i=closes.length-14;i<closes.length;i++)atr+=Math.abs(Number(klines[i][2])-Number(klines[i][3]));
+atr/=14;
+document.getElementById("levels").innerHTML=
+"Reference price: "+lastPrice.toPrecision(6)+
+"<br>Illustrative risk distance (ATR): "+atr.toPrecision(5)+
+"<br>These are not confirmed entry or exit orders. Set levels only after checking live support, resistance and candle close.";
+}
+
+function ema(data,period){
+let k=2/(period+1),v=data[0];
+for(let i=1;i<data.length;i++)v=data[i]*k+v*(1-k);
+return v;
+}
+
+loadMarkets();
+selectCoin();
+setInterval(loadMarkets,15000);
+setInterval(async()=>{
+try{
+let k=await fetch(API+"/fapi/v1/klines?symbol="+selected+"&interval=5m&limit=100").then(r=>r.json());
+if(Array.isArray(k)){klines=k;analyse();}
+}catch(e){}
+},15000);
+</script>
+</body>
+                                                                                              </html>
