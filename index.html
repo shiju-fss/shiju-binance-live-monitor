@@ -366,17 +366,49 @@ $("book").innerHTML=
 analyse();
 });
 
-makeSocket("trades","@aggTrade",d=>{
-const side=Boolean(d.m)?"SELL":"BUY";
-const amount=Number(d.p)*Number(d.q);
+const tradeEl=$("trades");
+const tradeRows=[];
 
-const line=`<span class="${side==="BUY"?"green":"red"}">${side}</span> | ${fmt(d.p,8)} | ${fmt(amount,2)} USDT`;
+function showTrade(d){
+    const side=d.m?"SELL":"BUY";
+    const amount=Number(d.p)*Number(d.q);
 
-const el=$("trades");
-el.innerHTML=line+"<br>"+el.innerHTML;
-el.innerHTML=el.innerHTML.split("<br>").slice(0,12).join("<br>");
-});
+    tradeRows.unshift({
+        side:side,
+        price:fmt(d.p,8),
+        qty:fmt(d.q,6),
+        amount:fmt(amount,2),
+        time:new Date(Number(d.T)).toLocaleTimeString()
+    });
+
+    tradeRows.splice(20);
+
+    tradeEl.innerHTML=tradeRows.map(t=>`
+        <div style="padding:10px 0;border-bottom:1px solid #303846">
+            <b class="${t.side==="BUY"?"green":"red"}">${t.side}</b>
+            | ${t.price}
+            | Qty: ${t.qty}
+            | ${t.amount} USDT
+            <div class="small">${t.time}</div>
+        </div>
+    `).join("");
 }
+
+// Load previous trades
+getJSON(API+"/fapi/v1/aggTrades?symbol="+selected+"&limit=20")
+.then(data=>{
+    if(Array.isArray(data)){
+        data.reverse().forEach(showTrade);
+    }
+})
+.catch(e=>{
+    tradeEl.textContent="Loading live trades...";
+});
+
+// Live trades
+makeSocket("trades","@aggTrade",d=>{
+    if(d.e==="aggTrade") showTrade(d);
+});
 
 function emaSeries(data,period){
 const out=[];
