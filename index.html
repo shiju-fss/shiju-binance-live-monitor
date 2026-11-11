@@ -4,24 +4,29 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#090d14">
-<title>SHIJU BINANCE LIVE MONITOR</title>
+<meta name="description" content="SHIJU BINANCE Live Futures Monitor">
+
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icon-192.png">
+
+<title>SHIJU BINANCE V3</title>
 
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#090d14;color:#eee;font-family:Arial,sans-serif}
 header{padding:18px 16px;background:#111925;border-bottom:1px solid #303846;position:sticky;top:0;z-index:5}
 h2{color:#e8bd62;margin:0;font-size:24px}
-.sub{color:#a4aab4;font-size:12px;margin-top:7px;line-height:1.5}
+.sub{color:#a4aab4;font-size:12px;margin-top:7px}
 .container{padding:14px;max-width:1000px;margin:auto}
 .cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .card,.panel{background:#151e2b;border-radius:14px;padding:15px;min-width:0}
 .label{color:#a4aab4;font-size:12px}
-.value{font-size:22px;font-weight:bold;margin-top:8px;overflow-wrap:anywhere}
+.value{font-size:22px;font-weight:bold;margin-top:8px}
 .green{color:#00d69a}
 .red{color:#ff5268}
 .gold{color:#e8bd62}
 input,select{width:100%;padding:14px;background:#111925;color:white;border:1px solid #46505f;border-radius:9px;margin:9px 0;font-size:15px}
-button{padding:13px 16px;background:#d8ad51;color:#111;border:0;border-radius:8px;font-weight:bold;font-size:14px}
+button{padding:13px 16px;background:#d8ad51;color:#111;border:0;border-radius:8px;font-weight:bold}
 .panel{margin-top:15px;overflow:hidden}
 .panel h3{margin:3px 0 14px;font-size:18px}
 .table-wrap{overflow-x:auto}
@@ -29,14 +34,12 @@ table{width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap}
 td,th{padding:12px 6px;border-bottom:1px solid #303846;text-align:right}
 td:first-child,th:first-child{text-align:left}
 tbody tr{cursor:pointer}
-tbody tr:active{background:#263447}
 .signal{text-align:center;padding:18px 5px;font-size:24px;font-weight:bold}
-.small{font-size:12px;color:#a4aab4;line-height:1.65;overflow-wrap:anywhere}
-.status{font-weight:bold}
+.small{font-size:12px;color:#a4aab4;line-height:1.65}
 .note{font-size:11px;color:#a4aab4;line-height:1.5;margin:16px 2px}
-.pill{display:inline-block;padding:4px 8px;border-radius:20px;background:#263447;font-size:11px;color:#d8ad51}
 .trade-row{padding:10px 0;border-bottom:1px solid #303846}
-.trade-time{font-size:11px;color:#a4aab4;margin-top:4px}
+.trade-time{font-size:11px;color:#a4aab4}
+#updateBanner{display:none;background:#263447;padding:12px;text-align:center;color:#e8bd62}
 @media(min-width:650px){
 .cards{grid-template-columns:repeat(4,minmax(0,1fr))}
 .container{padding:20px}
@@ -47,15 +50,19 @@ tbody tr:active{background:#263447}
 <body>
 
 <header>
-<h2>SHIJU BINANCE</h2>
+<h2>SHIJU BINANCE V3</h2>
 <div class="sub">LIVE FUTURES MARKET MONITOR • ALL USDT PERPETUAL COINS</div>
-<div class="sub status" id="connection">Connecting to Binance public market data...</div>
+<div class="sub" id="connection">Connecting...</div>
 </header>
+
+<div id="updateBanner">
+New version available.
+<button id="updateBtn">UPDATE APP</button>
+</div>
 
 <div class="container">
 
 <div class="cards">
-
 <div class="card">
 <div class="label">LIVE PRICE</div>
 <div class="value gold" id="price">--</div>
@@ -75,19 +82,11 @@ tbody tr:active{background:#263447}
 <div class="label">ORDER BOOK ASK SHARE</div>
 <div class="value red" id="sell">--</div>
 </div>
-
 </div>
 
-<!-- MARKET SCANNER -->
-
 <div class="panel">
-
-<h3 class="gold">
-MARKET SCANNER
-<span class="pill" id="coinCount">Loading...</span>
-</h3>
-
-<input id="search" placeholder="Search any USDT Futures coin..." autocomplete="off">
+<h3 class="gold">MARKET SCANNER</h3>
+<input id="search" placeholder="Search USDT Futures coin">
 
 <select id="sort">
 <option value="volume">Highest Volume</option>
@@ -102,102 +101,64 @@ MARKET SCANNER
 <th>COIN</th>
 <th>PRICE</th>
 <th>24H %</th>
-<th>VOLUME (USDT)</th>
+<th>VOLUME</th>
 </tr>
 </thead>
-
 <tbody id="markets">
-<tr><td colspan="4">Loading markets...</td></tr>
+<tr><td colspan="4">Loading...</td></tr>
 </tbody>
 </table>
 </div>
-
-<div class="small" id="marketInfo">
-Tap a coin row to analyse it.
+<div class="small" id="marketInfo"></div>
 </div>
-
-</div>
-
-<!-- SELECTED COIN ANALYSIS -->
 
 <div class="panel">
-
 <h3 class="gold">SELECTED COIN ANALYSIS</h3>
-
-<input id="symbol" value="BTCUSDT" placeholder="Enter coin e.g. BTCUSDT">
-
+<input id="symbol" value="BTCUSDT">
 <button id="analyseBtn">ANALYSE COIN</button>
-
 <div class="signal gold" id="signal">WAIT</div>
-
-<div class="small" id="reason">
-Waiting for market data...
+<div class="small" id="reason">Waiting...</div>
 </div>
-
-</div>
-
-<!-- INDICATORS -->
 
 <div class="cards" style="margin-top:15px">
-
 <div class="card">
-<div class="label">RSI (14) • CLOSED 5M</div>
+<div class="label">RSI 14</div>
 <div class="value" id="rsi">--</div>
 </div>
-
 <div class="card">
 <div class="label">MACD HISTOGRAM</div>
 <div class="value" id="macd">--</div>
 </div>
-
 <div class="card">
 <div class="label">BID QUANTITY</div>
 <div class="value green" id="bids">--</div>
 </div>
-
 <div class="card">
 <div class="label">ASK QUANTITY</div>
 <div class="value red" id="asks">--</div>
 </div>
-
 </div>
 
-<!-- ORDER BOOK -->
-
 <div class="panel">
-<h3 class="gold">LARGE ORDERS / ORDER BOOK</h3>
-<div id="book" class="small">Waiting for order book...</div>
+<h3 class="gold">ORDER BOOK</h3>
+<div id="book" class="small">Waiting...</div>
 </div>
 
-<!-- RECENT TRADES -->
-
 <div class="panel">
-
 <h3 class="gold">RECENT AGGREGATED TRADES</h3>
-
-<div class="small" id="tradeStatus">
-Loading recent trades...
+<div id="tradeStatus" class="small">Loading...</div>
+<div id="trades" class="small"></div>
 </div>
-
-<div id="trades" class="small">
-Waiting for trades...
-</div>
-
-</div>
-
-<!-- TRADE LEVELS -->
 
 <div class="panel">
 <h3 class="gold">TRADE LEVEL ESTIMATES</h3>
-<div id="levels" class="small">
-Waiting for closed candle analysis...
-</div>
+<div id="levels" class="small">Waiting...</div>
 </div>
 
 <p class="note">
-Public Binance Futures market data only. No API key is used and no orders are placed.
-Order-book bid/ask share is not the same as actual market-wide buying/selling pressure.
-Signals are indicator-based estimates, not financial advice.
+Public Binance Futures data only.
+No API key or automated trading.
+Signals are estimates, not financial advice.
 </p>
 
 </div>
@@ -205,981 +166,362 @@ Signals are indicator-based estimates, not financial advice.
 <script>
 "use strict";
 
-/* CONFIGURATION */
-
 const API="https://fapi.binance.com";
 const WS="wss://fstream.binance.com/ws/";
 
 let markets=[];
 let selected="BTCUSDT";
-let bids=[],asks=[],lastPrice=0,klines=[];
-
-let sockets={
-price:null,
-depth:null,
-trades:null
-};
-
-let reconnectTimers={};
-let retryDelay={
-price:1000,
-depth:1000,
-trades:1000
-};
-
-let marketRefreshBusy=false;
-let analysisBusy=false;
+let bids=[],asks=[],klines=[],lastPrice=0;
+let sockets={};
 let selectionId=0;
-
-let tradeRows=[];
-let seenTrades=new Set();
+let trades=[];
+let seen=new Set();
 
 const $=id=>document.getElementById(id);
 
-
-/* FORMAT */
-
-function fmt(n,max=8){
-n=Number(n);
-if(!Number.isFinite(n))return "--";
-return n.toLocaleString("en-US",{
-maximumFractionDigits:max
-});
-}
-
-
-/* STATUS */
-
-function setStatus(message,kind=""){
-$("connection").textContent=message;
-$("connection").className="sub status "+kind;
-}
-
-function updateConnectionStatus(){
-
-const states=["price","depth","trades"].map(n=>
-sockets[n]&&sockets[n].readyState===WebSocket.OPEN
-);
-
-const count=states.filter(Boolean).length;
-
-setStatus(
-"Binance public feed: "+count+"/3 live connections • "+
-markets.length+" USDT perpetual markets",
-count===3?"green":""
-);
-}
-
-
-/* API REQUEST */
-
 async function getJSON(url){
-
-const controller=new AbortController();
-
-const timer=setTimeout(()=>{
-controller.abort();
-},12000);
-
-try{
-
-const r=await fetch(url,{
-signal:controller.signal,
-cache:"no-store"
-});
-
-if(!r.ok)throw Error("HTTP "+r.status);
-
-return await r.json();
-
-}finally{
-clearTimeout(timer);
+const r=await fetch(url,{cache:"no-store"});
+if(!r.ok)throw Error("API error");
+return r.json();
 }
 
+function fmt(n,d=8){
+return Number(n).toLocaleString("en-US",{maximumFractionDigits:d});
 }
-
-
-/* SOCKET MANAGEMENT */
-
-function closeSocket(name){
-
-if(reconnectTimers[name]){
-clearTimeout(reconnectTimers[name]);
-}
-
-reconnectTimers[name]=null;
-
-const s=sockets[name];
-sockets[name]=null;
-
-if(s){
-s.onclose=null;
-try{s.close();}catch(e){}
-}
-
-}
-
-function closeAllSockets(){
-
-["price","depth","trades"].forEach(closeSocket);
-
-}
-
-function scheduleReconnect(name,symbol,stream,onData){
-
-if(reconnectTimers[name])return;
-
-const delay=retryDelay[name];
-
-reconnectTimers[name]=setTimeout(()=>{
-
-reconnectTimers[name]=null;
-
-if(selected===symbol){
-makeSocket(name,symbol,stream,onData);
-}
-
-},delay);
-
-retryDelay[name]=Math.min(delay*2,30000);
-
-}
-
-function makeSocket(name,symbol,stream,onData){
-
-closeSocket(name);
-
-let ws;
-
-try{
-
-ws=new WebSocket(
-WS+symbol.toLowerCase()+stream
-);
-
-}catch(e){
-
-scheduleReconnect(name,symbol,stream,onData);
-return;
-
-}
-
-sockets[name]=ws;
-
-ws.onopen=()=>{
-retryDelay[name]=1000;
-updateConnectionStatus();
-};
-
-ws.onmessage=e=>{
-
-try{
-onData(JSON.parse(e.data));
-}catch(err){}
-
-};
-
-ws.onerror=()=>{
-try{ws.close();}catch(e){}
-};
-
-ws.onclose=()=>{
-
-if(sockets[name]===ws){
-sockets[name]=null;
-}
-
-updateConnectionStatus();
-
-scheduleReconnect(name,symbol,stream,onData);
-
-};
-
-}
-
-
-/* MARKET SCANNER */
 
 async function loadMarkets(){
-
-if(marketRefreshBusy)return;
-
-marketRefreshBusy=true;
-
 try{
-
 const [info,tickers]=await Promise.all([
-
 getJSON(API+"/fapi/v1/exchangeInfo"),
-
 getJSON(API+"/fapi/v1/ticker/24hr")
-
 ]);
 
-const valid=new Set(
-info.symbols.filter(s=>
+const valid=new Set(info.symbols.filter(s=>
 s.contractType==="PERPETUAL" &&
 s.quoteAsset==="USDT" &&
 s.status==="TRADING"
-).map(s=>s.symbol)
-);
+).map(s=>s.symbol));
 
 markets=tickers.filter(t=>valid.has(t.symbol));
 
-$("coinCount").textContent=markets.length+" coins";
+$("connection").textContent=
+"BINANCE CONNECTED • "+markets.length+" USDT PERPETUAL COINS";
 
 render();
-updateSelected24h();
-updateConnectionStatus();
-
 }catch(e){
-
-setStatus("Market list unavailable. Retrying automatically...","red");
-
-$("marketInfo").textContent="Could not refresh market list.";
-
-}finally{
-
-marketRefreshBusy=false;
-
+$("connection").textContent="Connection unavailable. Retrying...";
 }
-
 }
-
 
 function render(){
-
-const q=$("search").value.trim().toUpperCase();
+const q=$("search").value.toUpperCase();
 const sort=$("sort").value;
 
-const list=markets.filter(x=>x.symbol.includes(q));
+let list=markets.filter(x=>x.symbol.includes(q));
 
 list.sort((a,b)=>
-
-sort==="change"?
-Number(b.priceChangePercent)-Number(a.priceChangePercent):
-
-sort==="losers"?
-Number(a.priceChangePercent)-Number(b.priceChangePercent):
-
+sort==="change"?Number(b.priceChangePercent)-Number(a.priceChangePercent):
+sort==="losers"?Number(a.priceChangePercent)-Number(b.priceChangePercent):
 Number(b.quoteVolume)-Number(a.quoteVolume)
-
 );
 
-$("markets").innerHTML=list.slice(0,100).map(x=>{
-
-const p=Number(x.priceChangePercent);
-
-return `
+$("markets").innerHTML=list.slice(0,100).map(x=>`
 <tr data-symbol="${x.symbol}">
 <td>${x.symbol}</td>
-<td>${fmt(x.lastPrice,8)}</td>
-<td class="${p>=0?"green":"red"}">
-${p>=0?"+":""}${p.toFixed(2)}%
+<td>${fmt(x.lastPrice)}</td>
+<td class="${Number(x.priceChangePercent)>=0?"green":"red"}">
+${Number(x.priceChangePercent).toFixed(2)}%
 </td>
 <td>${(Number(x.quoteVolume)/1e6).toFixed(2)}M</td>
 </tr>
-`;
-
-}).join("")||
-
-'<tr><td colspan="4">No matching coin found.</td></tr>';
-
-$("marketInfo").textContent=
-"Showing "+Math.min(list.length,100)+
-" of "+list.length+
-" matching markets. Tap a row to analyse.";
-
+`).join("");
 }
-
 
 $("markets").addEventListener("click",e=>{
-
 const row=e.target.closest("tr[data-symbol]");
-
 if(row){
-
 $("symbol").value=row.dataset.symbol;
 selectCoin();
-
 }
-
 });
 
 $("search").addEventListener("input",render);
 $("sort").addEventListener("change",render);
 $("analyseBtn").addEventListener("click",selectCoin);
 
-
-function updateSelected24h(){
-
-const t=markets.find(x=>x.symbol===selected);
-
-if(t){
-
-const p=Number(t.priceChangePercent);
-
-$("change").textContent=
-(p>=0?"+":"")+p.toFixed(2)+"%";
-
-$("change").className=
-"value "+(p>=0?"green":"red");
-
+function closeSockets(){
+Object.values(sockets).forEach(s=>s.close());
+sockets={};
 }
 
+function connect(name,stream,callback,id){
+const ws=new WebSocket(
+WS+selected.toLowerCase()+stream
+);
+
+sockets[name]=ws;
+
+ws.onmessage=e=>{
+if(id!==selectionId)return;
+callback(JSON.parse(e.data));
+};
+
+ws.onclose=()=>{
+if(id===selectionId){
+setTimeout(()=>{
+if(id===selectionId)connect(name,stream,callback,id);
+},3000);
 }
-
-
-/* SELECT COIN */
+};
+}
 
 async function selectCoin(){
 
-const sym=$("symbol").value.trim().toUpperCase();
+const symbol=$("symbol").value.trim().toUpperCase();
 
-if(!/^[A-Z0-9]{2,30}USDT$/.test(sym)){
-
-$("reason").textContent=
-"Enter a valid USDT perpetual symbol, for example BTCUSDT.";
-
+if(!/^[A-Z0-9]+USDT$/.test(symbol)){
+alert("Enter valid USDT coin");
 return;
-
 }
 
-const mySelection=++selectionId;
+const id=++selectionId;
+selected=symbol;
 
-selected=sym;
-
-closeAllSockets();
-
-bids=[];
-asks=[];
-klines=[];
-lastPrice=0;
-
-tradeRows=[];
-seenTrades=new Set();
-
-$("price").textContent="Loading...";
-$("change").textContent="--";
-$("buy").textContent="--";
-$("sell").textContent="--";
-
-$("bids").textContent="--";
-$("asks").textContent="--";
-
-$("book").textContent="Waiting for order book...";
+closeSockets();
+bids=[];asks=[];trades=[];seen=new Set();
 
 $("trades").innerHTML="";
-$("tradeStatus").textContent="Loading recent trades...";
-
-$("signal").textContent="WAIT";
-$("signal").className="signal gold";
-
-$("rsi").textContent="--";
-$("macd").textContent="--";
-
-$("reason").textContent=
-"Loading "+selected+" market data...";
-
-$("levels").textContent=
-"Waiting for price and candles...";
+$("tradeStatus").textContent="Loading trades...";
+$("reason").textContent="Loading "+symbol+"...";
 
 try{
-
 const [k,t]=await Promise.all([
-
-getJSON(
-API+"/fapi/v1/klines?symbol="+selected+
-"&interval=5m&limit=150"
-),
-
-getJSON(
-API+"/fapi/v1/ticker/price?symbol="+selected
-)
-
+getJSON(API+"/fapi/v1/klines?symbol="+symbol+"&interval=5m&limit=150"),
+getJSON(API+"/fapi/v1/ticker/price?symbol="+symbol)
 ]);
 
-if(mySelection!==selectionId)return;
-
-if(!Array.isArray(k)||!k.length){
-throw Error("No candle data");
-}
+if(id!==selectionId)return;
 
 klines=k;
 lastPrice=Number(t.price);
 
-$("price").textContent=fmt(lastPrice,8);
-
-updateSelected24h();
-
+$("price").textContent=fmt(lastPrice);
 analyse();
 
-/* LOAD HISTORICAL TRADES FIRST */
-
-await loadRecentTrades(mySelection);
-
-if(mySelection!==selectionId)return;
-
-/* CONNECT LIVE STREAMS */
-
-connectStreams(mySelection);
-
-}catch(e){
-
-if(mySelection!==selectionId)return;
-
-$("reason").textContent=
-"Could not load "+selected+
-". Check that it is a currently trading USDT perpetual coin.";
-
-$("tradeStatus").textContent=
-"Trade data unavailable.";
-
-$("levels").textContent=
-"No levels: market data unavailable.";
-
-}
-
-}
-
-
-/* RECENT TRADE MANAGEMENT */
-
-function addTrade(d){
-
-const id=String(d.a);
-
-if(seenTrades.has(id))return;
-
-seenTrades.add(id);
-
-const side=d.m?"SELL":"BUY";
-
-const amount=Number(d.p)*Number(d.q);
-
-tradeRows.unshift({
-
-id:id,
-
-side:side,
-
-price:fmt(d.p,8),
-
-qty:fmt(d.q,6),
-
-amount:fmt(amount,2),
-
-time:new Date(Number(d.T)).toLocaleTimeString()
-
-});
-
-tradeRows=tradeRows.slice(0,20);
-
-/* Prevent unlimited memory growth */
-
-if(seenTrades.size>1000){
-
-seenTrades=new Set(
-tradeRows.map(t=>t.id)
-);
-
-}
-
-renderTrades();
-
-}
-
-
-function renderTrades(){
-
-if(!tradeRows.length){
-
-$("trades").textContent="Waiting for trades...";
-return;
-
-}
-
-$("trades").innerHTML=tradeRows.map(t=>`
-
-<div class="trade-row">
-
-<b class="${t.side==="BUY"?"green":"red"}">
-${t.side}
-</b>
-
-| ${t.price}
-
-| Qty: ${t.qty}
-
-| ${t.amount} USDT
-
-<div class="trade-time">
-${t.time}
-</div>
-
-</div>
-
-`).join("");
-
-$("tradeStatus").textContent=
-"Showing latest "+tradeRows.length+
-" aggregated trades • Live feed enabled";
-
-}
-
-
-/* LOAD LAST 20 HISTORICAL TRADES */
-
-async function loadRecentTrades(mySelection){
-
-try{
-
-const symbol=selected;
-
-const data=await getJSON(
-API+"/fapi/v1/aggTrades?symbol="+symbol+"&limit=20"
-);
-
-if(mySelection!==selectionId)return;
-
-if(!Array.isArray(data)){
-throw Error("Invalid trade data");
-}
-
-/* Newest trades first */
-
-data.reverse().forEach(addTrade);
-
-if(tradeRows.length){
-
-$("tradeStatus").textContent=
-"Historical trades loaded • Connecting live feed...";
-
-}else{
-
-$("tradeStatus").textContent=
-"No recent trades returned.";
-
-}
-
-}catch(e){
-
-if(mySelection!==selectionId)return;
-
-$("tradeStatus").textContent=
-"Historical trades unavailable. Waiting for live trades.";
-
-}
-
-renderTrades();
-
-}
-
-
-/* LIVE STREAM CONNECTIONS */
-
-function connectStreams(mySelection){
-
-const symbol=selected;
-
-
-/* LIVE PRICE */
-
-makeSocket(
-"price",
-symbol,
-"@markPrice@1s",
-d=>{
-
-if(mySelection!==selectionId)return;
-
-const p=Number(d.p);
-
-if(Number.isFinite(p)&&p>0){
-
-lastPrice=p;
-
-$("price").textContent=fmt(p,8);
-
-}
-
-}
-);
-
-
-/* LIVE ORDER BOOK */
-
-makeSocket(
-"depth",
-symbol,
-"@depth20@100ms",
-d=>{
-
-if(mySelection!==selectionId)return;
-
-bids=(d.b||[]).map(x=>[
-Number(x[0]),Number(x[1])
-]);
-
-asks=(d.a||[]).map(x=>[
-Number(x[0]),Number(x[1])
-]);
+loadHistoricalTrades(id);
+
+connect("price","@markPrice@1s",d=>{
+lastPrice=Number(d.p);
+$("price").textContent=fmt(lastPrice);
+},id);
+
+connect("depth","@depth20@100ms",d=>{
+bids=d.b.map(x=>[+x[0],+x[1]]);
+asks=d.a.map(x=>[+x[0],+x[1]]);
 
 const b=bids.reduce((s,x)=>s+x[1],0);
 const a=asks.reduce((s,x)=>s+x[1],0);
-
 const total=b+a;
-
 const bp=total?b/total*100:0;
 
 $("buy").textContent=bp.toFixed(1)+"%";
 $("sell").textContent=(100-bp).toFixed(1)+"%";
-
 $("bids").textContent=fmt(b,4);
 $("asks").textContent=fmt(a,4);
 
-if(bids.length&&asks.length){
-
-const lb=bids.reduce(
-(x,y)=>y[1]>x[1]?y:x,
-bids[0]
-);
-
-const la=asks.reduce(
-(x,y)=>y[1]>x[1]?y:x,
-asks[0]
-);
-
 $("book").innerHTML=
-
-"Best bid: "+fmt(bids[0][0])+
-" | Best ask: "+fmt(asks[0][0])+
-
-"<br>Largest bid: "+fmt(lb[0])+
-" / "+fmt(lb[1])+
-
-"<br>Largest ask: "+fmt(la[0])+
-" / "+fmt(la[1])+
-
-"<br>Bid share of displayed depth: "+
-bp.toFixed(1)+"%";
-
-}
+"Best Bid: "+fmt(bids[0][0])+
+"<br>Best Ask: "+fmt(asks[0][0])+
+"<br>Bid Share: "+bp.toFixed(1)+"%";
 
 analyse();
+},id);
 
+connect("trades","@aggTrade",addTrade,id);
+
+}catch(e){
+$("reason").textContent="Unable to load coin data.";
 }
+}
+
+async function loadHistoricalTrades(id){
+try{
+const data=await getJSON(
+API+"/fapi/v1/aggTrades?symbol="+selected+"&limit=20"
 );
-
-
-/* LIVE AGGREGATED TRADES */
-
-makeSocket(
-"trades",
-symbol,
-"@aggTrade",
-d=>{
-
-if(mySelection!==selectionId)return;
-
-if(d.e==="aggTrade"){
-
-addTrade(d);
-
+if(id!==selectionId)return;
+data.reverse().forEach(addTrade);
+}catch(e){}
 }
 
+function addTrade(d){
+const id=String(d.a);
+if(seen.has(id))return;
+seen.add(id);
+
+const side=d.m?"SELL":"BUY";
+
+trades.unshift({
+id,
+side,
+price:fmt(d.p),
+qty:fmt(d.q,5),
+amount:fmt(Number(d.p)*Number(d.q),2),
+time:new Date(Number(d.T)).toLocaleTimeString()
+});
+
+trades=trades.slice(0,20);
+
+$("trades").innerHTML=trades.map(t=>`
+<div style="padding:9px 0;border-bottom:1px solid #303846">
+<b class="${t.side==="BUY"?"green":"red"}">${t.side}</b>
+| ${t.price}
+| ${t.amount} USDT
+<div class="trade-time">${t.time}</div>
+</div>
+`).join("");
+
+$("tradeStatus").textContent=
+"Latest "+trades.length+" trades • Live feed";
 }
-);
 
-}
-
-
-/* EMA */
-
-function emaSeries(data,period){
-
-const out=[];
-
-if(!data.length)return out;
-
-const k=2/(period+1);
-
-let v=data[0];
-
-out.push(v);
-
+function ema(data,p){
+let k=2/(p+1),v=data[0],out=[v];
 for(let i=1;i<data.length;i++){
-
 v=data[i]*k+v*(1-k);
-
 out.push(v);
-
 }
-
 return out;
-
 }
 
-
-/* RSI */
-
-function calculateRSI(closes,period=14){
-
-if(closes.length<=period)return null;
-
-let gain=0;
-let loss=0;
-
-for(let i=1;i<=period;i++){
-
-const d=closes[i]-closes[i-1];
-
-if(d>0)gain+=d;
-else loss-=d;
-
+function calculateRSI(c,p=14){
+let g=0,l=0;
+for(let i=1;i<=p;i++){
+let d=c[i]-c[i-1];
+if(d>0)g+=d;
+else l-=d;
 }
-
-let avgGain=gain/period;
-let avgLoss=loss/period;
-
-for(let i=period+1;i<closes.length;i++){
-
-const d=closes[i]-closes[i-1];
-
-avgGain=(
-avgGain*(period-1)+Math.max(d,0)
-)/period;
-
-avgLoss=(
-avgLoss*(period-1)+Math.max(-d,0)
-)/period;
-
+let ag=g/p,al=l/p;
+for(let i=p+1;i<c.length;i++){
+let d=c[i]-c[i-1];
+ag=(ag*(p-1)+Math.max(d,0))/p;
+al=(al*(p-1)+Math.max(-d,0))/p;
 }
-
-if(avgLoss===0)return 100;
-
-return 100-(100/(1+avgGain/avgLoss));
-
+return al===0?100:100-100/(1+ag/al);
 }
-
-
-/* ATR */
-
-function calculateATR(candles,period=14){
-
-if(candles.length<=period)return null;
-
-const trs=[];
-
-for(let i=1;i<candles.length;i++){
-
-const high=Number(candles[i][2]);
-const low=Number(candles[i][3]);
-const prev=Number(candles[i-1][4]);
-
-trs.push(Math.max(
-
-high-low,
-
-Math.abs(high-prev),
-
-Math.abs(low-prev)
-
-));
-
-}
-
-let atr=trs.slice(0,period)
-.reduce((a,b)=>a+b,0)/period;
-
-for(let i=period;i<trs.length;i++){
-
-atr=(
-atr*(period-1)+trs[i]
-)/period;
-
-}
-
-return atr;
-
-}
-
-
-/* MARKET ANALYSIS */
 
 function analyse(){
-
-if(!klines.length||klines.length<40)return;
-
-/* Exclude forming candle */
+if(klines.length<40)return;
 
 const closed=klines.slice(0,-1);
+const c=closed.map(x=>Number(x[4]));
 
-const closes=closed.map(x=>Number(x[4]));
-
-const rsi=calculateRSI(closes,14);
-
-const fast=emaSeries(closes,12);
-const slow=emaSeries(closes,26);
+const rsi=calculateRSI(c);
+const fast=ema(c,12);
+const slow=ema(c,26);
 
 const macdLine=fast.map((v,i)=>v-slow[i]);
-
-const signalLine=emaSeries(macdLine,9);
-
-const hist=
-macdLine[macdLine.length-1]-
-signalLine[signalLine.length-1];
-
-const macd=macdLine[macdLine.length-1];
-
-const atr=calculateATR(closed,14);
-
-if(
-rsi===null||
-!Number.isFinite(hist)||
-atr===null
-)return;
+const signal=ema(macdLine,9);
+const hist=macdLine.at(-1)-signal.at(-1);
 
 $("rsi").textContent=rsi.toFixed(2);
-
 $("macd").textContent=hist.toFixed(6);
 
-$("macd").className=
-"value "+(hist>=0?"green":"red");
-
-
-/* ORDER BOOK SHARE */
-
-const depthTotal=
-bids.reduce((s,x)=>s+x[1],0)+
-asks.reduce((s,x)=>s+x[1],0);
-
-const buyShare=depthTotal?
-
-bids.reduce((s,x)=>s+x[1],0)/
-depthTotal*100:null;
-
-
-/* INDICATOR SCORE */
-
 let score=0;
-
 if(hist>0)score++;
 else if(hist<0)score--;
 
 if(rsi>=50&&rsi<70)score++;
 else if(rsi<45)score--;
 
-if(buyShare!==null){
+const total=bids.reduce((s,x)=>s+x[1],0)+
+asks.reduce((s,x)=>s+x[1],0);
 
-if(buyShare>55)score++;
-else if(buyShare<45)score--;
+const share=total?
+bids.reduce((s,x)=>s+x[1],0)/total*100:null;
 
+if(share!==null){
+if(share>55)score++;
+else if(share<45)score--;
 }
 
+const sig=score>=2?"LONG BIAS":
+score<=-2?"SHORT BIAS":"WAIT";
 
-/* SIGNAL */
-
-const signal=
-score>=2?"LONG BIAS":
-score<=-2?"SHORT BIAS":
-"WAIT";
-
-$("signal").textContent=signal;
-
-$("signal").className=
-"signal "+
-(score>=2?"green":
-score<=-2?"red":"gold");
-
-
-/* REASON */
+$("signal").textContent=sig;
+$("signal").className="signal "+
+(score>=2?"green":score<=-2?"red":"gold");
 
 $("reason").textContent=
-
-"Closed 5m candles"+
-" • RSI "+rsi.toFixed(1)+
-" • MACD line "+macd.toFixed(6)+
-" • MACD histogram "+hist.toFixed(6)+
-" • Displayed order-book bid share "+
-(buyShare===null?
-"not available":
-buyShare.toFixed(1)+"%")+
-". Signal is an indicator estimate, not a guaranteed prediction.";
-
-
-/* VOLATILITY ESTIMATE */
-
-const ref=
-lastPrice||closes[closes.length-1];
-
-$("levels").innerHTML=
-
-"Reference price: "+fmt(ref,8)+
-
-"<br>5m ATR(14): "+fmt(atr,8)+
-
-"<br>Illustrative 1× ATR distance: "+fmt(atr,8)+
-
-"<br>These are volatility references only, not entry, stop-loss or take-profit orders.";
-
+"RSI "+rsi.toFixed(2)+
+" | MACD "+hist.toFixed(6)+
+" | Bid share "+(share===null?"--":share.toFixed(1)+"%");
 }
-
-
-/* REFRESH CANDLES */
 
 async function refreshCandles(){
-
-if(analysisBusy)return;
-
-analysisBusy=true;
-
-const symbol=selected;
-const mySelection=selectionId;
-
 try{
-
 const k=await getJSON(
-
-API+"/fapi/v1/klines?symbol="+
-symbol+"&interval=5m&limit=150"
-
+API+"/fapi/v1/klines?symbol="+selected+"&interval=5m&limit=150"
 );
-
-if(
-mySelection===selectionId&&
-Array.isArray(k)&&
-k.length
-){
-
 klines=k;
-
 analyse();
-
+}catch(e){}
 }
-
-}catch(e){
-
-}finally{
-
-analysisBusy=false;
-
-}
-
-}
-
-
-/* START APPLICATION */
 
 loadMarkets();
-
 selectCoin();
 
 setInterval(loadMarkets,30000);
-
 setInterval(refreshCandles,20000);
 
-</script>
+/* PWA SERVICE WORKER */
 
+let waitingWorker=null;
+
+if("serviceWorker" in navigator){
+
+window.addEventListener("load",async()=>{
+
+try{
+
+const reg=await navigator.serviceWorker.register("./sw.js");
+
+if(reg.waiting){
+waitingWorker=reg.waiting;
+$("updateBanner").style.display="block";
+}
+
+reg.addEventListener("updatefound",()=>{
+const worker=reg.installing;
+
+worker.addEventListener("statechange",()=>{
+if(worker.state==="installed" &&
+navigator.serviceWorker.controller){
+waitingWorker=worker;
+$("updateBanner").style.display="block";
+}
+});
+});
+
+navigator.serviceWorker.addEventListener(
+"controllerchange",
+()=>location.reload()
+);
+
+}catch(e){
+console.log("PWA registration error",e);
+}
+
+});
+
+}
+
+$("updateBtn").onclick=()=>{
+if(waitingWorker){
+waitingWorker.postMessage({type:"SKIP_WAITING"});
+}
+};
+
+</script>
 </body>
     </html>
