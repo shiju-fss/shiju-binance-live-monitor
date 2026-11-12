@@ -5,9 +5,18 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#090d14">
 <title>SHIJU BINANCE V6</title>
+
 <style>
 *{box-sizing:border-box}
-:root{--bg:#090d14;--panel:#151e2b;--line:#303846;--gold:#e8bd62;--muted:#a4aab4;--green:#00d69a;--red:#ff5268}
+:root{
+--bg:#090d14;
+--panel:#151e2b;
+--line:#303846;
+--gold:#e8bd62;
+--muted:#a4aab4;
+--green:#00d69a;
+--red:#ff5268
+}
 body{margin:0;background:var(--bg);color:#eee;font-family:Arial,sans-serif}
 header{position:sticky;top:0;z-index:5;background:#111925;padding:16px;border-bottom:1px solid var(--line)}
 h2{margin:0;color:var(--gold);font-size:23px}
@@ -28,7 +37,9 @@ th:first-child,td:first-child{text-align:left}
 tbody tr{cursor:pointer}
 tbody tr:active{background:#263447}
 .table-wrap{overflow-x:auto}
-.green{color:var(--green)!important}.red{color:var(--red)!important}.gold{color:var(--gold)!important}
+.green{color:var(--green)!important}
+.red{color:var(--red)!important}
+.gold{color:var(--gold)!important}
 .small{font-size:11px;color:var(--muted);line-height:1.6}
 .label{font-size:11px;color:var(--muted)}
 .value{font-size:19px;font-weight:bold;margin-top:6px;overflow-wrap:anywhere}
@@ -44,9 +55,30 @@ tbody tr:active{background:#263447}
 .tf b{color:var(--gold)}
 .alert{background:#211b10;border:1px solid #6a542d;padding:9px;margin:6px 0;border-radius:8px;font-size:11px;color:#f0d18c}
 .hidden{display:none!important}
-@media(min-width:650px){.cards{grid-template-columns:repeat(4,1fr)}.indicators{grid-template-columns:repeat(4,1fr)}.tfgrid{grid-template-columns:repeat(4,1fr)}}
+.copy-value{cursor:pointer;user-select:none}
+.copy-value:active{opacity:.5}
+.copy-icon{font-size:10px;color:var(--gold);margin-left:4px}
+.change-arrow{font-size:15px;font-weight:bold;margin-right:4px}
+.depth-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.depth-side{background:#101925;padding:9px;border-radius:9px;min-width:0}
+.depth-side h4{margin:5px 0 10px;font-size:13px}
+.depth-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;padding:7px 2px;font-size:10px;border-bottom:1px solid var(--line)}
+.depth-row span{text-align:right;overflow:hidden}
+.depth-row span:first-child{text-align:left}
+.depth-header{color:var(--muted);font-weight:bold}
+.depth-bar{height:5px;background:#303846;border-radius:5px;margin:8px 0;overflow:hidden}
+.depth-bid{height:100%;background:var(--green);width:50%}
+.depth-ask{height:100%;background:var(--red);width:50%;margin-left:auto}
+.copy-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}
+.copy-grid button{font-size:11px}
+@media(min-width:650px){
+.cards{grid-template-columns:repeat(4,1fr)}
+.indicators{grid-template-columns:repeat(4,1fr)}
+.tfgrid{grid-template-columns:repeat(4,1fr)}
+}
 </style>
 </head>
+
 <body>
 
 <header>
@@ -59,6 +91,7 @@ tbody tr:active{background:#263447}
 
 <!-- SHORTLIST -->
 <section id="shortlist" class="panel">
+
 <h3>FUTURES SIGNAL SHORTLIST</h3>
 
 <div class="row">
@@ -108,6 +141,7 @@ tbody tr:active{background:#263447}
 </tbody>
 </table>
 </div>
+
 <div class="small" id="shortlistCount"></div>
 </section>
 
@@ -119,32 +153,68 @@ tbody tr:active{background:#263447}
 <button id="backButton">← BACK TO SHORTLIST</button>
 <button id="refreshButton">REFRESH</button>
 </div>
+
 <h3 style="margin-top:15px">SELECTED COIN ANALYSIS</h3>
+
 <input id="symbol" value="BTCUSDT">
+
 <select id="interval">
-<option>1m</option><option>3m</option><option selected>5m</option>
-<option>15m</option><option>30m</option><option>1h</option>
-<option>2h</option><option>4h</option><option>6h</option>
-<option>8h</option><option>12h</option><option>1d</option>
-<option>3d</option><option>1w</option><option>1M</option>
+<option>1m</option>
+<option>3m</option>
+<option selected>5m</option>
+<option>15m</option>
+<option>30m</option>
+<option>1h</option>
+<option>2h</option>
+<option>4h</option>
+<option>6h</option>
+<option>8h</option>
+<option>12h</option>
+<option>1d</option>
+<option>3d</option>
+<option>1w</option>
+<option>1M</option>
 </select>
+
 <button id="analyseButton" style="width:100%">ANALYSE COIN</button>
 </div>
 
 <div class="cards">
-<div class="card"><div class="label">LIVE PRICE</div><div class="value gold" id="price">--</div></div>
-<div class="card"><div class="label">24H CHANGE</div><div class="value" id="change">--</div></div>
-<div class="card"><div class="label">BID SHARE</div><div class="value green" id="bidShare">--</div></div>
-<div class="card"><div class="label">ASK SHARE</div><div class="value red" id="askShare">--</div></div>
+<div class="card">
+<div class="label">LIVE PRICE · CLICK TO COPY</div>
+<div class="value gold copy-value" id="price" data-copy-value="price">-- <span class="copy-icon">⧉</span></div>
+</div>
+
+<div class="card">
+<div class="label">24H CHANGE</div>
+<div class="value" id="change">--</div>
+</div>
+
+<div class="card">
+<div class="label">BID SHARE</div>
+<div class="value green" id="bidShare">--</div>
+</div>
+
+<div class="card">
+<div class="label">ASK SHARE</div>
+<div class="value red" id="askShare">--</div>
+</div>
 </div>
 
 <div class="panel">
 <h3>SIGNAL ANALYSIS</h3>
 <div class="signal gold" id="signal">WAIT</div>
 <div class="small" id="signalReason">Waiting for analysis...</div>
+
 <div class="indicators">
-<div class="indicator"><div class="label">SCORE</div><div class="value" id="score">--</div></div>
-<div class="indicator"><div class="label">ALIGNMENT</div><div class="value" id="alignment">--</div></div>
+<div class="indicator">
+<div class="label">SCORE</div>
+<div class="value" id="score">--</div>
+</div>
+<div class="indicator">
+<div class="label">ALIGNMENT</div>
+<div class="value" id="alignment">--</div>
+</div>
 </div>
 </div>
 
@@ -156,42 +226,134 @@ tbody tr:active{background:#263447}
 
 <div class="panel">
 <h3>TECHNICAL INDICATORS</h3>
+
 <div class="indicators">
-<div class="indicator"><div class="label">EMA FAST</div><div class="value" id="emaFast">--</div></div>
-<div class="indicator"><div class="label">EMA MEDIUM</div><div class="value" id="emaMedium">--</div></div>
-<div class="indicator"><div class="label">EMA SLOW</div><div class="value" id="emaSlow">--</div></div>
-<div class="indicator"><div class="label">EMA TREND</div><div class="value" id="emaTrend">--</div></div>
-<div class="indicator"><div class="label">RSI</div><div class="value" id="rsi">--</div></div>
-<div class="indicator"><div class="label">MACD</div><div class="value" id="macd">--</div></div>
-<div class="indicator"><div class="label">MACD HISTOGRAM</div><div class="value" id="macdHist">--</div></div>
-<div class="indicator"><div class="label">ATR</div><div class="value" id="atr">--</div></div>
-<div class="indicator"><div class="label">SUPERTREND</div><div class="value" id="supertrend">--</div></div>
-<div class="indicator"><div class="label">BOLLINGER BANDS</div><div class="value" id="bollinger">--</div></div>
+<div class="indicator">
+<div class="label">EMA FAST</div>
+<div class="value" id="emaFast">--</div>
+</div>
+<div class="indicator">
+<div class="label">EMA MEDIUM</div>
+<div class="value" id="emaMedium">--</div>
+</div>
+<div class="indicator">
+<div class="label">EMA SLOW</div>
+<div class="value" id="emaSlow">--</div>
+</div>
+<div class="indicator">
+<div class="label">EMA TREND</div>
+<div class="value" id="emaTrend">--</div>
+</div>
+<div class="indicator">
+<div class="label">RSI</div>
+<div class="value" id="rsi">--</div>
+</div>
+<div class="indicator">
+<div class="label">MACD</div>
+<div class="value" id="macd">--</div>
+</div>
+<div class="indicator">
+<div class="label">MACD HISTOGRAM</div>
+<div class="value" id="macdHist">--</div>
+</div>
+<div class="indicator">
+<div class="label">ATR</div>
+<div class="value" id="atr">--</div>
+</div>
+<div class="indicator">
+<div class="label">SUPERTREND</div>
+<div class="value" id="supertrend">--</div>
+</div>
+<div class="indicator">
+<div class="label">BOLLINGER BANDS</div>
+<div class="value" id="bollinger">--</div>
+</div>
 </div>
 </div>
 
 <div class="panel">
 <h3>TRADE LEVEL ESTIMATES</h3>
+
 <div id="levels" class="small"></div>
-<div class="row" style="margin-top:10px">
+
+<div class="copy-grid" style="margin-top:12px">
 <button data-copy="symbol">COPY COIN</button>
 <button data-copy="signal">COPY SIGNAL</button>
-</div>
-<div class="row">
 <button data-copy="entry">COPY ENTRY</button>
 <button data-copy="sl">COPY SL</button>
-</div>
-<div class="row">
 <button data-copy="tp1">COPY TP1</button>
 <button data-copy="tp2">COPY TP2</button>
 <button data-copy="tp3">COPY TP3</button>
+<button data-copy="timeframe">COPY TIMEFRAME</button>
 </div>
-<button data-copy="timeframe" style="width:100%;margin-top:8px">COPY TIMEFRAME</button>
 </div>
 
+<!-- ORDER BOOK DEPTH -->
 <div class="panel">
-<h3>ORDER BOOK</h3>
-<div class="small" id="orderbook">Loading...</div>
+<h3>ORDER BOOK · MARKET DEPTH</h3>
+
+<div class="depth-grid">
+
+<div class="depth-side">
+<h4 class="green">BIDS · BUY</h4>
+<div class="depth-row depth-header">
+<span>PRICE</span>
+<span>QTY</span>
+<span>TOTAL</span>
+</div>
+<div id="bidDepth"></div>
+</div>
+
+<div class="depth-side">
+<h4 class="red">ASKS · SELL</h4>
+<div class="depth-row depth-header">
+<span>PRICE</span>
+<span>QTY</span>
+<span>TOTAL</span>
+</div>
+<div id="askDepth"></div>
+</div>
+
+</div>
+
+<div class="depth-bar">
+<div class="depth-bid" id="bidBar"></div>
+</div>
+
+<div class="level">
+<span>BEST BID</span>
+<b class="green copy-value" id="depthBestBid" data-copy-value="bestBid">--</b>
+</div>
+
+<div class="level">
+<span>BEST ASK</span>
+<b class="red copy-value" id="depthBestAsk" data-copy-value="bestAsk">--</b>
+</div>
+
+<div class="level">
+<span>BID DEPTH</span>
+<b class="green" id="depthBidTotal">--</b>
+</div>
+
+<div class="level">
+<span>ASK DEPTH</span>
+<b class="red" id="depthAskTotal">--</b>
+</div>
+
+<div class="level">
+<span>BID SHARE</span>
+<b class="green" id="depthBidShare">--</b>
+</div>
+
+<div class="level">
+<span>ASK SHARE</span>
+<b class="red" id="depthAskShare">--</b>
+</div>
+
+<div class="small">
+Top 20 price levels · Live Binance Futures order book.
+Depth quantity is cumulative across displayed levels.
+</div>
 </div>
 
 <div class="panel">
@@ -201,16 +363,27 @@ tbody tr:active{background:#263447}
 
 <div class="panel">
 <h3>LIVE ALERTS</h3>
-<label class="small"><input type="checkbox" id="sound" style="width:auto"> Alert sound</label>
-<label class="small"><input type="checkbox" id="notifications" style="width:auto"> Browser notifications</label>
+
+<label class="small">
+<input type="checkbox" id="sound" style="width:auto">
+Alert sound
+</label>
+
+<label class="small">
+<input type="checkbox" id="notifications" style="width:auto">
+Browser notifications
+</label>
+
 <button id="enableNotifications">ENABLE NOTIFICATIONS</button>
 <div id="alerts"></div>
 </div>
+
 </section>
 
 <div class="small" style="margin:18px 4px">
 Public Binance Futures market data. No API keys and no automated order execution. Signals are indicator-based estimates, not guaranteed predictions.
 </div>
+
 </div>
 
 <script>
@@ -221,13 +394,11 @@ const WS="wss://fstream.binance.com/ws/";
 const BACKEND="https://shiju-binance-v6-backend.onrender.com";
 
 const $=id=>document.getElementById(id);
-const FRAMES=["1m","3m","5m","15m","30m","1h","2h","4h","6h","8h","12h","1d","3d","1w","1M"];
 
 let markets=[];
 let results=[];
 let filter="ALL";
 let selected="BTCUSDT";
-let selectedTicker=null;
 let currentAnalysis=null;
 let candles=[];
 let sockets={};
@@ -236,12 +407,25 @@ let selectionId=0;
 let lastSignal="";
 let lastST="";
 let levels={};
+let latestPrice="";
+let latestTicker=null;
+let latestDepth=null;
 
 const CFG={
- emaFast:9,emaMedium:20,emaSlow:50,emaTrend:200,
- rsiPeriod:14,macdFast:12,macdSlow:26,macdSignal:9,
- atrPeriod:14,bbPeriod:20,bbMultiplier:2,
- stPeriod:10,stMultiplier:3,minScore:60
+ emaFast:9,
+ emaMedium:20,
+ emaSlow:50,
+ emaTrend:200,
+ rsiPeriod:14,
+ macdFast:12,
+ macdSlow:26,
+ macdSignal:9,
+ atrPeriod:14,
+ bbPeriod:20,
+ bbMultiplier:2,
+ stPeriod:10,
+ stMultiplier:3,
+ minScore:60
 };
 
 async function getJSON(url){
@@ -252,7 +436,9 @@ async function getJSON(url){
 
 function fmt(n,d=8){
  const x=Number(n);
- return Number.isFinite(x)?x.toLocaleString("en-US",{maximumFractionDigits:d}):"--";
+ return Number.isFinite(x)
+ ?x.toLocaleString("en-US",{maximumFractionDigits:d})
+ :"--";
 }
 
 function compact(n){
@@ -264,10 +450,38 @@ function compact(n){
 }
 
 function colour(signal){
- return signal.includes("LONG")?"green":signal.includes("SHORT")?"red":"gold";
+ return signal.includes("LONG")
+ ?"green"
+ :signal.includes("SHORT")
+ ?"red"
+ :"gold";
 }
 
-/* LOAD ALL USDT PERPETUAL PAIRS */
+/* COPY HELPER */
+
+async function copyText(value,element){
+ if(value===undefined||value===null||value==="")return;
+
+ try{
+  await navigator.clipboard.writeText(String(value));
+
+  if(element){
+   const old=element.innerHTML;
+   element.innerHTML="COPIED!";
+   setTimeout(()=>element.innerHTML=old,800);
+  }
+ }catch(e){
+  const input=document.createElement("textarea");
+  input.value=String(value);
+  document.body.appendChild(input);
+  input.select();
+  document.execCommand("copy");
+  input.remove();
+ }
+}
+
+/* LOAD FUTURES PAIRS */
+
 async function loadMarkets(){
  try{
   const [info,tickers]=await Promise.all([
@@ -275,16 +489,24 @@ async function loadMarkets(){
    getJSON(API+"/fapi/v1/ticker/24hr")
   ]);
 
-  const valid=new Set(info.symbols.filter(s=>
-   s.status==="TRADING"&&
-   s.contractType==="PERPETUAL"&&
-   s.quoteAsset==="USDT"
-  ).map(s=>s.symbol));
+  const valid=new Set(
+   info.symbols.filter(s=>
+    s.status==="TRADING"&&
+    s.contractType==="PERPETUAL"&&
+    s.quoteAsset==="USDT"
+   ).map(s=>s.symbol)
+  );
 
   markets=tickers.filter(t=>valid.has(t.symbol));
-  $("connection").textContent="BINANCE CONNECTED · "+markets.length+" USDT PERPETUAL PAIRS";
-  $("scanStatus").textContent=markets.length+" Futures pairs loaded.";
+
+  $("connection").textContent=
+   "BINANCE CONNECTED · "+markets.length+" USDT PERPETUAL PAIRS";
+
+  $("scanStatus").textContent=
+   markets.length+" Futures pairs loaded.";
+
   renderShortlist();
+
  }catch(e){
   $("connection").textContent="Binance connection error: "+e.message;
   $("scanStatus").textContent="Unable to load Futures pairs. Refresh page.";
@@ -292,94 +514,182 @@ async function loadMarkets(){
 }
 
 /* INDICATORS */
+
 function ema(data,p){
  if(data.length<p)return null;
+
  const k=2/(p+1);
  let v=data.slice(0,p).reduce((a,b)=>a+b,0)/p;
- for(let i=p;i<data.length;i++)v=data[i]*k+v*(1-k);
+
+ for(let i=p;i<data.length;i++){
+  v=data[i]*k+v*(1-k);
+ }
+
  return v;
 }
 
 function rsi(data,p){
  if(data.length<=p)return null;
+
  let gain=0,loss=0;
+
  for(let i=1;i<=p;i++){
   const d=data[i]-data[i-1];
-  if(d>0)gain+=d;else loss-=d;
+  if(d>0)gain+=d;
+  else loss-=d;
  }
- let ag=gain/p,al=loss/p;
+
+ let ag=gain/p;
+ let al=loss/p;
+
  for(let i=p+1;i<data.length;i++){
   const d=data[i]-data[i-1];
+
   ag=(ag*(p-1)+Math.max(d,0))/p;
   al=(al*(p-1)+Math.max(-d,0))/p;
  }
+
  return al===0?100:100-100/(1+ag/al);
 }
 
 function atr(c,p){
  if(c.length<=p)return null;
+
  const tr=[];
+
  for(let i=1;i<c.length;i++){
-  const h=+c[i][2],l=+c[i][3],pc=+c[i-1][4];
-  tr.push(Math.max(h-l,Math.abs(h-pc),Math.abs(l-pc)));
+  const h=+c[i][2];
+  const l=+c[i][3];
+  const pc=+c[i-1][4];
+
+  tr.push(Math.max(
+   h-l,
+   Math.abs(h-pc),
+   Math.abs(l-pc)
+  ));
  }
+
  let v=tr.slice(0,p).reduce((a,b)=>a+b,0)/p;
- for(let i=p;i<tr.length;i++)v=(v*(p-1)+tr[i])/p;
+
+ for(let i=p;i<tr.length;i++){
+  v=(v*(p-1)+tr[i])/p;
+ }
+
  return v;
 }
 
 function macd(data,fast,slow,signal){
- if(data.length<slow+signal)return{line:null,signal:null,hist:null};
- const kf=2/(fast+1),ks=2/(slow+1);
- let ef=data[0],es=data[0],arr=[];
+ if(data.length<slow+signal){
+  return{line:null,signal:null,hist:null};
+ }
+
+ const kf=2/(fast+1);
+ const ks=2/(slow+1);
+
+ let ef=data[0];
+ let es=data[0];
+ let arr=[];
+
  for(const v of data){
   ef=v*kf+ef*(1-kf);
   es=v*ks+es*(1-ks);
   arr.push(ef-es);
  }
+
  const sig=ema(arr,signal);
  const line=arr[arr.length-1];
- return{line,signal:sig,hist:sig===null?null:line-sig};
+
+ return{
+  line,
+  signal:sig,
+  hist:sig===null?null:line-sig
+ };
 }
 
 function bollinger(data,p,m){
  if(data.length<p)return null;
+
  const a=data.slice(-p);
  const mid=a.reduce((x,y)=>x+y,0)/p;
- const sd=Math.sqrt(a.reduce((s,v)=>s+(v-mid)**2,0)/p);
- return{middle:mid,upper:mid+m*sd,lower:mid-m*sd};
+
+ const sd=Math.sqrt(
+  a.reduce((s,v)=>s+(v-mid)**2,0)/p
+ );
+
+ return{
+  middle:mid,
+  upper:mid+m*sd,
+  lower:mid-m*sd
+ };
 }
 
 function supertrend(c,p,m){
  if(c.length<p+2)return null;
+
  const tr=[];
+
  for(let i=1;i<c.length;i++){
-  const h=+c[i][2],l=+c[i][3],pc=+c[i-1][4];
-  tr.push(Math.max(h-l,Math.abs(h-pc),Math.abs(l-pc)));
+  const h=+c[i][2];
+  const l=+c[i][3];
+  const pc=+c[i-1][4];
+
+  tr.push(Math.max(
+   h-l,
+   Math.abs(h-pc),
+   Math.abs(l-pc)
+  ));
  }
+
  let a=tr.slice(0,p).reduce((x,y)=>x+y,0)/p;
- let upper=null,lower=null,dir=1,result=null;
+
+ let upper=null;
+ let lower=null;
+ let dir=1;
+ let result=null;
+
  for(let i=p;i<c.length;i++){
-  if(i>p)a=(a*(p-1)+tr[i-1])/p;
+  if(i>p){
+   a=(a*(p-1)+tr[i-1])/p;
+  }
+
   const mid=(+c[i][2]+ +c[i][3])/2;
-  const bu=mid+m*a,bl=mid-m*a,pc=+c[i-1][4];
-  if(upper===null){upper=bu;lower=bl}
-  else{
+  const bu=mid+m*a;
+  const bl=mid-m*a;
+  const pc=+c[i-1][4];
+
+  if(upper===null){
+   upper=bu;
+   lower=bl;
+  }else{
    upper=(bu<upper||pc>upper)?bu:upper;
    lower=(bl>lower||pc<lower)?bl:lower;
   }
+
   const close=+c[i][4];
+
   if(dir===1&&close<lower)dir=-1;
   else if(dir===-1&&close>upper)dir=1;
-  result={direction:dir===1?"LONG":"SHORT",value:dir===1?lower:upper};
+
+  result={
+   direction:dir===1?"LONG":"SHORT",
+   value:dir===1?lower:upper
+  };
  }
+
  return result;
 }
 
 function analyseCandles(data){
  const c=data.slice(0,-1);
  const close=c.map(x=>+x[4]);
- const m=macd(close,CFG.macdFast,CFG.macdSlow,CFG.macdSignal);
+
+ const m=macd(
+  close,
+  CFG.macdFast,
+  CFG.macdSlow,
+  CFG.macdSignal
+ );
+
  return{
   price:close.at(-1),
   emaFast:ema(close,CFG.emaFast),
@@ -396,57 +706,116 @@ function analyseCandles(data){
  };
 }
 
+/* SIGNAL ENGINE */
+
 function getSignal(x){
- let score=0,checks=0,reasons=[];
+ let score=0;
+ let checks=0;
+ let reasons=[];
+
  function check(condition,name){
   score+=condition?1:-1;
   checks++;
   reasons.push(name+": "+(condition?"Bullish":"Bearish"));
  }
- if(x.emaFast!==null&&x.emaMedium!==null)check(x.emaFast>x.emaMedium,"EMA fast/medium");
- if(x.emaMedium!==null&&x.emaSlow!==null)check(x.emaMedium>x.emaSlow,"EMA medium/slow");
- if(x.emaTrend!==null)check(x.price>x.emaTrend,"Price/trend EMA");
- if(x.rsi!==null){
-  if(x.rsi>=55){score++;checks++;reasons.push("RSI bullish")}
-  else if(x.rsi<=45){score--;checks++;reasons.push("RSI bearish")}
-  else reasons.push("RSI neutral");
- }
- if(x.macdHist!==null)check(x.macdHist>0,"MACD");
- if(x.st)check(x.st.direction==="LONG","Supertrend");
- if(x.bb)check(x.price>x.bb.middle,"Bollinger middle");
 
- const alignment=checks?Math.round(Math.abs(score)/checks*100):0;
+ if(x.emaFast!==null&&x.emaMedium!==null){
+  check(x.emaFast>x.emaMedium,"EMA fast/medium");
+ }
+
+ if(x.emaMedium!==null&&x.emaSlow!==null){
+  check(x.emaMedium>x.emaSlow,"EMA medium/slow");
+ }
+
+ if(x.emaTrend!==null){
+  check(x.price>x.emaTrend,"Price/trend EMA");
+ }
+
+ if(x.rsi!==null){
+  if(x.rsi>=55){
+   score++;
+   checks++;
+   reasons.push("RSI bullish");
+  }else if(x.rsi<=45){
+   score--;
+   checks++;
+   reasons.push("RSI bearish");
+  }else{
+   reasons.push("RSI neutral");
+  }
+ }
+
+ if(x.macdHist!==null){
+  check(x.macdHist>0,"MACD");
+ }
+
+ if(x.st){
+  check(x.st.direction==="LONG","Supertrend");
+ }
+
+ if(x.bb){
+  check(x.price>x.bb.middle,"Bollinger middle");
+ }
+
+ const alignment=checks
+ ?Math.round(Math.abs(score)/checks*100)
+ :0;
+
  let signal="WAIT";
- if(score>=3&&alignment>=CFG.minScore)signal=score>=5?"STRONG LONG":"LONG";
- if(score<=-3&&alignment>=CFG.minScore)signal=score<=-5?"STRONG SHORT":"SHORT";
+
+ if(score>=3&&alignment>=CFG.minScore){
+  signal=score>=5?"STRONG LONG":"LONG";
+ }
+
+ if(score<=-3&&alignment>=CFG.minScore){
+  signal=score<=-5?"STRONG SHORT":"SHORT";
+ }
 
  return{signal,score,checks,alignment,reasons};
 }
 
 /* SCAN ALL FUTURES PAIRS */
+
 async function runScan(){
  if(scanRunning)return;
- if(!markets.length){await loadMarkets();if(!markets.length)return}
+
+ if(!markets.length){
+  await loadMarkets();
+  if(!markets.length)return;
+ }
+
  scanRunning=true;
+
  $("scanButton").disabled=true;
  $("scanButton").textContent="SCANNING...";
+
  const tf=$("scanTF").value;
  const snapshot=markets.slice();
  const found=[];
- let completed=0,failed=0;
+
+ let completed=0;
+ let failed=0;
  const concurrency=5;
  let index=0;
 
- $("scanStatus").textContent="Scanning "+snapshot.length+" Futures pairs on "+tf+"...";
+ $("scanStatus").textContent=
+  "Scanning "+snapshot.length+" Futures pairs on "+tf+"...";
+
  $("scanProgress").textContent="0 / "+snapshot.length;
 
  async function worker(){
   while(index<snapshot.length){
    const item=snapshot[index++];
+
    try{
-    const data=await getJSON(API+"/fapi/v1/klines?symbol="+item.symbol+"&interval="+tf+"&limit=230");
+    const data=await getJSON(
+     API+"/fapi/v1/klines?symbol="+item.symbol+
+     "&interval="+tf+"&limit=230"
+    );
+
     const x=analyseCandles(data);
     const s=getSignal(x);
+
     found.push({
      symbol:item.symbol,
      change:Number(item.priceChangePercent),
@@ -456,9 +825,16 @@ async function runScan(){
      score:s.score,
      alignment:s.alignment
     });
-   }catch(e){failed++}
+
+   }catch(e){
+    failed++;
+   }
+
    completed++;
-   $("scanProgress").textContent=completed+" / "+snapshot.length+" · Failed "+failed;
+
+   $("scanProgress").textContent=
+    completed+" / "+snapshot.length+" · Failed "+failed;
+
    if(completed%10===0||completed===snapshot.length){
     results=found.slice();
     renderShortlist();
@@ -467,13 +843,22 @@ async function runScan(){
  }
 
  try{
-  await Promise.all(Array.from({length:concurrency},worker));
+  await Promise.all(
+   Array.from({length:concurrency},worker)
+  );
+
   results=found;
   renderShortlist();
-  $("scanStatus").textContent="Scan completed · "+found.length+" pairs analysed · "+tf;
-  $("scanProgress").textContent="Completed "+completed+" / "+snapshot.length+" · Failed "+failed;
+
+  $("scanStatus").textContent=
+   "Scan completed · "+found.length+" pairs analysed · "+tf;
+
+  $("scanProgress").textContent=
+   "Completed "+completed+" / "+snapshot.length+" · Failed "+failed;
+
  }catch(e){
   $("scanStatus").textContent="Scan stopped: "+e.message;
+
  }finally{
   scanRunning=false;
   $("scanButton").disabled=false;
@@ -481,27 +866,59 @@ async function runScan(){
  }
 }
 
-/* SHORTLIST FILTER + RENDER */
+/* SHORTLIST */
+
 function renderShortlist(){
  const q=$("search").value.trim().toUpperCase();
+
  let list=results.filter(x=>x.symbol.includes(q));
- if(filter==="LONG")list=list.filter(x=>x.signal.includes("LONG"));
- if(filter==="SHORT")list=list.filter(x=>x.signal.includes("SHORT"));
- if(filter==="WAIT")list=list.filter(x=>x.signal==="WAIT");
+
+ if(filter==="LONG"){
+  list=list.filter(x=>x.signal.includes("LONG"));
+ }
+
+ if(filter==="SHORT"){
+  list=list.filter(x=>x.signal.includes("SHORT"));
+ }
+
+ if(filter==="WAIT"){
+  list=list.filter(x=>x.signal==="WAIT");
+ }
 
  list.sort((a,b)=>{
-  const rank=x=>x.signal.includes("LONG")?0:x.signal.includes("SHORT")?1:2;
-  return rank(a)-rank(b)||b.alignment-a.alignment||b.volume-a.volume;
+  const rank=x=>
+   x.signal.includes("LONG")?0:
+   x.signal.includes("SHORT")?1:2;
+
+  return rank(a)-rank(b)||
+   b.alignment-a.alignment||
+   b.volume-a.volume;
  });
 
- $("shortlistRows").innerHTML=list.map(x=>`
- <tr data-coin="${x.symbol}">
- <td><b>${x.symbol}</b></td>
- <td class="${x.change>=0?"green":"red"}">${x.change>=0?"+":""}${x.change.toFixed(2)}%</td>
- <td class="${colour(x.signal)}"><b>${x.signal}</b></td>
- </tr>`).join("")||'<tr><td colspan="3">No results. Run SCAN ALL.</td></tr>';
+ $("shortlistRows").innerHTML=list.map(x=>{
+  const up=x.change>=0;
 
- $("shortlistCount").textContent="Showing "+list.length+" signals · "+results.length+" scanned";
+  return `
+  <tr data-coin="${x.symbol}">
+   <td>
+    <b>${x.symbol}</b>
+    <span class="copy-icon">⧉</span>
+   </td>
+
+   <td class="${up?"green":"red"}">
+    <span class="change-arrow">${up?"↑":"↓"}</span>
+    ${Math.abs(x.change).toFixed(2)}%
+   </td>
+
+   <td class="${colour(x.signal)}">
+    <b>${x.signal}</b>
+   </td>
+  </tr>`;
+ }).join("")||
+ '<tr><td colspan="3">No results. Run SCAN ALL.</td></tr>';
+
+ $("shortlistCount").textContent=
+  "Showing "+list.length+" signals · "+results.length+" scanned";
 }
 
 $("shortlistRows").addEventListener("click",e=>{
@@ -510,218 +927,499 @@ $("shortlistRows").addEventListener("click",e=>{
 });
 
 $("search").addEventListener("input",renderShortlist);
+
 document.querySelectorAll("[data-filter]").forEach(btn=>{
  btn.onclick=()=>{
   filter=btn.dataset.filter;
-  document.querySelectorAll("[data-filter]").forEach(b=>b.classList.toggle("active",b===btn));
+
+  document.querySelectorAll("[data-filter]").forEach(b=>{
+   b.classList.toggle("active",b===btn);
+  });
+
   renderShortlist();
  };
 });
+
 $("scanButton").onclick=runScan;
 
-/* SELECTED COIN */
+/* COIN SELECTION */
+
 function openCoin(symbol){
  selected=symbol;
+
  $("symbol").value=symbol;
  $("interval").value=$("scanTF").value;
+
  $("shortlist").classList.add("hidden");
  $("analysis").classList.remove("hidden");
+
  window.scrollTo(0,0);
+
  loadAnalysis();
 }
+
 $("backButton").onclick=()=>{
+ closeSockets();
+
  $("analysis").classList.add("hidden");
  $("shortlist").classList.remove("hidden");
+
  window.scrollTo(0,0);
 };
+
 $("analyseButton").onclick=()=>{
  const s=$("symbol").value.trim().toUpperCase();
- if(!/^[A-Z0-9]+USDT$/.test(s)){alert("Invalid Futures symbol");return}
+
+ if(!/^[A-Z0-9]+USDT$/.test(s)){
+  alert("Invalid Futures symbol");
+  return;
+ }
+
  selected=s;
  loadAnalysis();
 };
+
 $("refreshButton").onclick=loadAnalysis;
 $("interval").onchange=loadAnalysis;
 
+/* SELECTED COIN ANALYSIS */
+
 async function loadAnalysis(){
  const id=++selectionId;
+
  closeSockets();
- lastSignal="";lastST="";
+
+ lastSignal="";
+ lastST="";
+
  $("signal").textContent="LOADING...";
  $("signalReason").textContent="Fetching "+selected+" data...";
+
  try{
   const [data,ticker]=await Promise.all([
-   getJSON(API+"/fapi/v1/klines?symbol="+selected+"&interval="+$("interval").value+"&limit=260"),
+   getJSON(
+    API+"/fapi/v1/klines?symbol="+selected+
+    "&interval="+$("interval").value+"&limit=260"
+   ),
    getJSON(API+"/fapi/v1/ticker/24hr?symbol="+selected)
   ]);
+
   if(id!==selectionId)return;
+
   candles=data;
-  $("price").textContent=fmt(ticker.lastPrice);
-  $("change").textContent=Number(ticker.priceChangePercent).toFixed(2)+"%";
-  $("change").className="value "+(Number(ticker.priceChangePercent)>=0?"green":"red");
+  latestTicker=ticker;
+
+  updateTicker(ticker);
+
   analyseSelected();
+
   runMTF(id);
   loadBook(id);
   loadTrades(id);
+
   connectPrice(id);
   connectBook(id);
   connectTrades(id);
+
  }catch(e){
   $("signal").textContent="DATA ERROR";
   $("signalReason").textContent=e.message;
  }
 }
 
+/* 24H TICKER DISPLAY */
+
+function updateTicker(ticker){
+ const change=Number(ticker.priceChangePercent);
+
+ latestPrice=String(ticker.lastPrice);
+
+ $("price").innerHTML=
+  fmt(ticker.lastPrice)+
+  ' <span class="copy-icon">⧉</span>';
+
+ $("change").innerHTML=
+  '<span class="change-arrow">'+
+  (change>=0?"↑":"↓")+
+  '</span>'+
+  Math.abs(change).toFixed(2)+"%";
+
+ $("change").className=
+  "value "+(change>=0?"green":"red");
+}
+
+/* REFRESH 24H DATA */
+
+async function refresh24h(){
+ const id=selectionId;
+ const symbol=selected;
+
+ try{
+  const ticker=await getJSON(
+   API+"/fapi/v1/ticker/24hr?symbol="+symbol
+  );
+
+  if(id!==selectionId)return;
+
+  latestTicker=ticker;
+  updateTicker(ticker);
+
+ }catch(e){}
+}
+
+/* MAIN ANALYSIS */
+
 function analyseSelected(){
  const x=analyseCandles(candles);
  const s=getSignal(x);
+
  currentAnalysis={x,s};
+
  $("signal").textContent=s.signal;
  $("signal").className="signal "+colour(s.signal);
+
  $("score").textContent=s.score+" / "+s.checks;
  $("alignment").textContent=s.alignment+"%";
+
  $("signalReason").textContent=s.reasons.join(" · ");
 
  $("emaFast").textContent=fmt(x.emaFast);
  $("emaMedium").textContent=fmt(x.emaMedium);
  $("emaSlow").textContent=fmt(x.emaSlow);
  $("emaTrend").textContent=fmt(x.emaTrend);
+
  $("rsi").textContent=x.rsi?.toFixed(2)??"--";
  $("macd").textContent=fmt(x.macd);
  $("macdHist").textContent=fmt(x.macdHist);
  $("atr").textContent=fmt(x.atr);
- $("supertrend").textContent=x.st?x.st.direction+" · "+fmt(x.st.value):"--";
- $("supertrend").className="value "+(x.st?.direction==="LONG"?"green":"red");
- $("bollinger").textContent=x.bb?fmt(x.bb.lower)+" – "+fmt(x.bb.upper):"--";
 
- if(lastSignal&&lastSignal!==s.signal)alertUser(selected+" changed to "+s.signal);
+ $("supertrend").textContent=
+  x.st?x.st.direction+" · "+fmt(x.st.value):"--";
+
+ $("supertrend").className=
+  "value "+(x.st?.direction==="LONG"?"green":"red");
+
+ $("bollinger").textContent=
+  x.bb?fmt(x.bb.lower)+" – "+fmt(x.bb.upper):"--";
+
+ if(lastSignal&&lastSignal!==s.signal){
+  alertUser(selected+" changed to "+s.signal);
+ }
+
  lastSignal=s.signal;
- if(lastST&&x.st&&lastST!==x.st.direction)alertUser(selected+" Supertrend flipped "+x.st.direction);
+
+ if(lastST&&x.st&&lastST!==x.st.direction){
+  alertUser(selected+" Supertrend flipped "+x.st.direction);
+ }
+
  lastST=x.st?.direction||"";
 
  renderLevels(x,s);
- sendBackend(x);
+ sendBackend();
 }
 
+/* TRADE LEVELS */
+
 function renderLevels(x,s){
- const direction=s.signal.includes("LONG")?1:s.signal.includes("SHORT")?-1:0;
+ const direction=
+  s.signal.includes("LONG")?1:
+  s.signal.includes("SHORT")?-1:0;
+
  if(!direction||!x.atr){
   levels={};
-  $("levels").innerHTML='<div class="level"><span>Signal</span><b class="gold">WAIT</b></div><div class="level"><span>Reference Price</span><b>'+fmt(x.price)+'</b></div>';
+
+  $("levels").innerHTML=
+   '<div class="level"><span>Signal</span><b class="gold">WAIT</b></div>'+
+   '<div class="level"><span>Reference Price</span>'+
+   '<b class="copy-value" data-copy-value="price">'+fmt(x.price)+'</b></div>';
+
   return;
  }
- const risk=x.atr*1.5,entry=x.price;
+
+ const risk=x.atr*1.5;
+ const entry=x.price;
+
  levels={
-  entry,sl:entry-direction*risk,
+  entry,
+  sl:entry-direction*risk,
   tp1:entry+direction*risk,
   tp2:entry+direction*risk*2,
   tp3:entry+direction*risk*3
  };
+
  $("levels").innerHTML=`
- <div class="level"><span>ENTRY REFERENCE</span><b>${fmt(levels.entry)}</b></div>
- <div class="level"><span>STOP LOSS</span><b class="red">${fmt(levels.sl)}</b></div>
- <div class="level"><span>TAKE PROFIT 1</span><b class="green">${fmt(levels.tp1)}</b></div>
- <div class="level"><span>TAKE PROFIT 2</span><b class="green">${fmt(levels.tp2)}</b></div>
- <div class="level"><span>TAKE PROFIT 3</span><b class="green">${fmt(levels.tp3)}</b></div>
- <div class="small">ATR-based reference estimates, not guaranteed targets.</div>`;
+ <div class="level">
+  <span>ENTRY REFERENCE</span>
+  <b class="copy-value" data-copy-value="entry">${fmt(levels.entry)} ⧉</b>
+ </div>
+
+ <div class="level">
+  <span>STOP LOSS</span>
+  <b class="red copy-value" data-copy-value="sl">${fmt(levels.sl)} ⧉</b>
+ </div>
+
+ <div class="level">
+  <span>TAKE PROFIT 1</span>
+  <b class="green copy-value" data-copy-value="tp1">${fmt(levels.tp1)} ⧉</b>
+ </div>
+
+ <div class="level">
+  <span>TAKE PROFIT 2</span>
+  <b class="green copy-value" data-copy-value="tp2">${fmt(levels.tp2)} ⧉</b>
+ </div>
+
+ <div class="level">
+  <span>TAKE PROFIT 3</span>
+  <b class="green copy-value" data-copy-value="tp3">${fmt(levels.tp3)} ⧉</b>
+ </div>
+
+ <div class="small">
+ ATR-based reference estimates, not guaranteed targets.
+ </div>`;
 }
 
-/* MTF */
+/* MULTI TIMEFRAME */
+
 async function runMTF(id){
- const frames=["1m","3m","5m","15m","30m","1h","2h","4h","6h","12h","1d"];
+ const frames=[
+  "1m","3m","5m","15m","30m",
+  "1h","2h","4h","6h","12h","1d"
+ ];
+
  $("mtf").innerHTML="Loading timeframe signals...";
+
  let long=0,short=0,wait=0;
  const output=[];
+
  for(const tf of frames){
   if(id!==selectionId)return;
+
   try{
-   const data=await getJSON(API+"/fapi/v1/klines?symbol="+selected+"&interval="+tf+"&limit=230");
+   const data=await getJSON(
+    API+"/fapi/v1/klines?symbol="+selected+
+    "&interval="+tf+"&limit=230"
+   );
+
    const s=getSignal(analyseCandles(data));
-   output.push({tf,signal:s.signal,score:s.score});
+
+   output.push({
+    tf,
+    signal:s.signal,
+    score:s.score
+   });
+
    if(s.signal.includes("LONG"))long++;
    else if(s.signal.includes("SHORT"))short++;
    else wait++;
-  }catch(e){output.push({tf,signal:"ERROR",score:0})}
+
+  }catch(e){
+   output.push({
+    tf,
+    signal:"ERROR",
+    score:0
+   });
+  }
+
   $("mtf").innerHTML=output.map(x=>`
-   <div class="tf"><b>${x.tf}</b><br><strong class="${colour(x.signal)}">${x.signal}</strong><div class="small">Score ${x.score}</div></div>
+   <div class="tf">
+    <b>${x.tf}</b><br>
+    <strong class="${colour(x.signal)}">${x.signal}</strong>
+    <div class="small">Score ${x.score}</div>
+   </div>
   `).join("");
  }
- $("mtfSummary").textContent="LONG "+long+" · SHORT "+short+" · WAIT "+wait;
+
+ if(id!==selectionId)return;
+
+ $("mtfSummary").textContent=
+  "LONG "+long+" · SHORT "+short+" · WAIT "+wait;
 }
 
-/* ORDER BOOK */
+/* ORDER BOOK DEPTH */
+
+function renderDepth(bids,asks){
+ const bidTotal=bids.reduce((s,x)=>s+Number(x[1]),0);
+ const askTotal=asks.reduce((s,x)=>s+Number(x[1]),0);
+
+ const total=bidTotal+askTotal||1;
+
+ $("depthBestBid").textContent=fmt(bids[0]?.[0]);
+ $("depthBestAsk").textContent=fmt(asks[0]?.[0]);
+
+ $("depthBidTotal").textContent=fmt(bidTotal,4);
+ $("depthAskTotal").textContent=fmt(askTotal,4);
+
+ const bp=bidTotal/total*100;
+ const ap=askTotal/total*100;
+
+ $("bidShare").textContent=bp.toFixed(2)+"%";
+ $("askShare").textContent=ap.toFixed(2)+"%";
+
+ $("depthBidShare").textContent=bp.toFixed(2)+"%";
+ $("depthAskShare").textContent=ap.toFixed(2)+"%";
+
+ $("bidBar").style.width=bp+"%";
+
+ let cumulative=0;
+
+ $("bidDepth").innerHTML=bids.map(x=>{
+  cumulative+=Number(x[1]);
+
+  return `
+  <div class="depth-row">
+   <span class="green copy-value"
+    data-copy-value="custom"
+    data-copy-text="${x[0]}">${fmt(x[0])}</span>
+   <span>${fmt(x[1],4)}</span>
+   <span>${fmt(cumulative,4)}</span>
+  </div>`;
+ }).join("");
+
+ cumulative=0;
+
+ $("askDepth").innerHTML=asks.map(x=>{
+  cumulative+=Number(x[1]);
+
+  return `
+  <div class="depth-row">
+   <span class="red copy-value"
+    data-copy-value="custom"
+    data-copy-text="${x[0]}">${fmt(x[0])}</span>
+   <span>${fmt(x[1],4)}</span>
+   <span>${fmt(cumulative,4)}</span>
+  </div>`;
+ }).join("");
+}
+
 async function loadBook(id){
  try{
-  const d=await getJSON(API+"/fapi/v1/depth?symbol="+selected+"&limit=20");
+  const d=await getJSON(
+   API+"/fapi/v1/depth?symbol="+selected+"&limit=20"
+  );
+
   if(id!==selectionId)return;
-  const b=d.bids.reduce((s,x)=>s+Number(x[1]),0);
-  const a=d.asks.reduce((s,x)=>s+Number(x[1]),0);
-  const total=b+a||1;
-  $("bidShare").textContent=(b/total*100).toFixed(1)+"%";
-  $("askShare").textContent=(a/total*100).toFixed(1)+"%";
-  $("orderbook").textContent="Best Bid "+fmt(d.bids[0][0])+" · Best Ask "+fmt(d.asks[0][0])+" · Bid Qty "+fmt(b,4)+" · Ask Qty "+fmt(a,4);
- }catch(e){$("orderbook").textContent="Order book unavailable"}
+
+  latestDepth=d;
+
+  renderDepth(d.bids,d.asks);
+
+ }catch(e){
+  $("bidDepth").textContent="Depth unavailable";
+  $("askDepth").textContent="Depth unavailable";
+ }
 }
+
+/* RECENT TRADES */
 
 async function loadTrades(id){
  try{
-  const d=await getJSON(API+"/fapi/v1/aggTrades?symbol="+selected+"&limit=15");
+  const d=await getJSON(
+   API+"/fapi/v1/aggTrades?symbol="+selected+"&limit=15"
+  );
+
   if(id!==selectionId)return;
+
   $("trades").innerHTML=d.reverse().map(t=>`
    <div class="level">
-   <span class="${t.m?"red":"green"}">${t.m?"SELL":"BUY"} · ${fmt(t.p)}</span>
-   <span>${fmt(t.q,4)}</span></div>`).join("");
- }catch(e){$("trades").textContent="Trades unavailable"}
+    <span class="${t.m?"red":"green"}">
+     ${t.m?"SELL":"BUY"} · ${fmt(t.p)}
+    </span>
+    <span>${fmt(t.q,4)}</span>
+   </div>
+  `).join("");
+
+ }catch(e){
+  $("trades").textContent="Trades unavailable";
+ }
 }
 
-/* LIVE WEBSOCKETS */
+/* WEBSOCKETS */
+
 function closeSockets(){
- Object.values(sockets).forEach(s=>{try{s.close()}catch(e){}});
+ Object.values(sockets).forEach(s=>{
+  try{s.close()}catch(e){}
+ });
+
  sockets={};
 }
+
 function connectStream(name,stream,callback,id){
- const ws=new WebSocket(WS+selected.toLowerCase()+stream);
+ const ws=new WebSocket(
+  WS+selected.toLowerCase()+stream
+ );
+
  sockets[name]=ws;
+
  ws.onmessage=e=>{
   if(id!==selectionId)return;
-  try{callback(JSON.parse(e.data))}catch(err){}
+
+  try{
+   callback(JSON.parse(e.data));
+  }catch(err){}
  };
+
  ws.onclose=()=>{
-  if(id===selectionId)setTimeout(()=>{
-   if(id===selectionId)connectStream(name,stream,callback,id);
-  },4000);
+  if(id===selectionId){
+   setTimeout(()=>{
+    if(id===selectionId){
+     connectStream(name,stream,callback,id);
+    }
+   },4000);
+  }
  };
 }
+
 function connectPrice(id){
  connectStream("price","@ticker",d=>{
-  $("price").textContent=fmt(d.c);
-  $("change").textContent=Number(d.P).toFixed(2)+"%";
-  $("change").className="value "+(Number(d.P)>=0?"green":"red");
+  $("price").innerHTML=
+   fmt(d.c)+' <span class="copy-icon">⧉</span>';
+
+  latestPrice=String(d.c);
+
+  const change=Number(d.P);
+
+  $("change").innerHTML=
+   '<span class="change-arrow">'+
+   (change>=0?"↑":"↓")+
+   '</span>'+
+   Math.abs(change).toFixed(2)+"%";
+
+  $("change").className=
+   "value "+(change>=0?"green":"red");
+
  },id);
 }
+
 function connectBook(id){
  connectStream("book","@depth20@100ms",d=>{
-  const b=d.b.reduce((s,x)=>s+Number(x[1]),0);
-  const a=d.a.reduce((s,x)=>s+Number(x[1]),0);
-  const total=b+a||1;
-  $("bidShare").textContent=(b/total*100).toFixed(1)+"%";
-  $("askShare").textContent=(a/total*100).toFixed(1)+"%";
-  $("orderbook").textContent="Best Bid "+fmt(d.b[0][0])+" · Best Ask "+fmt(d.a[0][0]);
+  renderDepth(d.b,d.a);
  },id);
 }
+
 function connectTrades(id){
  connectStream("trades","@aggTrade",d=>{
   const side=d.m?"SELL":"BUY";
+
   const row=document.createElement("div");
   row.className="level";
-  row.innerHTML='<span class="'+(side==="BUY"?"green":"red")+'">'+side+' · '+fmt(d.p)+'</span><span>'+fmt(d.q,4)+'</span>';
+
+  row.innerHTML=
+   '<span class="'+(side==="BUY"?"green":"red")+'">'+
+   side+' · '+fmt(d.p)+'</span>'+
+   '<span>'+fmt(d.q,4)+'</span>';
+
   $("trades").prepend(row);
-  while($("trades").children.length>20)$("trades").lastChild.remove();
+
+  while($("trades").children.length>20){
+   $("trades").lastChild.remove();
+  }
+
  },id);
 }
 
-/* BACKEND */
-async function sendBackend(x){
+/* BACKEND ANALYSIS */
+
+async function sendBackend(){
  try{
   await fetch(BACKEND+"/futures/analyze",{
    method:"POST",
@@ -731,11 +1429,16 @@ async function sendBackend(x){
     interval:$("interval").value,
     candles:candles.slice(0,-1),
     customSettings:{
-     emaFast:CFG.emaFast,emaMedium:CFG.emaMedium,
-     emaSlow:CFG.emaSlow,emaTrend:CFG.emaTrend,
-     rsiPeriod:CFG.rsiPeriod,macdFast:CFG.macdFast,
-     macdSlow:CFG.macdSlow,macdSignal:CFG.macdSignal,
-     atrPeriod:CFG.atrPeriod,bbPeriod:CFG.bbPeriod,
+     emaFast:CFG.emaFast,
+     emaMedium:CFG.emaMedium,
+     emaSlow:CFG.emaSlow,
+     emaTrend:CFG.emaTrend,
+     rsiPeriod:CFG.rsiPeriod,
+     macdFast:CFG.macdFast,
+     macdSlow:CFG.macdSlow,
+     macdSignal:CFG.macdSignal,
+     atrPeriod:CFG.atrPeriod,
+     bbPeriod:CFG.bbPeriod,
      bbMultiplier:CFG.bbMultiplier,
      supertrendPeriod:CFG.stPeriod,
      supertrendMultiplier:CFG.stMultiplier,
@@ -743,13 +1446,16 @@ async function sendBackend(x){
     }
    })
   });
+
  }catch(e){}
 }
 
-/* COPY BUTTONS */
+/* BUTTON COPY */
+
 document.querySelectorAll("[data-copy]").forEach(btn=>{
  btn.onclick=async()=>{
   const key=btn.dataset.copy;
+
   const values={
    symbol:selected,
    signal:currentAnalysis?.s.signal||"WAIT",
@@ -760,48 +1466,104 @@ document.querySelectorAll("[data-copy]").forEach(btn=>{
    tp2:levels.tp2??"",
    tp3:levels.tp3??""
   };
-  try{
-   await navigator.clipboard.writeText(String(values[key]));
-   const old=btn.textContent;
-   btn.textContent="COPIED!";
-   setTimeout(()=>btn.textContent=old,1000);
-  }catch(e){alert("Copy not available")}
+
+  const old=btn.textContent;
+
+  await copyText(values[key],btn);
+
+  btn.textContent="COPIED!";
+  setTimeout(()=>btn.textContent=old,1000);
  };
 });
 
+/* CLICK PRICE / COIN / LEVEL TO COPY */
+
+document.addEventListener("click",async e=>{
+ const el=e.target.closest("[data-copy-value]");
+
+ if(!el)return;
+
+ const key=el.dataset.copyValue;
+ let value="";
+
+ if(key==="price")value=latestPrice;
+ else if(key==="bestBid")value=latestDepth?.bids?.[0]?.[0];
+ else if(key==="bestAsk")value=latestDepth?.asks?.[0]?.[0];
+ else if(key==="custom")value=el.dataset.copyText;
+ else if(key==="entry")value=levels.entry;
+ else if(key==="sl")value=levels.sl;
+ else if(key==="tp1")value=levels.tp1;
+ else if(key==="tp2")value=levels.tp2;
+ else if(key==="tp3")value=levels.tp3;
+
+ await copyText(value,el);
+});
+
 /* ALERTS */
+
 function alertUser(message){
  const el=document.createElement("div");
+
  el.className="alert";
  el.textContent=new Date().toLocaleTimeString()+" · "+message;
+
  $("alerts").prepend(el);
- while($("alerts").children.length>10)$("alerts").lastChild.remove();
+
+ while($("alerts").children.length>10){
+  $("alerts").lastChild.remove();
+ }
 
  if($("sound").checked){
   try{
-   const ctx=new AudioContext(),osc=ctx.createOscillator(),gain=ctx.createGain();
-   osc.connect(gain);gain.connect(ctx.destination);
-   osc.frequency.value=880;gain.gain.value=.08;
-   osc.start();osc.stop(ctx.currentTime+.2);
+   const ctx=new AudioContext();
+   const osc=ctx.createOscillator();
+   const gain=ctx.createGain();
+
+   osc.connect(gain);
+   gain.connect(ctx.destination);
+
+   osc.frequency.value=880;
+   gain.gain.value=.08;
+
+   osc.start();
+   osc.stop(ctx.currentTime+.2);
+
   }catch(e){}
  }
- if($("notifications").checked&&Notification.permission==="granted"){
+
+ if(
+  $("notifications").checked&&
+  "Notification"in window&&
+  Notification.permission==="granted"
+ ){
   new Notification("SHIJU BINANCE V6",{body:message});
  }
 }
 
 $("enableNotifications").onclick=async()=>{
- if(!("Notification"in window)){alert("Notifications not supported");return}
+ if(!("Notification"in window)){
+  alert("Notifications not supported");
+  return;
+ }
+
  const p=await Notification.requestPermission();
+
  $("notifications").checked=p==="granted";
 };
 
 /* INITIALISE */
+
 loadMarkets();
+
 setInterval(loadMarkets,60000);
+
 setInterval(()=>{
- if(!$("analysis").classList.contains("hidden"))refresh24h();
+ if(!$("analysis").classList.contains("hidden")){
+  refresh24h();
+ }
 },30000);
+
 </script>
+
 </body>
  </html>
