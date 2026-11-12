@@ -1,16 +1,16 @@
 {
-  "name": "shiju-binance-v6",
+  "name": "shiju-binance-v6-backend",
   "version": "6.0.0",
-  "description": "SHIJU BINANCE Futures Testnet Backend",
+  "description": "SHIJU BINANCE V6 - USDT-M Futures Analysis API",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.21.2"
-  },
-  "engines": {
-    "node": ">=18"
   }
 }
