@@ -1,246 +1,667 @@
-"use strict";
+'use strict';
 
-const express = require("express");
-const crypto = require("crypto");
-const cors = require("cors");
+const express = require('express');
+const cors = require('cors');
 
 const app = express();
-app.use(cors());
-app.use(express.json());
-
 const PORT = process.env.PORT || 3000;
-const KEY = process.env.BINANCE_API_KEY;
-const SECRET = process.env.BINANCE_API_SECRET;
+const BINANCE = 'https://fapi.binance.com';
 
-const BASE = "https://testnet.binancefuture.com";
-const ENABLE_ORDERS = process.env.ENABLE_TESTNET_ORDERS === "true";
+app.use(cors({ origin: '*' }));
+app.use(express.json({ limit: '3mb' }));
 
-let trading = false;
-let activeSymbol = null;
-
-async function signedRequest(method, path, params = {}) {
-  if (!KEY || !SECRET) throw new Error("API credentials not configured");
-
-  const data = {
-    ...params,
-    timestamp: Date.now(),
-    recvWindow: 10000
-  };
-
-  const query = new URLSearchParams(data).toString();
-  const signature = crypto
-    .createHmac("sha256", SECRET)
-    .update(query)
-    .digest("hex");
-
-  const response = await fetch(`${BASE}${path}?${query}&signature=${signature}`, {
-    method,
-    headers: { "X-MBX-APIKEY": KEY }
-  });
-
-  const result = await response.json();
-  if (!response.ok) throw new Error(JSON.stringify(result));
-  return result;
-}
-
-async function publicRequest(path, params = {}) {
-  const query = new URLSearchParams(params).toString();
-  const response = await fetch(`${BASE}${path}?${query}`);
-  const result = await response.json();
-  if (!response.ok) throw new Error(JSON.stringify(result));
-  return result;
-}
-
-app.get("/health", (req, res) => {
-  res.json({
-    status: "ONLINE",
-    mode: "BINANCE FUTURES TESTNET",
-    ordersEnabled: ENABLE_ORDERS,
-    trading
-  });
+const DEFAULT_SETTINGS = Object.freeze({
+  emaFast: 9,
+  emaMedium: 20,
+  emaSlow: 50,
+  emaTrend: 200,
+  rsiPeriod: 14,
+  macdFast: 12,
+  macdSlow: 26,
+  macdSignal: 9,
+  atrPeriod: 14,
+  adxPeriod: 14,
+  bbPeriod: 20,
+  bbMultiplier: 2,
+  stochPeriod: 14,
+  supertrendPeriod: 10,
+  supertrendMultiplier: 3,
+  minSignalScore: 60
 });
 
-app.post("/trade/stop", async (req, res) => {
-  trading = false;
-  activeSymbol = null;
+let settings = { ...DEFAULT_SETTINGS };
 
-  try {
-    res.json({ success: true, message: "New trades disabled" });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
+const ALLOWED_INTERVALS = new Set([
+  '1m', '3m', '5m', '15m', '30m',
+  '1h', '2h', '4h', '6h', '8h', '12h',
+  '1d', '3d', '1w', '1M'
+]);
+
+function isSymbol(value) {
+  return typeof value === 'string' &&
+    /^[A-Z0-9]{3,30}USDT$/.test(value);
+}
+
+function clampNumber(value, min, max, fallback) {
+  const n = Number(value);
+  return Number.isFinite(n)
+    ? Math.min(max, Math.max(min, n))
+    : fallback;
+}
+
+function cleanSettings(input = {}) {
+  const out = {};
+
+  for (const [key, fallback] of Object.entries(DEFAULT_SETTINGS)) {
+    const max = key.toLowerCase().includes('multiplier') ? 20 : 500;
+    const min = key.toLowerCase().includes('multiplier') ? 0.1 : 1;
+
+    out[key] = clampNumber(input[key], min, max, fallback);
   }
-});
 
-app.post("/trade/execute", async (req, res) => {
-  if (!ENABLE_ORDERS) {
-    return res.status(403).json({
-      error: "Testnet orders are disabled. Enable them in backend environment."
-    });
+  if (out.macdFast >= out.macdSlow) {
+    out.macdFast = DEFAULT_SETTINGS.macdFast;
+    out.macdSlow = DEFAULT_SETTINGS.macdSlow;
   }
 
-  if (trading) {
-    return res.status(409).json({ error: "A trade request is already running" });
-  }
+  return out;
+}
 
-  const symbol = String(req.body.symbol || "").toUpperCase();
+async function binanceGet(path) {
+  const response = await fetch(`${BINANCE}${path}`, {
+    headers: {
+      Accept: 'application/json',
+      'User-Agent': 'Shiju-Binance-V6/1.0'
+    },
+    signal: AbortSignal.timeout(12000)
+  });
 
-  if (!/^[A-Z0-9]{2,30}USDT$/.test(symbol)) {
-    return res.status(400).json({ error: "Invalid USDT symbol" });
-  }
+  const body = await response.text();
 
-  trading = true;
-  activeSymbol = symbol;
-
-  try {
-    const exchangeInfo = await publicRequest("/fapi/v1/exchangeInfo");
-    const item = exchangeInfo.symbols.find(s =>
-      s.symbol === symbol &&
-      s.status === "TRADING" &&
-      s.contractType === "PERPETUAL"
+  if (!response.ok) {
+    const error = new Error(
+      `Binance Futures API returned HTTP ${response.status}`
     );
 
-    if (!item) throw new Error("Symbol is not an active USDT perpetual");
+    error.status = response.status;
+    error.details = body.slice(0, 500);
 
-    const priceData = await publicRequest("/fapi/v1/ticker/price", { symbol });
-    const price = Number(priceData.price);
+    throw error;
+  }
 
-    const candles = await publicRequest("/fapi/v1/klines", {
-      symbol,
-      interval: "5m",
-      limit: 220
-    });
+  return JSON.parse(body);
+}
 
-    const closes = candles.slice(0, -1).map(c => Number(c[4]));
-    if (closes.length < 100) throw new Error("Insufficient candle data");
+function ema(values, period) {
+  if (!values.length || values.length < period) return null;
 
-    const ema = (arr, period) => {
-      const k = 2 / (period + 1);
-      let value = arr.slice(0, period).reduce((a, b) => a + b, 0) / period;
-      for (let i = period; i < arr.length; i++) {
-        value = arr[i] * k + value * (1 - k);
-      }
-      return value;
+  const k = 2 / (period + 1);
+
+  let value = values
+    .slice(0, period)
+    .reduce((a, b) => a + b, 0) / period;
+
+  for (let i = period; i < values.length; i++) {
+    value = values[i] * k + value * (1 - k);
+  }
+
+  return value;
+}
+
+function rsi(values, period) {
+  if (values.length <= period) return null;
+
+  let gain = 0;
+  let loss = 0;
+
+  for (let i = 1; i <= period; i++) {
+    const delta = values[i] - values[i - 1];
+
+    if (delta > 0) gain += delta;
+    else loss -= delta;
+  }
+
+  let avgGain = gain / period;
+  let avgLoss = loss / period;
+
+  for (let i = period + 1; i < values.length; i++) {
+    const delta = values[i] - values[i - 1];
+
+    avgGain =
+      (avgGain * (period - 1) + Math.max(delta, 0)) / period;
+
+    avgLoss =
+      (avgLoss * (period - 1) + Math.max(-delta, 0)) / period;
+  }
+
+  return avgLoss === 0
+    ? 100
+    : 100 - 100 / (1 + avgGain / avgLoss);
+}
+
+function atr(candles, period) {
+  if (candles.length <= period) return null;
+
+  const trs = [];
+
+  for (let i = 1; i < candles.length; i++) {
+    const high = Number(candles[i][2]);
+    const low = Number(candles[i][3]);
+    const previousClose = Number(candles[i - 1][4]);
+
+    trs.push(
+      Math.max(
+        high - low,
+        Math.abs(high - previousClose),
+        Math.abs(low - previousClose)
+      )
+    );
+  }
+
+  let value =
+    trs.slice(0, period).reduce((a, b) => a + b, 0) / period;
+
+  for (let i = period; i < trs.length; i++) {
+    value =
+      (value * (period - 1) + trs[i]) / period;
+  }
+
+  return value;
+}
+
+function macd(values, fast, slow, signalPeriod) {
+  if (values.length < slow + signalPeriod) {
+    return {
+      line: null,
+      signal: null,
+      histogram: null
     };
+  }
 
-    const ema20 = ema(closes, 20);
-    const ema50 = ema(closes, 50);
-    const change = closes.at(-1) - closes.at(-2);
+  const kf = 2 / (fast + 1);
+  const ks = 2 / (slow + 1);
 
-    let side;
-    if (ema20 > ema50 && change > 0) side = "BUY";
-    else if (ema20 < ema50 && change < 0) side = "SELL";
-    else throw new Error("No clear entry signal. No order placed.");
+  let ef = values[0];
+  let es = values[0];
 
-    const high = candles.slice(-15, -1).map(c => Number(c[2]));
-    const low = candles.slice(-15, -1).map(c => Number(c[3]));
-    const ranges = candles.slice(-15, -1).map(c =>
-      Number(c[2]) - Number(c[3])
+  const line = [];
+
+  for (const value of values) {
+    ef = value * kf + ef * (1 - kf);
+    es = value * ks + es * (1 - ks);
+
+    line.push(ef - es);
+  }
+
+  const signal = ema(line, signalPeriod);
+  const last = line[line.length - 1];
+
+  return {
+    line: last,
+    signal,
+    histogram: signal == null ? null : last - signal
+  };
+}
+
+function bollinger(values, period, multiplier) {
+  if (values.length < period) return null;
+
+  const slice = values.slice(-period);
+
+  const middle =
+    slice.reduce((a, b) => a + b, 0) / period;
+
+  const deviation = Math.sqrt(
+    slice.reduce(
+      (sum, value) => sum + (value - middle) ** 2,
+      0
+    ) / period
+  );
+
+  return {
+    upper: middle + multiplier * deviation,
+    middle,
+    lower: middle - multiplier * deviation
+  };
+}
+
+function supertrend(candles, period, multiplier) {
+  if (candles.length < period + 2) return null;
+
+  let upper = null;
+  let lower = null;
+  let direction = 1;
+  let result = null;
+
+  const trs = [];
+
+  for (let i = 1; i < candles.length; i++) {
+    const high = Number(candles[i][2]);
+    const low = Number(candles[i][3]);
+    const previousClose = Number(candles[i - 1][4]);
+
+    trs.push(
+      Math.max(
+        high - low,
+        Math.abs(high - previousClose),
+        Math.abs(low - previousClose)
+      )
     );
-    const atr = ranges.reduce((a, b) => a + b, 0) / ranges.length;
+  }
 
-    if (!Number.isFinite(atr) || atr <= 0) throw new Error("Invalid ATR");
+  let currentAtr =
+    trs.slice(0, period).reduce((a, b) => a + b, 0) / period;
 
-    const long = side === "BUY";
-    const stop = long ? price - atr * 1.5 : price + atr * 1.5;
-    const target = long ? price + atr * 3 : price - atr * 3;
-
-    const lot = item.filters.find(f => f.filterType === "LOT_SIZE");
-    const priceFilter = item.filters.find(f => f.filterType === "PRICE_FILTER");
-
-    const step = Number(lot.stepSize);
-    const tick = Number(priceFilter.tickSize);
-    const minQty = Number(lot.minQty);
-
-    const floorStep = (n, stepSize) =>
-      Math.floor(n / stepSize) * stepSize;
-
-    const roundTick = n =>
-      (Math.round(n / tick) * tick).toFixed(
-        Math.max(0, (String(tick).split(".")[1] || "").length)
-      );
-
-    const notional = 20;
-    const quantity = floorStep(notional / price, step);
-
-    if (quantity < minQty) throw new Error("Quantity below exchange minimum");
-
-    const qtyDecimals = Math.max(0, (String(step).split(".")[1] || "").length);
-    const qty = quantity.toFixed(qtyDecimals);
-
-    await signedRequest("POST", "/fapi/v1/marginType", {
-      symbol,
-      marginType: "ISOLATED"
-    }).catch(e => {
-      if (!String(e.message).includes("-4046")) throw e;
-    });
-
-    await signedRequest("POST", "/fapi/v1/leverage", {
-      symbol,
-      leverage: 2
-    });
-
-    const order = await signedRequest("POST", "/fapi/v1/order", {
-      symbol,
-      side,
-      type: "MARKET",
-      quantity: qty
-    });
-
-    const exitSide = long ? "SELL" : "BUY";
-
-    try {
-      await signedRequest("POST", "/fapi/v1/order", {
-        symbol,
-        side: exitSide,
-        type: "STOP_MARKET",
-        stopPrice: roundTick(stop),
-        closePosition: "true",
-        workingType: "MARK_PRICE
-```javascript
-      });
-
-      await signedRequest("POST", "/fapi/v1/order", {
-        symbol,
-        side: exitSide,
-        type: "TAKE_PROFIT_MARKET",
-        stopPrice: roundTick(target),
-        closePosition: "true",
-        workingType: "MARK_PRICE"
-      });
-    } catch (protectError) {
-      // Protection failed: cancel open orders and attempt to close position.
-      await signedRequest("DELETE", "/fapi/v1/allOpenOrders", { symbol }).catch(() => {});
-      await signedRequest("POST", "/fapi/v1/order", {
-        symbol,
-        side: exitSide,
-        type: "MARKET",
-        quantity: qty,
-        reduceOnly: "true"
-      }).catch(() => {});
-      throw new Error("Protective order failed; emergency close was attempted. " + protectError.message);
+  for (let i = period; i < candles.length; i++) {
+    if (i > period) {
+      currentAtr =
+        (currentAtr * (period - 1) + trs[i - 1]) / period;
     }
 
-    res.json({
-      success: true,
-      mode: "TESTNET",
-      symbol,
-      side,
-      entryReference: price,
-      quantity: qty,
-      leverage: 2,
-      stopLoss: roundTick(stop),
-      takeProfit: roundTick(target),
-      order
+    const high = Number(candles[i][2]);
+    const low = Number(candles[i][3]);
+    const close = Number(candles[i][4]);
+    const previousClose = Number(candles[i - 1][4]);
+
+    const mid = (high + low) / 2;
+
+    const basicUpper = mid + multiplier * currentAtr;
+    const basicLower = mid - multiplier * currentAtr;
+
+    if (upper === null) {
+      upper = basicUpper;
+      lower = basicLower;
+    } else {
+      const oldUpper = upper;
+      const oldLower = lower;
+
+      upper =
+        basicUpper < oldUpper || previousClose > oldUpper
+          ? basicUpper
+          : oldUpper;
+
+      lower =
+        basicLower > oldLower || previousClose < oldLower
+          ? basicLower
+          : oldLower;
+    }
+
+    if (direction === 1 && close < lower) {
+      direction = -1;
+    } else if (direction === -1 && close > upper) {
+      direction = 1;
+    }
+
+    result = {
+      direction: direction === 1 ? 'LONG' : 'SHORT',
+      value: direction === 1 ? lower : upper
+    };
+  }
+
+  return result;
+}
+
+function calculate(candles, cfg) {
+  if (!Array.isArray(candles) || candles.length < 210) {
+    const error = new Error(
+      'At least 210 Futures candles are required.'
+    );
+
+    error.status = 400;
+    throw error;
+  }
+
+  const closed = candles.slice(0, -1);
+  const closes = closed.map(c => Number(c[4]));
+
+  if (closes.some(v => !Number.isFinite(v))) {
+    const error = new Error('Invalid candle data.');
+    error.status = 400;
+    throw error;
+  }
+
+  const last = closes[closes.length - 1];
+
+  const m = macd(
+    closes,
+    cfg.macdFast,
+    cfg.macdSlow,
+    cfg.macdSignal
+  );
+
+  const bb = bollinger(
+    closes,
+    cfg.bbPeriod,
+    cfg.bbMultiplier
+  );
+
+  const st = supertrend(
+    closed,
+    cfg.supertrendPeriod,
+    cfg.supertrendMultiplier
+  );
+
+  const value = {
+    price: last,
+    emaFast: ema(closes, cfg.emaFast),
+    emaMedium: ema(closes, cfg.emaMedium),
+    emaSlow: ema(closes, cfg.emaSlow),
+    emaTrend: ema(closes, cfg.emaTrend),
+    rsi: rsi(closes, cfg.rsiPeriod),
+    macd: m.line,
+    macdSignal: m.signal,
+    macdHistogram: m.histogram,
+    atr: atr(closed, cfg.atrPeriod),
+    bollinger: bb,
+    supertrend: st
+  };
+
+  let score = 0;
+  const reasons = [];
+
+  const add = (condition, name) => {
+    score += condition ? 1 : -1;
+
+    reasons.push(
+      `${name}: ${condition ? 'bullish' : 'bearish'}`
+    );
+  };
+
+  if (value.emaFast != null && value.emaMedium != null) {
+    add(value.emaFast > value.emaMedium, 'EMA fast/medium');
+  }
+
+  if (value.emaMedium != null && value.emaSlow != null) {
+    add(value.emaMedium > value.emaSlow, 'EMA medium/slow');
+  }
+
+  if (value.emaTrend != null) {
+    add(last > value.emaTrend, 'Price/trend EMA');
+  }
+
+  if (value.rsi != null) {
+    if (value.rsi >= 55) {
+      score++;
+      reasons.push('RSI: bullish');
+    } else if (value.rsi <= 45) {
+      score--;
+      reasons.push('RSI: bearish');
+    } else {
+      reasons.push('RSI: neutral');
+    }
+  }
+
+  if (value.macdHistogram != null) {
+    add(value.macdHistogram > 0, 'MACD histogram');
+  }
+
+  if (value.supertrend) {
+    add(
+      value.supertrend.direction === 'LONG',
+      'Supertrend'
+    );
+  }
+
+  if (value.bollinger) {
+    add(
+      last > value.bollinger.middle,
+      'Bollinger middle'
+    );
+  }
+
+  const maxScore = reasons.length;
+
+  const alignmentPct = maxScore
+    ? Math.round(Math.abs(score) / maxScore * 100)
+    : 0;
+
+  let signal = 'WAIT';
+
+  if (
+    score >= 4 &&
+    alignmentPct >= cfg.minSignalScore
+  ) {
+    signal = score >= 6 ? 'STRONG LONG' : 'LONG';
+  }
+
+  if (
+    score <= -4 &&
+    alignmentPct >= cfg.minSignalScore
+  ) {
+    signal = score <= -6 ? 'STRONG SHORT' : 'SHORT';
+  }
+
+  const plan = {
+    entry: null,
+    stopLoss: null,
+    tp1: null,
+    tp2: null,
+    tp3: null
+  };
+
+  if (value.atr > 0 && signal !== 'WAIT') {
+    const direction = signal.includes('LONG') ? 1 : -1;
+    const risk = value.atr * 1.5;
+
+    plan.entry = last;
+    plan.stopLoss = last - direction * risk;
+    plan.tp1 = last + direction * risk;
+    plan.tp2 = last + direction * risk * 2;
+    plan.tp3 = last + direction * risk * 3;
+  }
+
+  return {
+    signal,
+    score,
+    maxScore,
+    alignmentPct,
+    reasons,
+    indicators: value,
+    plan,
+    execution: 'DISABLED',
+    note:
+      'Indicator alignment is not a probability or guarantee. This endpoint does not place orders.'
+  };
+}
+
+app.get('/', (_req, res) => {
+  res.json({
+    name: 'SHIJU BINANCE V6 API',
+    market: 'BINANCE USDT-M PERPETUAL FUTURES ONLY',
+    status: 'ONLINE',
+    execution: 'DISABLED'
+  });
+});
+
+app.get('/health', (_req, res) => {
+  res.json({
+    status: 'ONLINE',
+    service: 'SHIJU BINANCE V6',
+    timestamp: new Date().toISOString(),
+    execution: 'DISABLED'
+  });
+});
+
+app.get('/config', (_req, res) => {
+  res.json({
+    market: 'USDT-M PERPETUAL FUTURES ONLY',
+    intervals: [...ALLOWED_INTERVALS],
+    settings,
+    execution: 'DISABLED'
+  });
+});
+
+app.get('/settings', (_req, res) => {
+  res.json(settings);
+});
+
+app.post('/settings', (req, res) => {
+  settings = cleanSettings(req.body || {});
+  res.json({
+    success: true,
+    settings
+  });
+});
+
+app.post('/settings/reset', (_req, res) => {
+  settings = { ...DEFAULT_SETTINGS };
+
+  res.json({
+    success: true,
+    settings
+  });
+});
+
+// Binance public market data route.
+// Hosting region restrictions may affect this endpoint.
+app.get('/futures/pairs', async (_req, res) => {
+  try {
+    const [info, tickers] = await Promise.all([
+      binanceGet('/fapi/v1/exchangeInfo'),
+      binanceGet('/fapi/v1/ticker/24hr')
+    ]);
+
+    const valid = new Set(
+      info.symbols
+        .filter(s =>
+          s.status === 'TRADING' &&
+          s.contractType === 'PERPETUAL' &&
+          s.quoteAsset === 'USDT'
+        )
+        .map(s => s.symbol)
+    );
+
+    res.json(
+      tickers.filter(t => valid.has(t.symbol))
+    );
+  } catch (error) {
+    res.status(error.status || 502).json({
+      error: error.message,
+      details: error.details || null,
+      hint:
+        'If this host cannot reach Binance, fetch public Futures market data in the browser.'
+    });
+  }
+});
+
+app.get('/futures/ticker/:symbol', async (req, res) => {
+  const symbol = String(
+    req.params.symbol || ''
+  ).toUpperCase();
+
+  if (!isSymbol(symbol)) {
+    return res.status(400).json({
+      error: 'Invalid USDT Futures symbol.'
+    });
+  }
+
+  try {
+    res.json(
+      await binanceGet(
+        `/fapi/v1/ticker/24hr?symbol=${encodeURIComponent(symbol)}`
+      )
+    );
+  } catch (error) {
+    res.status(error.status || 502).json({
+      error: error.message,
+      details: error.details || null
+    });
+  }
+});
+
+app.get('/futures/klines/:symbol', async (req, res) => {
+  const symbol = String(
+    req.params.symbol || ''
+  ).toUpperCase();
+
+  const interval = String(
+    req.query.interval || '5m'
+  );
+
+  const limit = Math.round(
+    clampNumber(req.query.limit, 210, 1500, 500)
+  );
+
+  if (!isSymbol(symbol)) {
+    return res.status(400).json({
+      error: 'Invalid USDT Futures symbol.'
+    });
+  }
+
+  if (!ALLOWED_INTERVALS.has(interval)) {
+    return res.status(400).json({
+      error: 'Unsupported Futures interval.'
+    });
+  }
+
+  try {
+    res.json(
+      await binanceGet(
+        `/fapi/v1/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`
+      )
+    );
+  } catch (error) {
+    res.status(error.status || 502).json({
+      error: error.message,
+      details: error.details || null
+    });
+  }
+});
+
+// Frontend sends candles here for server-side analysis.
+app.post('/futures/analyze', (req, res) => {
+  try {
+    const symbol = String(
+      req.body?.symbol || ''
+    ).toUpperCase();
+
+    const interval = String(
+      req.body?.interval || '5m'
+    );
+
+    if (!isSymbol(symbol)) {
+      return res.status(400).json({
+        error: 'Invalid USDT Futures symbol.'
+      });
+    }
+
+    if (!ALLOWED_INTERVALS.has(interval)) {
+      return res.status(400).json({
+        error: 'Unsupported Futures interval.'
+      });
+    }
+
+    const cfg = cleanSettings({
+      ...settings,
+      ...(req.body?.customSettings || {})
     });
 
-  } catch (e) {
-    res.status(400).json({ success: false, error: e.message });
-  } finally {
-    trading = false;
-    activeSymbol = null;
+    const result = calculate(
+      req.body?.candles,
+      cfg
+    );
+
+    res.json({
+      symbol,
+      interval,
+      timestamp: new Date().toISOString(),
+      ...result
+    });
+  } catch (error) {
+    res.status(error.status || 500).json({
+      error: error.message
+    });
   }
+});
+
+app.use((error, _req, res, _next) => {
+  res.status(400).json({
+    error: error.message || 'Bad request.'
+  });
 });
 
 app.listen(PORT, () => {
-  console.log(`SHIJU BINANCE V6 TESTNET backend running on port ${PORT}`);
+  console.log(
+    `SHIJU BINANCE V6 API listening on port ${PORT}`
+  );
 });
