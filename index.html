@@ -5,78 +5,296 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#090d14">
 <title>SHIJU BINANCE V6</title>
+
 <style>
 *{box-sizing:border-box}
-:root{--bg:#090d14;--p:#151e2b;--p2:#111925;--line:#303846;--g:#e8bd62;--m:#a4aab4;--green:#00d69a;--red:#ff5268}
+:root{
+--bg:#090d14;
+--p:#151e2b;
+--p2:#111925;
+--line:#303846;
+--g:#e8bd62;
+--m:#a4aab4;
+--green:#00d69a;
+--red:#ff5268
+}
 body{margin:0;background:var(--bg);color:#eee;font:14px Arial}
-header{position:sticky;top:0;z-index:4;background:var(--p2);padding:16px;border-bottom:1px solid var(--line)}
+header{
+position:relative;
+background:var(--p2);
+padding:16px;
+border-bottom:1px solid var(--line)
+}
 h2,h3{color:var(--g);margin:3px 0 13px}
 h2{font-size:23px}
 .sub,.small,.label{color:var(--m)}
 .sub{font-size:11px;margin-top:6px}
 .small{font-size:12px;line-height:1.6}
 .container{max-width:1100px;margin:auto;padding:14px}
-.cards,.grid,.tf{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
-.card,.panel{background:var(--p);border-radius:14px;padding:14px;min-width:0}
+.cards,.grid,.tf{
+display:grid;
+grid-template-columns:repeat(2,minmax(0,1fr));
+gap:9px
+}
+.card,.panel{
+background:var(--p);
+border-radius:14px;
+padding:14px;
+min-width:0
+}
 .panel{margin-top:14px;overflow:hidden}
 .label{font-size:11px}
-.value{font-weight:bold;font-size:19px;margin-top:7px;overflow-wrap:anywhere}
+.value{
+font-weight:bold;
+font-size:19px;
+margin-top:7px;
+overflow-wrap:anywhere
+}
 .green{color:var(--green)}
 .red{color:var(--red)}
 .gold{color:var(--g)}
-input,select{width:100%;padding:12px;margin:7px 0;background:var(--p2);color:white;border:1px solid #46505f;border-radius:9px;font-size:14px}
-button{background:var(--g);border:0;border-radius:8px;padding:11px 13px;font-weight:bold;color:#111}
-button.alt{background:#263447;color:#f0d18c;border:1px solid #526071}
-.tablewrap{max-height:60vh;overflow-y:auto;overflow-x:hidden}
-table{width:100%;border-collapse:collapse;table-layout:fixed;white-space:normal;font-size:12px}
-td,th{padding:11px 7px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle;overflow:hidden}
+input,select{
+width:100%;
+padding:12px;
+margin:7px 0;
+background:var(--p2);
+color:white;
+border:1px solid #46505f;
+border-radius:9px;
+font-size:14px
+}
+button{
+background:var(--g);
+border:0;
+border-radius:8px;
+padding:11px 13px;
+font-weight:bold;
+color:#111
+}
+button.alt{
+background:#263447;
+color:#f0d18c;
+border:1px solid #526071
+}
+
+/* SHORTLIST */
+.tablewrap{
+max-height:60vh;
+overflow-y:auto;
+overflow-x:hidden;
+position:relative;
+-webkit-overflow-scrolling:touch
+}
+table{
+width:100%;
+border-collapse:collapse;
+table-layout:fixed;
+white-space:normal;
+font-size:12px
+}
+td,th{
+padding:11px 7px;
+border-bottom:1px solid var(--line);
+text-align:left;
+vertical-align:middle;
+overflow:hidden
+}
 th:nth-child(1){width:34%}
 th:nth-child(2){width:39%}
 th:nth-child(3){width:27%;text-align:center}
-.sorthead{display:inline-flex;align-items:center;gap:4px;white-space:nowrap;font-size:11px;font-weight:700;color:#f4f5f7}
-.sortarrow{border:0;background:transparent;color:#f3c45d;padding:2px 0;font-size:16px;line-height:1;min-width:18px}
-.coin-main,.price-main{font-size:13px;font-weight:700;line-height:1.25;white-space:nowrap}
-.coin-sub,.change-sub{font-size:11px;color:var(--m);line-height:1.35;margin-top:3px;white-space:nowrap}
+
+/* STICKY TABLE HEADINGS */
+.tablewrap thead th{
+position:sticky;
+top:0;
+z-index:5;
+background:#151e2b;
+padding-top:13px;
+padding-bottom:13px
+}
+.sorthead{
+display:inline-flex;
+align-items:center;
+gap:4px;
+white-space:nowrap;
+font-size:11px;
+font-weight:700;
+color:#f4f5f7
+}
+.sortarrow{
+border:0;
+background:transparent;
+color:#f3c45d;
+padding:2px 0;
+font-size:16px;
+line-height:1;
+min-width:18px;
+cursor:pointer
+}
+.coin-main,.price-main{
+font-size:13px;
+font-weight:700;
+line-height:1.25;
+white-space:nowrap
+}
+.coin-sub,.change-sub{
+font-size:11px;
+color:var(--m);
+line-height:1.35;
+margin-top:3px;
+white-space:nowrap
+}
 .change-sub{font-weight:700}
 .signal-cell{text-align:center!important}
-.signal-pill{display:inline-block;font-size:10px;font-weight:800;line-height:1;padding:7px 6px;border-radius:8px;min-width:54px;text-align:center;white-space:nowrap}
-.signal-pill.green{background:#075b3c;color:#5cffb5;border:1px solid #00a96b}
-.signal-pill.red{background:#701d2b;color:#ff7183;border:1px solid #ed4058}
-.signal-pill.gold{background:#654b16;color:#ffdc79;border:1px solid #d9a936}
-.short-controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0}
-.short-controls select,.short-controls button{height:48px;margin:0;font-size:14px}
+.signal-pill{
+display:inline-block;
+font-size:10px;
+font-weight:800;
+line-height:1;
+padding:8px 5px;
+border-radius:8px;
+min-width:72px;
+text-align:center;
+white-space:nowrap
+}
+.signal-pill.green{
+background:#075b3c;
+color:#5cffb5;
+border:1px solid #00a96b
+}
+.signal-pill.red{
+background:#701d2b;
+color:#ff7183;
+border:1px solid #ed4058
+}
+.signal-pill.gold{
+background:#654b16;
+color:#ffdc79;
+border:1px solid #d9a936
+}
+.short-controls{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+margin:8px 0
+}
+.short-controls select,.short-controls button{
+height:48px;
+margin:0;
+font-size:14px
+}
 .short-search{margin:8px 0}
-.short-filters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:8px 0}
-.short-filters button{padding:10px 4px;background:#263447;color:#f4f5f7;border:1px solid #35465a;font-size:13px}
-.short-filters button.active{background:var(--g);color:#111;border-color:var(--g)}
-.scan-status{font-size:12px;color:var(--m);line-height:1.5;margin:7px 0 10px}
+.short-filters{
+display:grid;
+grid-template-columns:repeat(4,minmax(0,1fr));
+gap:8px;
+margin:8px 0
+}
+.short-filters button{
+padding:10px 4px;
+background:#263447;
+color:#f4f5f7;
+border:1px solid #35465a;
+font-size:13px
+}
+.short-filters button.active{
+background:var(--g);
+color:#111;
+border-color:var(--g)
+}
+.scan-status{
+font-size:12px;
+color:var(--m);
+line-height:1.5;
+margin:7px 0 10px
+}
 tr[data-sym]{cursor:pointer}
+
 @media(max-width:380px){
 .sorthead{font-size:9px;gap:2px}
-.sortarrow{font-size:14px}
+.sortarrow{font-size:14px;min-width:14px}
 .coin-main,.price-main{font-size:11px}
 .coin-sub,.change-sub{font-size:10px}
-.signal-pill{font-size:9px;min-width:48px;padding:6px 4px}
+.signal-pill{
+font-size:9px;
+min-width:65px;
+padding:7px 3px
+}
 td,th{padding:9px 4px}
 }
-.signal{text-align:center;font-size:26px;font-weight:bold;padding:13px}
-.tfbox,.ind{background:#101925;border:1px solid var(--line);border-radius:10px;padding:10px;min-width:0}
+
+.signal{
+text-align:center;
+font-size:26px;
+font-weight:bold;
+padding:13px
+}
+.tfbox,.ind{
+background:#101925;
+border:1px solid var(--line);
+border-radius:10px;
+padding:10px;
+min-width:0
+}
 .tfbox b{color:var(--g)}
 .tfbox strong{display:block;margin:6px 0}
 .ind .label{font-size:10px}
 .ind .value{font-size:14px}
-.row{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
-.row span:last-child{text-align:right;font-weight:bold;overflow-wrap:anywhere}
-.copygrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:10px}
-.copygrid button{width:100%;font-size:11px;padding:8px}
-.alert{padding:9px;margin:7px 0;border:1px solid #6a542d;border-radius:8px;background:#211b10;color:#f0d18c;font-size:11px}
-.settings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.row{
+display:flex;
+justify-content:space-between;
+gap:10px;
+padding:9px 0;
+border-bottom:1px solid var(--line)
+}
+.row span:last-child{
+text-align:right;
+font-weight:bold;
+overflow-wrap:anywhere
+}
+.copygrid{
+display:grid;
+grid-template-columns:repeat(2,minmax(0,1fr));
+gap:7px;
+margin-top:10px
+}
+.copygrid button{
+width:100%;
+font-size:11px;
+padding:8px
+}
+.alert{
+padding:9px;
+margin:7px 0;
+border:1px solid #6a542d;
+border-radius:8px;
+background:#211b10;
+color:#f0d18c;
+font-size:11px
+}
+.settings{
+display:grid;
+grid-template-columns:repeat(2,minmax(0,1fr));
+gap:8px
+}
 .settings label{font-size:11px;color:var(--m)}
 .settings input{margin-top:4px}
-.bar{height:8px;background:#303846;display:flex;margin:9px 0;border-radius:8px;overflow:hidden}
+.bar{
+height:8px;
+background:#303846;
+display:flex;
+margin:9px 0;
+border-radius:8px;
+overflow:hidden
+}
 #bidbar{background:var(--green)}
 #askbar{background:var(--red)}
-.note{font-size:11px;color:var(--m);line-height:1.5;margin:16px 2px}
+.note{
+font-size:11px;
+color:var(--m);
+line-height:1.5;
+margin:16px 2px
+}
 @media(min-width:650px){
 .cards{grid-template-columns:repeat(4,1fr)}
 .tf{grid-template-columns:repeat(4,1fr)}
@@ -85,7 +303,9 @@ td,th{padding:9px 4px}
 }
 </style>
 </head>
+
 <body>
+
 <header>
 <h2>SHIJU BINANCE V6</h2>
 <div class="sub">ADVANCED FUTURES SIGNAL INTELLIGENCE</div>
@@ -93,12 +313,8 @@ td,th{padding:9px 4px}
 </header>
 
 <div class="container">
-<div class="cards">
-<div class="card"><div class="label">LIVE PRICE</div><div class="value gold" id="price">--</div></div>
-<div class="card"><div class="label">24H CHANGE</div><div class="value" id="change">--</div></div>
-<div class="card"><div class="label">BID SHARE</div><div class="value green" id="bidshare">--</div></div>
-<div class="card"><div class="label">ASK SHARE</div><div class="value red" id="askshare">--</div></div>
-</div>
+
+<!-- TOP MARKET CARDS REMOVED AS REQUESTED -->
 
 <section class="panel">
 <h3>FUTURES SIGNAL SHORTLIST</h3>
@@ -132,14 +348,32 @@ td,th{padding:9px 4px}
 <table>
 <thead>
 <tr>
-<th><span class="sorthead">COIN <button class="sortarrow" type="button" data-short-sort="coin" aria-label="Sort by coin">↕</button></span></th>
-<th><span class="sorthead">LAST PRICE / 24H <button class="sortarrow" type="button" data-short-sort="price" aria-label="Sort by last price and 24 hour change">↕</button></span></th>
-<th><span class="sorthead">SIGNAL <button class="sortarrow" type="button" data-short-sort="signal" aria-label="Sort by signal">↕</button></span></th>
+<th>
+<span class="sorthead">
+COIN
+<button class="sortarrow" type="button" data-short-sort="coin" aria-label="Sort by coin">↕</button>
+</span>
+</th>
+<th>
+<span class="sorthead">
+LAST PRICE / 24H
+<button class="sortarrow" type="button" data-short-sort="change" aria-label="Sort by 24 hour change">↕</button>
+</span>
+</th>
+<th>
+<span class="sorthead">
+SIGNAL
+<button class="sortarrow" type="button" data-short-sort="signal" aria-label="Sort by signal">↕</button>
+</span>
+</th>
 </tr>
 </thead>
-<tbody id="markets"><tr><td colspan="3">Loading...</td></tr></tbody>
+<tbody id="markets">
+<tr><td colspan="3">Loading...</td></tr>
+</tbody>
 </table>
 </div>
+
 <button class="alt" id="more">LOAD NEXT 50</button>
 </section>
 
@@ -150,6 +384,7 @@ td,th{padding:9px 4px}
 <button class="alt" id="notify">ENABLE NOTIFICATIONS</button>
 <div id="signal" class="signal gold">WAIT</div>
 <div id="reason" class="small">Waiting...</div>
+
 <div class="grid">
 <div class="ind"><div class="label">ALIGNMENT SCORE</div><div class="value" id="score">--</div></div>
 <div class="ind"><div class="label">ALIGNMENT</div><div class="value" id="align">--</div></div>
@@ -214,7 +449,11 @@ td,th{padding:9px 4px}
 <div id="alerts" class="small">Signal, Supertrend, RSI and price-level alerts will appear here.</div>
 </section>
 
-<p class="note">Public Binance USDT-M Futures data only. No API key and no order execution. Indicator alignment is not a win probability. Entry, SL and targets are estimates, not guaranteed predictions.</p>
+<p class="note">
+Public Binance USDT-M Futures data only. No API key and no order execution.
+Indicator alignment is not a win probability. Entry, SL and targets are estimates, not guaranteed predictions.
+</p>
+
 </div>
 
 <script>
@@ -225,13 +464,29 @@ const BACKEND="https://shiju-binance-v6-backend.onrender.com";
 const WS="wss://fstream.binance.com/ws/";
 
 const TFS=["1m","3m","5m","15m","30m","1h","2h","4h","6h","8h","12h","1d","3d","1w","1M"];
-const DEFAULT={emaFast:9,emaMedium:20,emaSlow:50,emaTrend:200,rsiPeriod:14,macdFast:12,macdSlow:26,macdSignal:9,atrPeriod:14,adxPeriod:14,bbPeriod:20,bbMultiplier:2,stochPeriod:14,supertrendPeriod:10,supertrendMultiplier:3,minSignalScore:60};
 
-let cfg={...DEFAULT},pairs=[],page=1,selected="BTCUSDT",id=0,socks=[],rows=[],trades=[],seen=new Set(),lastSignal="",lastST="",soundOn=true,notifyOn=false,plan={};
-let scanner={},shortSort={key:"volume",dir:1},shortFilter="ALL",scanBusy=false;
+const DEFAULT={
+emaFast:9,emaMedium:20,emaSlow:50,emaTrend:200,
+rsiPeriod:14,macdFast:12,macdSlow:26,macdSignal:9,
+atrPeriod:14,adxPeriod:14,bbPeriod:20,bbMultiplier:2,
+stochPeriod:14,supertrendPeriod:10,supertrendMultiplier:3,
+minSignalScore:60
+};
+
+let cfg={...DEFAULT};
+let pairs=[],page=1,selected="BTCUSDT",id=0;
+let socks=[],rows=[],trades=[],seen=new Set();
+let lastSignal="",lastST="",soundOn=true,notifyOn=false;
+let scanner={},shortSort={key:"volume",dir:1};
+let shortFilter="ALL",scanBusy=false;
 
 const $=x=>document.getElementById(x);
-const fmt=(n,d=8)=>Number.isFinite(+n)?Number(n).toLocaleString("en-US",{maximumFractionDigits:d}):"--";
+
+const fmt=(n,d=8)=>
+Number.isFinite(+n)
+?Number(n).toLocaleString("en-US",{maximumFractionDigits:d})
+:"--";
+
 const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:0;
 
 async function get(url){
@@ -247,15 +502,23 @@ return /LONG|BUY/.test(s)?"green":/SHORT|SELL/.test(s)?"red":"gold";
 function ema(a,p){
 if(!a.length)return[];
 let k=2/(p+1),v=a[0],o=[v];
-for(let i=1;i<a.length;i++){v=a[i]*k+v*(1-k);o.push(v)}
+for(let i=1;i<a.length;i++){
+v=a[i]*k+v*(1-k);
+o.push(v);
+}
 return o;
 }
 
 function rsi(a,p){
 if(a.length<=p)return null;
 let g=0,l=0;
-for(let i=1;i<=p;i++){let d=a[i]-a[i-1];if(d>0)g+=d;else l-=d}
-g/=p;l/=p;
+for(let i=1;i<=p;i++){
+let d=a[i]-a[i-1];
+if(d>0)g+=d;
+else l-=d;
+}
+g/=p;
+l/=p;
 for(let i=p+1;i<a.length;i++){
 let d=a[i]-a[i-1];
 g=(g*(p-1)+Math.max(d,0))/p;
@@ -265,7 +528,8 @@ return l?100-100/(1+g/l):100;
 }
 
 function atrs(c,p){
-let tr=Array(c.length).fill(null),o=Array(c.length).fill(null);
+let tr=Array(c.length).fill(null);
+let o=Array(c.length).fill(null);
 for(let i=1;i<c.length;i++){
 let h=+c[i][2],l=+c[i][3],pc=+c[i-1][4];
 tr[i]=Math.max(h-l,Math.abs(h-pc),Math.abs(l-pc));
@@ -273,19 +537,28 @@ tr[i]=Math.max(h-l,Math.abs(h-pc),Math.abs(l-pc));
 if(c.length<=p)return o;
 let v=0;
 for(let i=1;i<=p;i++)v+=tr[i];
-v/=p;o[p]=v;
-for(let i=p+1;i<c.length;i++){v=(v*(p-1)+tr[i])/p;o[i]=v}
+v/=p;
+o[p]=v;
+for(let i=p+1;i<c.length;i++){
+v=(v*(p-1)+tr[i])/p;
+o[i]=v;
+}
 return o;
 }
 
 function bb(a,p,m){
 if(a.length<p)return null;
-let z=a.slice(-p),mid=avg(z),sd=Math.sqrt(avg(z.map(x=>(x-mid)**2)));
+let z=a.slice(-p),mid=avg(z);
+let sd=Math.sqrt(avg(z.map(x=>(x-mid)**2)));
 return{mid,upper:mid+m*sd,lower:mid-m*sd};
 }
 
 function macd(a){
-let f=ema(a,cfg.macdFast),s=ema(a,cfg.macdSlow),l=a.map((_,i)=>f[i]-s[i]),sig=ema(l,cfg.macdSignal),i=a.length-1;
+let f=ema(a,cfg.macdFast);
+let s=ema(a,cfg.macdSlow);
+let l=a.map((_,i)=>f[i]-s[i]);
+let sig=ema(l,cfg.macdSignal);
+let i=a.length-1;
 return{v:l[i],h:l[i]-sig[i]};
 }
 
@@ -293,9 +566,15 @@ function st(c,p,m){
 let at=atrs(c,p),u=null,l=null,d=1,out=null;
 for(let i=p;i<c.length;i++){
 if(at[i]==null)continue;
-let mid=(+c[i][2]+ +c[i][3])/2,bu=mid+m*at[i],bl=mid-m*at[i],pc=+c[i-1][4],cl=+c[i][4];
+let mid=(+c[i][2]+ +c[i][3])/2;
+let bu=mid+m*at[i],bl=mid-m*at[i];
+let pc=+c[i-1][4],cl=+c[i][4];
 if(u===null){u=bu;l=bl}
-else{let ou=u,ol=l;u=bu<ou||pc>ou?bu:ou;l=bl>ol||pc<ol?bl:ol}
+else{
+let ou=u,ol=l;
+u=bu<ou||pc>ou?bu:ou;
+l=bl>ol||pc<ol?bl:ol;
+}
 if(d===1&&cl<l)d=-1;
 else if(d===-1&&cl>u)d=1;
 out={dir:d===1?"LONG":"SHORT",value:d===1?l:u};
@@ -307,14 +586,18 @@ function adx(c,p){
 if(c.length<2*p+2)return null;
 let tr=0,pu=0,mi=0,dx=[];
 for(let i=1;i<=p;i++){
-let up=+c[i][2]- +c[i-1][2],dn=+c[i-1][3]- +c[i][3],h=+c[i][2],l=+c[i][3],pc=+c[i-1][4];
+let up=+c[i][2]- +c[i-1][2];
+let dn=+c[i-1][3]- +c[i][3];
+let h=+c[i][2],l=+c[i][3],pc=+c[i-1][4];
 tr+=Math.max(h-l,Math.abs(h-pc),Math.abs(l-pc));
 pu+=up>dn&&up>0?up:0;
 mi+=dn>up&&dn>0?dn:0;
 }
 for(let i=p;i<c.length;i++){
 if(i>p){
-let up=+c[i][2]- +c[i-1][2],dn=+c[i-1][3]- +c[i][3],h=+c[i][2],l=+c[i][3],pc=+c[i-1][4];
+let up=+c[i][2]- +c[i-1][2];
+let dn=+c[i-1][3]- +c[i][3];
+let h=+c[i][2],l=+c[i][3],pc=+c[i-1][4];
 tr=tr-tr/p+Math.max(h-l,Math.abs(h-pc),Math.abs(l-pc));
 pu=pu-pu/p+(up>dn&&up>0?up:0);
 mi=mi-mi/p+(dn>up&&dn>0?dn:0);
@@ -329,21 +612,46 @@ return v;
 }
 
 function calc(raw){
-let c=raw.slice(0,-1),a=c.map(x=>+x[4]),i=a.length-1,at=atrs(c,cfg.atrPeriod),m=macd(a),b=bb(a,cfg.bbPeriod,cfg.bbMultiplier),sv=st(c,cfg.supertrendPeriod,cfg.supertrendMultiplier);
+let c=raw.slice(0,-1);
+let a=c.map(x=>+x[4]);
+let i=a.length-1;
+let at=atrs(c,cfg.atrPeriod);
+let m=macd(a);
+let b=bb(a,cfg.bbPeriod,cfg.bbMultiplier);
+let sv=st(c,cfg.supertrendPeriod,cfg.supertrendMultiplier);
 let pv=0,vol=0;
-c.forEach(x=>{let tp=(+x[2]+ +x[3]+ +x[4])/3;pv+=tp* +x[5];vol+= +x[5]});
+
+c.forEach(x=>{
+let tp=(+x[2]+ +x[3]+ +x[4])/3;
+pv+=tp* +x[5];
+vol+= +x[5];
+});
+
 let rv=rsi(a,cfg.rsiPeriod),sto=null;
+
 if(a.length>cfg.stochPeriod+15){
 let rr=[];
 for(let j=15;j<a.length;j++)rr.push(rsi(a.slice(0,j+1),14));
-let z=rr.slice(-cfg.stochPeriod),lo=Math.min(...z),hi=Math.max(...z);
+let z=rr.slice(-cfg.stochPeriod);
+let lo=Math.min(...z),hi=Math.max(...z);
 sto=hi===lo?50:(z[z.length-1]-lo)/(hi-lo)*100;
 }
+
 return{
-price:a[i],ef:ema(a,cfg.emaFast)[i],em:ema(a,cfg.emaMedium)[i],
-es:ema(a,cfg.emaSlow)[i],et:ema(a,cfg.emaTrend)[i],
-rsi:rv,macd:m.v,hist:m.h,atr:at[i],adx:adx(c,cfg.adxPeriod),
-stoch:sto,vwap:vol?pv/vol:null,st:sv,bb,
+price:a[i],
+ef:ema(a,cfg.emaFast)[i],
+em:ema(a,cfg.emaMedium)[i],
+es:ema(a,cfg.emaSlow)[i],
+et:ema(a,cfg.emaTrend)[i],
+rsi:rv,
+macd:m.v,
+hist:m.h,
+atr:at[i],
+adx:adx(c,cfg.adxPeriod),
+stoch:sto,
+vwap:vol?pv/vol:null,
+st:sv,
+bb,
 support:Math.min(...c.slice(-50).map(x=>+x[3])),
 resistance:Math.max(...c.slice(-50).map(x=>+x[2]))
 };
@@ -351,14 +659,27 @@ resistance:Math.max(...c.slice(-50).map(x=>+x[2]))
 
 function score(x){
 let s=0,w=[];
-[[x.ef>x.em,"EMA fast/medium"],[x.em>x.es,"EMA medium/slow"],[x.price>x.et,"Price/trend EMA"],[x.hist>0,"MACD"],[x.st?.dir==="LONG","Supertrend"],[x.price>(x.bb?.mid||x.price),"Bollinger middle"]].forEach(([b,n])=>{s+=b?1:-1;w.push(n+(b?" bullish":" bearish"))});
+[
+[x.ef>x.em,"EMA fast/medium"],
+[x.em>x.es,"EMA medium/slow"],
+[x.price>x.et,"Price/trend EMA"],
+[x.hist>0,"MACD"],
+[x.st?.dir==="LONG","Supertrend"],
+[x.price>(x.bb?.mid||x.price),"Bollinger middle"]
+].forEach(([b,n])=>{
+s+=b?1:-1;
+w.push(n+(b?" bullish":" bearish"));
+});
 if(x.rsi>55)s++;
 else if(x.rsi<45)s--;
 return{s,w};
 }
 
 function label(s){
-return s>=4?"STRONG LONG":s>=2?"LONG":s<=-4?"STRONG SHORT":s<=-2?"SHORT":"WAIT";
+return s>=4?"STRONG LONG":
+s>=2?"LONG":
+s<=-4?"STRONG SHORT":
+s<=-2?"SHORT":"WAIT";
 }
 
 function initUI(){
@@ -368,8 +689,11 @@ let l=document.createElement("label");
 l.className="ind";
 l.innerHTML=`<input type="checkbox" value="${t}" ${["1m","3m","5m","15m","30m","1h","4h"].includes(t)?"checked":""} style="width:auto"> ${t}`;
 f.append(l);
+
 let o=document.createElement("option");
-o.value=t;o.textContent=t;o.selected=t==="5m";
+o.value=t;
+o.textContent=t;
+o.selected=t==="5m";
 d.append(o);
 });
 initSettings();
@@ -381,8 +705,17 @@ return [...$("tfchoices").querySelectorAll("input:checked")].map(x=>x.value);
 
 async function loadPairs(){
 try{
-let [ex,t]=await Promise.all([get(API+"/fapi/v1/exchangeInfo"),get(API+"/fapi/v1/ticker/24hr")]);
-let valid=new Set(ex.symbols.filter(x=>x.status==="TRADING"&&x.contractType==="PERPETUAL"&&x.quoteAsset==="USDT").map(x=>x.symbol));
+let [ex,t]=await Promise.all([
+get(API+"/fapi/v1/exchangeInfo"),
+get(API+"/fapi/v1/ticker/24hr")
+]);
+let valid=new Set(
+ex.symbols.filter(x=>
+x.status==="TRADING"&&
+x.contractType==="PERPETUAL"&&
+x.quoteAsset==="USDT"
+).map(x=>x.symbol)
+);
 pairs=t.filter(x=>valid.has(x.symbol));
 sortPairs();
 $("conn").textContent=`BINANCE CONNECTED · ${pairs.length} USDT PERPETUAL PAIRS`;
@@ -395,242 +728,557 @@ $("scanStatus").textContent="Unable to load Futures pairs: "+e.message;
 
 function compactVolume(v){
 v=+v||0;
-return v>=1e9?(v/1e9).toFixed(2)+"B":v>=1e6?(v/1e6).toFixed(2)+"M":v>=1e3?(v/1e3).toFixed(2)+"K":fmt(v,0);
+return v>=1e9?(v/1e9).toFixed(2)+"B":
+v>=1e6?(v/1e6).toFixed(2)+"M":
+v>=1e3?(v/1e3).toFixed(2)+"K":
+fmt(v,0);
 }
 
+/* SIGNAL ORDER */
+const signalRank={
+"STRONG LONG":1,
+"LONG":2,
+"SHORT":3,
+"STRONG SHORT":4,
+"WAIT":5
+};
+
+/* SHORTLIST FILTER AND SORT */
 function sortPairs(){
-let q=$("search").value.toUpperCase(),a=pairs.filter(x=>x.symbol.includes(q));
-if(shortFilter!=="ALL")a=a.filter(x=>String(scanner[x.symbol]||"WAIT").toUpperCase().includes(shortFilter));
-if(shortSort.key==="coin")a.sort((x,y)=>x.symbol.localeCompare(y.symbol)*shortSort.dir);
-else if(shortSort.key==="price")a.sort((x,y)=>(+x.lastPrice- +y.lastPrice)*shortSort.dir);
-else if(shortSort.key==="signal")a.sort((x,y)=>String(scanner[x.symbol]||"WAIT").localeCompare(String(scanner[y.symbol]||"WAIT"))*shortSort.dir);
-else a.sort((x,y)=>+y.quoteVolume- +x.quoteVolume);
+
+let q=$("search").value.toUpperCase();
+let a=pairs.filter(x=>x.symbol.includes(q));
+
+if(shortFilter!=="ALL"){
+a=a.filter(x=>{
+let s=String(scanner[x.symbol]||"WAIT").toUpperCase();
+if(shortFilter==="LONG")return s==="LONG"||s==="STRONG LONG";
+if(shortFilter==="SHORT")return s==="SHORT"||s==="STRONG SHORT";
+return s==="WAIT";
+});
+}
+
+if(shortSort.key==="coin"){
+a.sort((x,y)=>x.symbol.localeCompare(y.symbol)*shortSort.dir);
+}
+else if(shortSort.key==="change"){
+a.sort((x,y)=>(+x.priceChangePercent- +y.priceChangePercent)*shortSort.dir);
+}
+else if(shortSort.key==="signal"){
+a.sort((x,y)=>{
+let sx=String(scanner[x.symbol]||"WAIT").toUpperCase();
+let sy=String(scanner[y.symbol]||"WAIT").toUpperCase();
+return((signalRank[sx]||5)-(signalRank[sy]||5))*shortSort.dir;
+});
+}
+else{
+a.sort((x,y)=>+y.quoteVolume- +x.quoteVolume);
+}
 
 let n=page*50;
+
 $("markets").innerHTML=a.slice(0,n).map(x=>{
-let ch=+x.priceChangePercent,sg=String(scanner[x.symbol]||"WAIT").toUpperCase(),sc=sg.includes("LONG")?"green":sg.includes("SHORT")?"red":"gold";
-return `<tr data-sym="${x.symbol}">
-<td><div class="coin-main">${x.symbol}</div><div class="coin-sub">${compactVolume(x.quoteVolume)}</div></td>
-<td><div class="price-main">${fmt(x.lastPrice,5)}</div><div class="change-sub ${ch>=0?"green":"red"}">${ch>=0?"↑":"↓"} ${Math.abs(ch).toFixed(2)}%</div></td>
-<td class="signal-cell"><span class="signal-pill ${sc}">${sg.replace("STRONG ","")}</span></td>
+
+let ch=+x.priceChangePercent;
+let sg=String(scanner[x.symbol]||"WAIT").toUpperCase();
+
+let sc=sg.includes("LONG")?"green":
+sg.includes("SHORT")?"red":"gold";
+
+return `
+<tr data-sym="${x.symbol}">
+<td>
+<div class="coin-main">${x.symbol}</div>
+<div class="coin-sub">${compactVolume(x.quoteVolume)}</div>
+</td>
+<td>
+<div class="price-main">${fmt(x.lastPrice,5)}</div>
+<div class="change-sub ${ch>=0?"green":"red"}">
+${ch>=0?"↑":"↓"} ${Math.abs(ch).toFixed(2)}%
+</div>
+</td>
+<td class="signal-cell">
+<span class="signal-pill ${sc}">${sg}</span>
+</td>
 </tr>`;
 }).join("");
-$("marketinfo").textContent=`Showing ${Math.min(n,a.length)} / ${a.length} · ${shortFilter} filter`;
+
+$("marketinfo").textContent=
+`Showing ${Math.min(n,a.length)} / ${a.length} · ${shortFilter} filter`;
+
 $("more").style.display=n<a.length?"inline-block":"none";
 }
 
+/* SCAN ALL */
 async function scanAll(){
+
 if(scanBusy||!pairs.length)return;
+
 scanBusy=true;
-let tf=$("scanTf").value,done=0,failed=0,total=pairs.length;
+
+let tf=$("scanTf").value;
+let done=0,failed=0,total=pairs.length;
+
 scanner={};
+
 $("scanStatus").textContent=`Scanning ${total} Futures pairs · ${tf}...`;
 $("scanAll").disabled=true;
 $("scanAll").textContent="SCANNING...";
+
 sortPairs();
 
 for(let i=0;i<pairs.length;i+=8){
+
 let batch=pairs.slice(i,i+8);
+
 let results=await Promise.all(batch.map(async p=>{
 try{
 let c=await get(API+`/fapi/v1/klines?symbol=${p.symbol}&interval=${tf}&limit=260`);
-let x=calc(c),v=score(x).s;
+let x=calc(c);
+let v=score(x).s;
 return[p.symbol,label(v)];
 }catch(e){
 failed++;
 return[p.symbol,"WAIT"];
 }
 }));
+
 results.forEach(([sym,sig])=>scanner[sym]=sig);
+
 done+=batch.length;
-$("scanStatus").textContent=`Scan completed · ${done} / ${total} pairs analysed · ${tf} · Failed ${failed}`;
+
+$("scanStatus").textContent=
+`Scan completed · ${done} / ${total} pairs analysed · ${tf} · Failed ${failed}`;
+
 sortPairs();
 }
+
 $("scanAll").disabled=false;
 $("scanAll").textContent="SCAN ALL";
 scanBusy=false;
 sortPairs();
 }
 
+/* MULTI TIMEFRAME ANALYSIS */
 async function analyseFrame(sym,tf){
-let c=await get(API+`/fapi/v1/klines?symbol=${sym}&interval=${tf}&limit=260`),x=calc(c),sc=score(x);
+
+let c=await get(API+`/fapi/v1/klines?symbol=${sym}&interval=${tf}&limit=260`);
+let x=calc(c);
+let sc=score(x);
+
 try{
 await fetch(BACKEND+"/futures/analyze",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
-body:JSON.stringify({symbol:sym,interval:tf,candles:c,customSettings:cfg})
+body:JSON.stringify({
+symbol:sym,
+interval:tf,
+candles:c,
+customSettings:cfg
+})
 });
 }catch(e){}
+
 return{tf,x,s:sc.s,w:sc.w};
 }
 
 async function run(id0){
+
 let tfs=selectedTF();
-if(!tfs.length){$("mtfsummary").textContent="Select at least one timeframe.";return}
+
+if(!tfs.length){
+$("mtfsummary").textContent="Select at least one timeframe.";
+return;
+}
+
 let rs=[];
+
 for(let i=0;i<tfs.length;i+=3){
-let batch=await Promise.all(tfs.slice(i,i+3).map(t=>analyseFrame(selected,t).catch(e=>({tf:t,error:e.message}))));
+let batch=await Promise.all(
+tfs.slice(i,i+3).map(t=>
+analyseFrame(selected,t).catch(e=>({tf:t,error:e.message}))
+)
+);
 rs.push(...batch);
 if(id0!==id)return;
 }
+
 rows=rs;
-let good=rs.filter(x=>!x.error),total=good.reduce((a,x)=>a+x.s,0),max=good.length*7,long=good.filter(x=>x.s>=2).length,short=good.filter(x=>x.s<=-2).length,al=max?Math.round(Math.abs(total)/max*100):0;
-let sig=total>0&&long>short?(al>=65?"STRONG LONG":"LONG"):total<0&&short>long?(al>=65?"STRONG SHORT":"SHORT"):"WAIT";
+
+let good=rs.filter(x=>!x.error);
+let total=good.reduce((a,x)=>a+x.s,0);
+let max=good.length*7;
+let long=good.filter(x=>x.s>=2).length;
+let short=good.filter(x=>x.s<=-2).length;
+let al=max?Math.round(Math.abs(total)/max*100):0;
+
+let sig=total>0&&long>short
+?(al>=65?"STRONG LONG":"LONG")
+:total<0&&short>long
+?(al>=65?"STRONG SHORT":"SHORT")
+:"WAIT";
+
 $("signal").textContent=sig;
 $("signal").className="signal "+cls(sig);
 $("score").textContent=total+" / "+max;
 $("align").textContent=al+"%";
 $("bull").textContent=long+" / "+good.length;
 $("bear").textContent=short+" / "+good.length;
-$("reason").textContent=good.map(x=>x.tf+" "+x.w.join(", ")).join(" | ");
-$("mtf").innerHTML=rs.map(x=>x.error?`<div class="tfbox"><b>${x.tf}</b><strong class="red">ERROR</strong><div class="small">${x.error}</div></div>`:`<div class="tfbox"><b>${x.tf}</b><strong class="${cls(label(x.s))}">${label(x.s)}</strong><div class="small">RSI ${x.x.rsi?.toFixed(1)||"--"}<br>ST ${x.x.st?.dir||"--"}<br>Score ${x.s}/7</div></div>`).join("");
-$("mtfsummary").textContent=`${sig} · ${long} bullish / ${short} bearish · ${al}% indicator alignment`;
-let chosen=rs.find(x=>x.tf===$("detailTf").value)||rs.find(x=>x.tf==="5m")||good[0];
+
+$("reason").textContent=good.map(x=>
+x.tf+" "+x.w.join(", ")
+).join(" | ");
+
+$("mtf").innerHTML=rs.map(x=>
+x.error
+?`<div class="tfbox"><b>${x.tf}</b><strong class="red">ERROR</strong><div class="small">${x.error}</div></div>`
+:`<div class="tfbox"><b>${x.tf}</b><strong class="${cls(label(x.s))}">${label(x.s)}</strong><div class="small">RSI ${x.x.rsi?.toFixed(1)||"--"}<br>ST ${x.x.st?.dir||"--"}<br>Score ${x.s}/7</div></div>`
+).join("");
+
+$("mtfsummary").textContent=
+`${sig} · ${long} bullish / ${short} bearish · ${al}% indicator alignment`;
+
+let chosen=rs.find(x=>x.tf===$("detailTf").value)||
+rs.find(x=>x.tf==="5m")||good[0];
+
 if(chosen&&!chosen.error)showIndicators(chosen.x);
+
 let base=rs.find(x=>x.tf==="5m")||good[0];
+
 if(base&&!base.error)makePlan(sig,base.x.price,base.x.atr);
-if(lastSignal&&lastSignal!==sig)alertUser(`${selected} signal ${lastSignal} → ${sig}`);
+
+if(lastSignal&&lastSignal!==sig){
+alertUser(`${selected} signal ${lastSignal} → ${sig}`);
+}
+
 lastSignal=sig;
 copyData.signal=sig;
 copyData.symbol=selected;
 copyData.timeframe=tfs.join(",");
 }
 
+/* INDICATORS */
 function showIndicators(x){
-let data=[["EMA FAST",x.ef],["EMA MEDIUM",x.em],["EMA SLOW",x.es],["EMA TREND",x.et],["RSI",x.rsi],["MACD",x.macd],["MACD HISTOGRAM",x.hist],["ATR",x.atr],["ADX",x.adx],["STOCH RSI",x.stoch],["VWAP",x.vwap],["SUPERTREND",x.st?x.st.dir+" · "+fmt(x.st.value):null],["BB UPPER",x.bb?.upper],["BB MIDDLE",x.bb?.mid],["BB LOWER",x.bb?.lower],["SUPPORT / RESISTANCE",`S ${fmt(x.support)} / R ${fmt(x.resistance)}`]];
-$("indicators").innerHTML=data.map(([k,v])=>`<div class="ind"><div class="label">${k}</div><div class="value">${typeof v==="number"?fmt(v):v??"--"}</div></div>`).join("");
+
+let data=[
+["EMA FAST",x.ef],
+["EMA MEDIUM",x.em],
+["EMA SLOW",x.es],
+["EMA TREND",x.et],
+["RSI",x.rsi],
+["MACD",x.macd],
+["MACD HISTOGRAM",x.hist],
+["ATR",x.atr],
+["ADX",x.adx],
+["STOCH RSI",x.stoch],
+["VWAP",x.vwap],
+["SUPERTREND",x.st?x.st.dir+" · "+fmt(x.st.value):null],
+["BB UPPER",x.bb?.upper],
+["BB MIDDLE",x.bb?.mid],
+["BB LOWER",x.bb?.lower],
+["SUPPORT / RESISTANCE",`S ${fmt(x.support)} / R ${fmt(x.resistance)}`]
+];
+
+$("indicators").innerHTML=data.map(([k,v])=>
+`<div class="ind"><div class="label">${k}</div><div class="value">${typeof v==="number"?fmt(v):v??"--"}</div></div>`
+).join("");
+
 $("indreason").textContent=score(x).w.join(" • ");
-if(lastST&&x.st&&lastST!==x.st.dir)alertUser(`${selected} Supertrend flip → ${x.st.dir}`);
+
+if(lastST&&x.st&&lastST!==x.st.dir){
+alertUser(`${selected} Supertrend flip → ${x.st.dir}`);
+}
 lastST=x.st?.dir||lastST;
 }
 
-let copyData={symbol:"BTCUSDT",signal:"WAIT",entry:"--",sl:"--",tp1:"--",tp2:"--",tp3:"--",timeframe:"5m"};
+let copyData={
+symbol:"BTCUSDT",
+signal:"WAIT",
+entry:"--",
+sl:"--",
+tp1:"--",
+tp2:"--",
+tp3:"--",
+timeframe:"5m"
+};
 
+/* TRADE PLAN */
 function makePlan(sig,p,a){
+
 if(!p||!a)return;
+
 let dir=sig.includes("LONG")?1:sig.includes("SHORT")?-1:0;
+
 if(!dir){
-$("levels").innerHTML=`<div class="row"><span>SIGNAL</span><b class="gold">WAIT</b></div><div class="row"><span>REFERENCE PRICE</span><b>${fmt(p)}</b></div>`;
-Object.assign(copyData,{entry:"--",sl:"--",tp1:"--",tp2:"--",tp3:"--"});
+$("levels").innerHTML=
+`<div class="row"><span>SIGNAL</span><b class="gold">WAIT</b></div>
+<div class="row"><span>REFERENCE PRICE</span><b>${fmt(p)}</b></div>`;
+
+Object.assign(copyData,{
+entry:"--",sl:"--",tp1:"--",tp2:"--",tp3:"--"
+});
+
 drawCopies();
 return;
 }
-let sl=p-dir*a*1.5,r=Math.abs(p-sl),tp1=p+dir*r,tp2=p+dir*r*2,tp3=p+dir*r*3;
-let v=[["SIGNAL",sig],["ENTRY",fmt(p)],["STOP LOSS",fmt(sl)],["TAKE PROFIT 1",fmt(tp1)],["TAKE PROFIT 2",fmt(tp2)],["TAKE PROFIT 3",fmt(tp3)],["ATR",fmt(a)],["RISK / REWARD","1:1 / 1:2 / 1:3"]];
-$("levels").innerHTML=v.map((x,i)=>`<div class="row"><span>${x[0]}</span><b class="${i===2?"red":i>=3&&i<=5?"green":""}">${x[1]}</b></div>`).join("")+'<div class="small">ATR-based estimates; not guaranteed.</div>';
-Object.assign(copyData,{entry:fmt(p),sl:fmt(sl),tp1:fmt(tp1),tp2:fmt(tp2),tp3:fmt(tp3)});
+
+let sl=p-dir*a*1.5;
+let r=Math.abs(p-sl);
+let tp1=p+dir*r;
+let tp2=p+dir*r*2;
+let tp3=p+dir*r*3;
+
+let v=[
+["SIGNAL",sig],
+["ENTRY",fmt(p)],
+["STOP LOSS",fmt(sl)],
+["TAKE PROFIT 1",fmt(tp1)],
+["TAKE PROFIT 2",fmt(tp2)],
+["TAKE PROFIT 3",fmt(tp3)],
+["ATR",fmt(a)],
+["RISK / REWARD","1:1 / 1:2 / 1:3"]
+];
+
+$("levels").innerHTML=v.map((x,i)=>
+`<div class="row"><span>${x[0]}</span><b class="${i===2?"red":i>=3&&i<=5?"green":""}">${x[1]}</b></div>`
+).join("")+'<div class="small">ATR-based estimates; not guaranteed.</div>';
+
+Object.assign(copyData,{
+entry:fmt(p),
+sl:fmt(sl),
+tp1:fmt(tp1),
+tp2:fmt(tp2),
+tp3:fmt(tp3)
+});
+
 drawCopies();
+
 priceLevels={sl,tp1,tp2,tp3,dir,hit:{}};
 }
 
 function drawCopies(){
-let a=[["symbol","COIN"],["signal","SIGNAL"],["entry","ENTRY"],["sl","STOP LOSS"],["tp1","TP1"],["tp2","TP2"],["tp3","TP3"],["timeframe","TIMEFRAMES"]];
-$("copies").innerHTML=a.map(([k,l])=>`<button class="alt" data-copy="${k}">COPY ${l}</button>`).join("");
+
+let a=[
+["symbol","COIN"],
+["signal","SIGNAL"],
+["entry","ENTRY"],
+["sl","STOP LOSS"],
+["tp1","TP1"],
+["tp2","TP2"],
+["tp3","TP3"],
+["timeframe","TIMEFRAMES"]
+];
+
+$("copies").innerHTML=a.map(([k,l])=>
+`<button class="alt" data-copy="${k}">COPY ${l}</button>`
+).join("");
 }
 
 let priceLevels={};
 
+/* ALERTS */
 function alertUser(msg){
+
 let d=document.createElement("div");
 d.className="alert";
 d.textContent=new Date().toLocaleTimeString()+" · "+msg;
+
 $("alerts").prepend(d);
-while($("alerts").children.length>25)$("alerts").lastChild.remove();
+
+while($("alerts").children.length>25){
+$("alerts").lastChild.remove();
+}
+
 if(soundOn)beep();
-if(notifyOn&&Notification.permission==="granted")new Notification("SHIJU BINANCE V6",{body:msg});
+
+if(notifyOn&&Notification.permission==="granted"){
+new Notification("SHIJU BINANCE V6",{body:msg});
+}
 }
 
 function beep(){
 try{
-let c=new(window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();
-o.connect(g);g.connect(c.destination);g.gain.value=.06;o.frequency.value=850;o.start();o.stop(c.currentTime+.18);o.onended=()=>c.close();
+let c=new(window.AudioContext||window.webkitAudioContext)();
+let o=c.createOscillator();
+let g=c.createGain();
+
+o.connect(g);
+g.connect(c.destination);
+g.gain.value=.06;
+o.frequency.value=850;
+o.start();
+o.stop(c.currentTime+.18);
+o.onended=()=>c.close();
 }catch(e){}
 }
 
 function checkPrice(p){
+
 let z=priceLevels;
 if(!z.dir)return;
-let hit={sl:z.dir===1?p<=z.sl:p>=z.sl,tp1:z.dir===1?p>=z.tp1:p<=z.tp1,tp2:z.dir===1?p>=z.tp2:p<=z.tp2,tp3:z.dir===1?p>=z.tp3:p<=z.tp3};
-Object.keys(hit).forEach(k=>{if(hit[k]&&!z.hit[k]){z.hit[k]=true;alertUser(`${selected} ${k.toUpperCase()} touched near ${fmt(p)}`)}});
+
+let hit={
+sl:z.dir===1?p<=z.sl:p>=z.sl,
+tp1:z.dir===1?p>=z.tp1:p<=z.tp1,
+tp2:z.dir===1?p>=z.tp2:p<=z.tp2,
+tp3:z.dir===1?p>=z.tp3:p<=z.tp3
+};
+
+Object.keys(hit).forEach(k=>{
+if(hit[k]&&!z.hit[k]){
+z.hit[k]=true;
+alertUser(`${selected} ${k.toUpperCase()} touched near ${fmt(p)}`);
+}
+});
 }
 
+/* WEBSOCKET */
 function closeSockets(){
-socks.forEach(s=>{try{s.close()}catch(e){}});
+socks.forEach(s=>{
+try{s.close()}catch(e){}
+});
 socks=[];
 }
 
 function socket(stream,fn,token){
+
 let w=new WebSocket(WS+selected.toLowerCase()+stream);
 socks.push(w);
-w.onmessage=e=>{if(token!==id)return;let d=JSON.parse(e.data);fn(d)};
-w.onclose=()=>{if(token===id)setTimeout(()=>{if(token===id)socket(stream,fn,token)},4000)};
+
+w.onmessage=e=>{
+if(token!==id)return;
+let d=JSON.parse(e.data);
+fn(d);
+};
+
+w.onclose=()=>{
+if(token===id){
+setTimeout(()=>{
+if(token===id)socket(stream,fn,token);
+},4000);
+}
+};
 }
 
+/* SELECTED COIN */
 async function loadCoin(token){
+
 try{
+
 let [t,dep,hist]=await Promise.all([
 get(API+"/fapi/v1/ticker/24hr?symbol="+selected),
 get(API+"/fapi/v1/depth?symbol="+selected+"&limit=20"),
 get(API+"/fapi/v1/aggTrades?symbol="+selected+"&limit=20")
 ]);
+
 if(token!==id)return;
-$("price").textContent=fmt(t.lastPrice);
-$("change").textContent=(+t.priceChangePercent).toFixed(2)+"%";
-$("change").className="value "+(+t.priceChangePercent>=0?"green":"red");
+
 book(dep);
 hist.reverse().forEach(addTrade);
-socket("@markPrice@1s",d=>{$("price").textContent=fmt(d.p);checkPrice(+d.p)},token);
+
+socket("@markPrice@1s",d=>{
+checkPrice(+d.p);
+},token);
+
 socket("@depth20@100ms",book,token);
 socket("@aggTrade",addTrade,token);
+
 await run(token);
+
 }catch(e){
 $("conn").textContent="Coin data error: "+e.message;
 }
 }
 
+/* ORDER BOOK */
 function book(d){
-let b=d.bids||d.b||[],a=d.asks||d.a||[],bv=b.reduce((s,x)=>s+ +x[1],0),av=a.reduce((s,x)=>s+ +x[1],0),pct=bv+av?bv/(bv+av)*100:50;
-$("bidshare").textContent=pct.toFixed(1)+"%";
-$("askshare").textContent=(100-pct).toFixed(1)+"%";
+
+let b=d.bids||d.b||[];
+let a=d.asks||d.a||[];
+
+let bv=b.reduce((s,x)=>s+ +x[1],0);
+let av=a.reduce((s,x)=>s+ +x[1],0);
+let pct=bv+av?bv/(bv+av)*100:50;
+
 $("bids").textContent=fmt(bv,3);
 $("asks").textContent=fmt(av,3);
 $("bestbid").textContent=b.length?fmt(b[0][0]):"--";
 $("bestask").textContent=a.length?fmt(a[0][0]):"--";
-$("book").textContent=`Top 20 levels · Bid ${fmt(bv,3)} · Ask ${fmt(av,3)}`;
+
+$("book").textContent=
+`Top 20 levels · Bid ${fmt(bv,3)} · Ask ${fmt(av,3)}`;
+
 $("bidbar").style.width=pct+"%";
 $("askbar").style.width=(100-pct)+"%";
-$("bookshare").textContent=`Bid share ${pct.toFixed(1)}% · Ask share ${(100-pct).toFixed(1)}%`;
+
+$("bookshare").textContent=
+`Bid share ${pct.toFixed(1)}% · Ask share ${(100-pct).toFixed(1)}%`;
 }
 
+/* RECENT TRADES */
 function addTrade(d){
+
 let k=String(d.a);
 if(seen.has(k))return;
+
 seen.add(k);
-trades.unshift({side:d.m?"SELL":"BUY",p:fmt(d.p),q:fmt(+d.p* +d.q,2),t:new Date(+d.T).toLocaleTimeString()});
+
+trades.unshift({
+side:d.m?"SELL":"BUY",
+p:fmt(d.p),
+q:fmt(+d.p* +d.q,2),
+t:new Date(+d.T).toLocaleTimeString()
+});
+
 trades=trades.slice(0,20);
-$("trades").innerHTML=trades.map(x=>`<div class="row"><span class="${x.side==="BUY"?"green":"red"}">${x.side} · ${x.p}<div class="small">${x.t}</div></span><b>${x.q} USDT</b></div>`).join("");
-$("tradestatus").textContent="Latest "+trades.length+" trades · Live feed";
+
+$("trades").innerHTML=trades.map(x=>
+`<div class="row">
+<span class="${x.side==="BUY"?"green":"red"}">
+${x.side} · ${x.p}
+<div class="small">${x.t}</div>
+</span>
+<b>${x.q} USDT</b>
+</div>`
+).join("");
+
+$("tradestatus").textContent=
+"Latest "+trades.length+" trades · Live feed";
 }
 
+/* CHANGE SELECTED COIN */
 function select(){
+
 let s=$("symbol").value.trim().toUpperCase();
-if(!/^[A-Z0-9]{3,30}USDT$/.test(s)){alert("Enter a USDT Futures symbol, e.g. BTCUSDT");return}
+
+if(!/^[A-Z0-9]{3,30}USDT$/.test(s)){
+alert("Enter a USDT Futures symbol, e.g. BTCUSDT");
+return;
+}
+
 selected=s;
 id++;
+
 closeSockets();
+
 trades=[];
 seen.clear();
 lastSignal="";
 lastST="";
 priceLevels={};
+
 $("trades").innerHTML="";
 $("alerts").textContent="Monitoring "+s+"...";
 $("reason").textContent="Loading "+s;
+
 loadCoin(id);
 }
 
+/* SHORTLIST CLICK */
 $("markets").onclick=e=>{
+
 let tr=e.target.closest("[data-sym]");
+
 if(tr){
 $("symbol").value=tr.dataset.sym;
 select();
@@ -638,92 +1286,208 @@ window.scrollTo({top:0,behavior:"smooth"});
 }
 };
 
-document.querySelectorAll("[data-short-sort]").forEach(b=>b.onclick=()=>{
+/* THREE INDEPENDENT SORT ARROWS */
+document.querySelectorAll("[data-short-sort]").forEach(b=>{
+
+b.onclick=()=>{
+
 let k=b.dataset.shortSort;
-if(shortSort.key===k)shortSort.dir*=-1;
-else{shortSort.key=k;shortSort.dir=1}
-page=1;
-sortPairs();
-document.querySelectorAll("[data-short-sort]").forEach(x=>x.textContent=x===b?(shortSort.dir===1?"↑":"↓"):"↕");
-});
 
-document.querySelectorAll("[data-filter]").forEach(b=>b.onclick=()=>{
-shortFilter=b.dataset.filter;
-page=1;
-document.querySelectorAll("[data-filter]").forEach(x=>x.classList.toggle("active",x===b));
-sortPairs();
-});
-
-$("scanAll").onclick=scanAll;
-$("analyse").onclick=select;
-$("search").oninput=()=>{page=1;sortPairs()};
-$("more").onclick=()=>{page++;sortPairs()};
-
-$("apply").onclick=()=>{
-document.querySelectorAll("[data-k]").forEach(x=>{let v=+x.value;if(v>0)cfg[x.dataset.k]=v});
-if(cfg.macdFast>=cfg.macdSlow){$("settingstatus").textContent="MACD Fast must be lower than MACD Slow.";return}
-localStorage.setItem("shijuV6Settings",JSON.stringify(cfg));
-$("settingstatus").textContent="Settings applied and saved.";
-select();
-};
-
-$("reset").onclick=()=>{
-cfg={...DEFAULT};
-localStorage.removeItem("shijuV6Settings");
-initSettings();
-$("settingstatus").textContent="Defaults restored.";
-select();
-};
-
-function initSettings(){
-let saved=JSON.parse(localStorage.getItem("shijuV6Settings")||"null");
-if(saved)cfg={...DEFAULT,...saved};
-let names={emaFast:"EMA Fast",emaMedium:"EMA Medium",emaSlow:"EMA Slow",emaTrend:"EMA Trend",rsiPeriod:"RSI Period",macdFast:"MACD Fast",macdSlow:"MACD Slow",macdSignal:"MACD Signal",atrPeriod:"ATR Period",adxPeriod:"ADX Period",bbPeriod:"BB Period",bbMultiplier:"BB Multiplier",stochPeriod:"Stoch RSI Period",supertrendPeriod:"Supertrend Period",supertrendMultiplier:"Supertrend Multiplier",minSignalScore:"Minimum Signal Score"};
-$("settings").innerHTML=Object.entries(cfg).map(([k,v])=>`<label>${names[k]}<input type="number" min="1" step="${k.toLowerCase().includes("multiplier")?".1":"1"}" data-k="${k}" value="${v}"></label>`).join("");
+if(shortSort.key===k){
+shortSort.dir*=-1;
+}else{
+shortSort.key=k;
+shortSort.dir=1;
 }
 
+page=1;
+sortPairs();
+
+document.querySelectorAll("[data-short-sort]").forEach(x=>{
+x.textContent=
+x.dataset.shortSort===shortSort.key
+?(shortSort.dir===1?"↑":"↓")
+:"↕";
+});
+
+};
+
+});
+
+/* FILTER BUTTONS */
+document.querySelectorAll("[data-filter]").forEach(b=>{
+
+b.onclick=()=>{
+
+shortFilter=b.dataset.filter;
+page=1;
+
+document.querySelectorAll("[data-filter]").forEach(x=>
+x.classList.toggle("active",x===b)
+);
+
+sortPairs();
+
+};
+
+});
+
+/* BUTTON EVENTS */
+$("scanAll").onclick=scanAll;
+$("analyse").onclick=select;
+
+$("search").oninput=()=>{
+page=1;
+sortPairs();
+};
+
+$("more").onclick=()=>{
+page++;
+sortPairs();
+};
+
+/* APPLY INDICATOR SETTINGS */
+$("apply").onclick=()=>{
+
+document.querySelectorAll("[data-k]").forEach(x=>{
+let v=+x.value;
+if(v>0)cfg[x.dataset.k]=v;
+});
+
+if(cfg.macdFast>=cfg.macdSlow){
+$("settingstatus").textContent=
+"MACD Fast must be lower than MACD Slow.";
+return;
+}
+
+localStorage.setItem("shijuV6Settings",JSON.stringify(cfg));
+
+$("settingstatus").textContent="Settings applied and saved.";
+
+select();
+};
+
+/* RESET SETTINGS */
+$("reset").onclick=()=>{
+
+cfg={...DEFAULT};
+localStorage.removeItem("shijuV6Settings");
+
+initSettings();
+
+$("settingstatus").textContent="Defaults restored.";
+
+select();
+};
+
+/* SETTINGS UI */
+function initSettings(){
+
+let saved=JSON.parse(localStorage.getItem("shijuV6Settings")||"null");
+
+if(saved)cfg={...DEFAULT,...saved};
+
+let names={
+emaFast:"EMA Fast",
+emaMedium:"EMA Medium",
+emaSlow:"EMA Slow",
+emaTrend:"EMA Trend",
+rsiPeriod:"RSI Period",
+macdFast:"MACD Fast",
+macdSlow:"MACD Slow",
+macdSignal:"MACD Signal",
+atrPeriod:"ATR Period",
+adxPeriod:"ADX Period",
+bbPeriod:"BB Period",
+bbMultiplier:"BB Multiplier",
+stochPeriod:"Stoch RSI Period",
+supertrendPeriod:"Supertrend Period",
+supertrendMultiplier:"Supertrend Multiplier",
+minSignalScore:"Minimum Signal Score"
+};
+
+$("settings").innerHTML=Object.entries(cfg).map(([k,v])=>
+`<label>${names[k]}
+<input type="number" min="1"
+step="${k.toLowerCase().includes("multiplier")?".1":"1"}"
+data-k="${k}" value="${v}">
+</label>`
+).join("");
+}
+
+/* COPY BUTTONS */
 $("copies").onclick=async e=>{
+
 let b=e.target.closest("[data-copy]");
 if(!b)return;
+
 let v=copyData[b.dataset.copy]??"--";
+
 try{
 await navigator.clipboard.writeText(String(v));
 alertUser("Copied "+b.dataset.copy);
 }catch(err){
 let x=document.createElement("textarea");
-x.value=v;document.body.append(x);x.select();document.execCommand("copy");x.remove();
+x.value=v;
+document.body.append(x);
+x.select();
+document.execCommand("copy");
+x.remove();
 }
 };
 
-$("sound").onclick=()=>{soundOn=!soundOn;$("sound").textContent="SOUND: "+(soundOn?"ON":"OFF")};
-$("clear").onclick=()=>$("alerts").innerHTML="Alerts cleared.";
-
-$("notify").onclick=async()=>{
-if(!("Notification"in window)){alert("Notifications not supported");return}
-let p=await Notification.requestPermission();
-notifyOn=p==="granted";
-$("notify").textContent=notifyOn?"NOTIFICATIONS ENABLED":"ENABLE NOTIFICATIONS";
+/* SOUND */
+$("sound").onclick=()=>{
+soundOn=!soundOn;
+$("sound").textContent="SOUND: "+(soundOn?"ON":"OFF");
 };
 
+/* CLEAR ALERTS */
+$("clear").onclick=()=>$("alerts").innerHTML="Alerts cleared.";
+
+/* NOTIFICATIONS */
+$("notify").onclick=async()=>{
+
+if(!("Notification"in window)){
+alert("Notifications not supported");
+return;
+}
+
+let p=await Notification.requestPermission();
+
+notifyOn=p==="granted";
+
+$("notify").textContent=
+notifyOn?"NOTIFICATIONS ENABLED":"ENABLE NOTIFICATIONS";
+};
+
+/* TIMEFRAME CHANGE */
 $("detailTf").onchange=()=>{
+
 let r=rows.find(x=>x.tf===$("detailTf").value);
+
 if(r&&!r.error)showIndicators(r.x);
 };
 
+/* START */
 async function start(){
-initSettings();
-TFS.forEach(t=>{
-let o=document.createElement("option");
-o.value=t;o.textContent=t;o.selected=t==="5m";
-$("detailTf").append(o);
-});
+
+initUI();
+
 await loadPairs();
+
 select();
+
 setInterval(loadPairs,60000);
-setInterval(()=>{if(selected)run(id)},90000);
+
+setInterval(()=>{
+if(selected)run(id);
+},90000);
+
 }
 
 start();
+
 </script>
 </body>
   </html>
