@@ -1,0 +1,16 @@
+{
+  "name": "shiju-binance-v6",
+  "version": "6.0.0",
+  "description": "SHIJU BINANCE Futures Testnet Backend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
