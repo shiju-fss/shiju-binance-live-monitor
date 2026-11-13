@@ -1,1515 +1,738 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#07111c">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SHIJU BINANCE V6</title>
+
 <style>
-:root{--bg:#06101a;--panel:#101d2b;--panel2:#0b1724;--line:#304256;--gold:#f2c45b;--green:#00d99a;--red:#ff536b;--muted:#9ba9b9;--white:#f4f7fb}
+:root{
+  --bg:#06101a;
+  --panel:#101d2b;
+  --panel2:#0b1724;
+  --line:#304256;
+  --gold:#f2c45b;
+  --green:#00d99a;
+  --red:#ff536b;
+  --muted:#9ba9b9;
+  --white:#f4f7fb;
+}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--white);font:14px Arial,sans-serif}
-button,input,select{font:inherit}
-button{cursor:pointer;border:1px solid #50647a;background:#1a2a3c;color:#f4f7fb;border-radius:9px;padding:11px 13px;font-weight:700}
-button.goldbtn{background:linear-gradient(135deg,#ffdc6b,#e9ae32);color:#10131a;border:0}
-button.active{background:var(--gold);color:#111;border-color:var(--gold)}
-input,select{width:100%;padding:12px;background:#0b1724;color:#fff;border:1px solid #40546a;border-radius:9px;outline:none}
-header{position:sticky;top:0;z-index:20;background:#091522;border-bottom:1px solid var(--line);padding:12px 14px}
-.brand{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.brand h1{font-size:21px;color:var(--gold);margin:0}
-.tag{font-size:10px;color:#d2dbe5;margin-top:4px;letter-spacing:.4px}
-.connection{font-size:11px;color:var(--green);margin-top:8px}
-.wrap{max-width:1100px;margin:auto;padding:12px 12px 92px}
+body{
+  margin:0;background:var(--bg);color:var(--white);
+  font-family:Arial,sans-serif;font-size:14px
+}
+header{
+  padding:17px;background:#0b1724;border-bottom:1px solid var(--line);
+  position:sticky;top:0;z-index:10
+}
+.brand{font-size:20px;font-weight:bold;color:var(--gold)}
+.sub{font-size:11px;color:var(--muted);margin-top:5px}
+.status{float:right;color:var(--green);font-size:11px}
+nav{
+  display:flex;overflow-x:auto;background:#0b1724;
+  border-bottom:1px solid var(--line)
+}
+nav button{
+  background:none;border:0;color:var(--muted);padding:14px 16px;
+  white-space:nowrap;font-weight:bold
+}
+nav button.active{color:var(--gold);border-bottom:2px solid var(--gold)}
+main{padding:12px;max-width:1500px;margin:auto}
 .page{display:none}
 .page.active{display:block}
-.panel{background:var(--panel);border:1px solid #192b3e;border-radius:16px;padding:14px;margin:12px 0;box-shadow:0 8px 24px #0002}
-.title{color:var(--gold);font-weight:800;font-size:17px;margin:2px 0 13px}
+.panel{
+  background:var(--panel);border:1px solid var(--line);
+  border-radius:12px;padding:14px;margin-bottom:12px
+}
+.title{font-size:15px;color:var(--gold);font-weight:bold;margin-bottom:12px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+input,select{
+  background:var(--panel2);border:1px solid var(--line);
+  color:var(--white);padding:10px;border-radius:7px;min-width:0
+}
+button.action{
+  background:var(--gold);color:#111;border:0;border-radius:7px;
+  padding:10px 14px;font-weight:bold
+}
+button.secondary{
+  background:#203247;color:white;border:1px solid var(--line);
+  border-radius:7px;padding:9px 12px
+}
+.grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));
+  gap:9px
+}
+.metric,.calc-result{
+  background:var(--panel2);padding:12px;border:1px solid var(--line);
+  border-radius:9px;min-width:0
+}
+.k{font-size:11px;color:var(--muted);margin-bottom:7px}
+.v{font-size:17px;font-weight:bold;overflow-wrap:anywhere}
+.green{color:var(--green)}
+.red{color:var(--red)}
+.gold{color:var(--gold)}
 .muted{color:var(--muted)}
-.small{font-size:11px;color:var(--muted);line-height:1.5}
-.row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid #2a3a4a}
-.row:last-child{border-bottom:0}
-.green{color:var(--green)!important}
-.red{color:var(--red)!important}
-.gold{color:var(--gold)!important}
-.controls{display:grid;grid-template-columns:1fr 1.15fr;gap:8px}
-.controls button{width:100%}
-.search{margin:8px 0}
-.filters{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:8px 0}
-.filters button{padding:9px 4px;font-size:11px}
-.tablebox{overflow:auto;border:1px solid #34475a;border-radius:12px}
-table{width:100%;border-collapse:collapse;min-width:0;table-layout:fixed}
-th{position:sticky;top:0;background:#17283a;color:#eaf0f7;font-size:11px;text-align:left;padding:11px 6px;z-index:2}
-td{padding:10px 6px;border-top:1px solid #26384a;font-size:12px;overflow-wrap:anywhere}
-th:nth-child(1){width:34%}
-th:nth-child(2){width:39%}
-th:nth-child(3){width:27%;text-align:center}
-td:last-child{text-align:center}
-.coin{font-weight:800;font-size:12px}
-.subline{font-size:10px;color:var(--muted);margin-top:3px}
-.sort{background:none;border:0;color:var(--gold);padding:0 2px;font-size:15px}
-.pill{display:inline-block;border-radius:7px;padding:6px 5px;min-width:58px;font-size:9px;font-weight:800;text-align:center;white-space:nowrap}
-.pill.long{background:#064b37;color:#56ffc0;border:1px solid #00b77b}
-.pill.short{background:#5c1c2b;color:#ff8292;border:1px solid #ef4962}
-.pill.wait{background:#5a4617;color:#ffdf79;border:1px solid #d5a72d}
-.pagination{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:10px;font-size:11px;color:var(--muted)}
-.pagination button{padding:8px 12px}
-.metricgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-.metric{background:#0c1825;border:1px solid #34475a;border-radius:12px;padding:11px;min-width:0}
-.metric .k{font-size:10px;color:var(--muted);text-transform:uppercase}
-.metric .v{font-size:17px;font-weight:800;margin-top:7px;overflow-wrap:anywhere}
-.coinhead{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
-.bigcoin{font-size:19px;font-weight:800}
-.bigprice{text-align:right;font-size:20px;font-weight:800}
-.signalbox{text-align:center;padding:15px;border:1px solid #52657a;border-radius:12px;background:#0b1724;margin:10px 0;font-size:26px;font-weight:900}
-.tfgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-.tfcard{background:#0c1825;border:1px solid #33465a;border-radius:12px;padding:10px;min-width:0}
-.tfhead{display:flex;justify-content:space-between;gap:5px;align-items:center;font-weight:800;font-size:13px}
-.tfcard .detail{font-size:11px;color:var(--muted);line-height:1.6}
-.chartwrap{background:#07121e;border:1px solid #34475a;border-radius:12px;padding:8px}
-.charttop{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
-.charttop select{width:95px}
-.chartcanvas{width:100%;height:300px;display:block}
-.subchart{width:100%;height:105px;display:block;border-top:1px solid #25384b;margin-top:8px}
-.indgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
-.ind{background:#0b1724;border:1px solid #34475a;border-radius:10px;padding:10px;min-width:0}
-.ind .k{font-size:10px;color:var(--muted)}
-.ind .v{font-size:14px;font-weight:800;margin-top:6px;overflow-wrap:anywhere}
-.copyval{cursor:pointer;border-bottom:1px dashed #b89b57;padding-bottom:2px}
-.tradegrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-.tradeval{background:#0b1724;border:1px solid #34475a;border-radius:11px;padding:11px}
-.tradeval .k{font-size:10px;color:var(--muted)}
-.tradeval .v{font-size:16px;color:var(--gold);font-weight:900;margin-top:7px;overflow-wrap:anywhere}
-.tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
-.tabs button{padding:12px}
-.depthcanvas{width:100%;height:270px;display:block;background:#081522;border:1px solid #26394c;border-radius:10px}
-.depthstats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:8px 0}
-.depthstat{background:#0b1724;border:1px solid #34475a;border-radius:10px;padding:10px}
-.depthstat b{display:block;font-size:16px;margin-top:5px}
-.depthtables{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-.depthtables table{font-size:10px}
-.depthtables th,.depthtables td{padding:7px 4px}
-.depthratio{height:17px;display:flex;border-radius:9px;overflow:hidden;background:#333;margin-top:9px}
-.depthratio span{display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#07111b}
-.bidfill{background:var(--green)}
-.askfill{background:var(--red)}
-.tradeitem,.alertitem{display:flex;justify-content:space-between;gap:8px;padding:9px 0;border-bottom:1px solid #2b3c4e;font-size:11px}
-.bottomnav{position:fixed;bottom:0;left:0;right:0;z-index:30;background:#091522;border-top:1px solid #34475a;display:grid;grid-template-columns:repeat(5,1fr);padding:7px 4px calc(7px + env(safe-area-inset-bottom))}
-.bottomnav button{border:0;background:transparent;border-radius:9px;padding:7px 2px;color:#c7d0dc;font-size:10px}
-.bottomnav button b{display:block;font-size:18px;margin-bottom:3px}
-.bottomnav button.active{background:#4b3a12;color:#ffdc67}
-.note{font-size:10px;line-height:1.5;color:var(--muted);margin:12px 2px}
-.hidden{display:none!important}
-@media(min-width:700px){
-.wrap{padding:18px 22px 100px}
-.tfgrid{grid-template-columns:repeat(3,1fr)}
-.metricgrid{grid-template-columns:repeat(4,1fr)}
-.indgrid{grid-template-columns:repeat(4,1fr)}
-.tradegrid{grid-template-columns:repeat(3,1fr)}
-.chartcanvas{height:390px}
-.depthcanvas{height:340px}
-.panel{padding:18px}
+table{width:100%;border-collapse:collapse;white-space:nowrap}
+th,td{
+  padding:10px 8px;border-bottom:1px solid var(--line);
+  text-align:right;font-size:12px
+}
+th{color:var(--gold);background:#0b1724}
+th:first-child,td:first-child{text-align:left}
+.table-wrap{overflow-x:auto}
+.coin{color:var(--gold);font-weight:bold;cursor:pointer}
+.signal{font-weight:bold}
+canvas{
+  width:100%;height:260px;background:#091522;border-radius:8px
+}
+.notice{font-size:11px;color:var(--muted);line-height:1.6}
+label{display:block;color:var(--muted);font-size:11px;margin:9px 0 5px}
+.calc-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:10px
+}
+footer{text-align:center;color:var(--muted);font-size:11px;padding:20px}
+@media(max-width:600px){
+  main{padding:8px}
+  .panel{padding:11px}
+  .v{font-size:15px}
 }
 </style>
 </head>
+
 <body>
 
 <header>
-<div class="brand">
-<div>
-<h1>◆ SHIJU BINANCE V6</h1>
-<div class="tag">ADVANCED FUTURES SIGNAL INTELLIGENCE</div>
-</div>
-<div style="text-align:right">
-<b id="connbadge" class="green">● CONNECTING</b>
-<div class="tag" id="paircount">USDT PERPETUAL PAIRS</div>
-</div>
-</div>
-<div class="connection" id="connection">Connecting to Binance USDⓈ-M Futures public market data…</div>
+  <span class="status" id="connection">● CONNECTING</span>
+  <div class="brand">◆ SHIJU BINANCE V6</div>
+  <div class="sub">ADVANCED FUTURES SIGNAL INTELLIGENCE</div>
+  <div class="sub">PUBLIC MARKET DATA • USDT-M FUTURES</div>
 </header>
 
-<div class="wrap">
-
-<!-- PAGE 1: SHORTLIST -->
-<section class="page active" id="page-shortlist">
-<div class="panel">
-<div class="title">▥ FUTURES SIGNAL SHORTLIST</div>
-
-<div class="controls">
-<select id="scanTf">
-<option>1m</option>
-<option>3m</option>
-<option selected>5m</option>
-<option>15m</option>
-<option>30m</option>
-<option>1h</option>
-<option>2h</option>
-<option>4h</option>
-</select>
-<button class="goldbtn" id="scanAll">⟳ SCAN ALL</button>
-</div>
-
-<input class="search" id="search" placeholder="⌕ Search coin (e.g. BTC, ETH, SOL)">
-
-<div class="filters" id="filters">
-<button class="active" data-filter="ALL">ALL</button>
-<button data-filter="STRONG LONG">STRONG LONG</button>
-<button data-filter="LONG">LONG</button>
-<button data-filter="WAIT">WAIT</button>
-<button data-filter="SHORT">SHORT</button>
-<button data-filter="STRONG SHORT">STRONG SHORT</button>
-</div>
-
-<div class="tablebox">
-<table>
-<thead>
-<tr>
-<th>COIN <button class="sort" data-sort="coin">↕</button></th>
-<th>LAST PRICE<br>24H CHANGE <button class="sort" data-sort="change">↕</button></th>
-<th>SIGNAL <button class="sort" data-sort="signal">↕</button></th>
-</tr>
-</thead>
-<tbody id="markets">
-<tr><td colspan="3">Loading Binance Futures pairs…</td></tr>
-</tbody>
-</table>
-</div>
-
-<div class="pagination">
-<span id="marketinfo">Showing 0 pairs</span>
-<div>
-<button id="prevPage">‹</button>
-<button id="nextPage">›</button>
-</div>
-</div>
-</div>
-<p class="note">Public Binance Futures market data. Scanner signals are technical estimates, not guaranteed predictions.</p>
-</section>
-
-<!-- PAGE 2: SELECTED COIN + MTF -->
-<section class="page" id="page-analysis">
-<button class="alt" id="backShortlist">← BACK TO SHORTLIST</button>
-
-<div class="panel">
-<div class="title">SELECTED COIN · V6 ANALYSIS</div>
-
-<div class="coinhead">
-<div>
-<div class="bigcoin copyval" id="coinName" title="Tap to copy coin">BTCUSDT ⧉</div>
-<div class="small">USDT Perpetual</div>
-</div>
-<div class="bigprice" id="coinPrice">--</div>
-</div>
-
-<div class="metricgrid" style="margin-top:12px">
-<div class="metric"><div class="k">24H CHANGE</div><div class="v" id="coinChange">--</div></div>
-<div class="metric"><div class="k">24H VOLUME</div><div class="v" id="coinVolume">--</div></div>
-<div class="metric"><div class="k">ALIGNMENT SCORE</div><div class="v" id="score">--</div></div>
-<div class="metric"><div class="k">ALIGNMENT</div><div class="v" id="alignment">--</div></div>
-<div class="metric"><div class="k">BULLISH TIMEFRAMES</div><div class="v green" id="bullCount">--</div></div>
-<div class="metric"><div class="k">BEARISH TIMEFRAMES</div><div class="v red" id="bearCount">--</div></div>
-<div class="metric"><div class="k">WAIT TIMEFRAMES</div><div class="v gold" id="waitCount">--</div></div>
-<div class="metric"><div class="k">LIVE SIGNAL</div><div class="v" id="topSignal">WAIT</div></div>
-</div>
-
-<div class="signalbox gold" id="mainSignal">WAIT</div>
-
-<div class="title">MULTI-TIMEFRAME CONFIRMATION (1m – 1Year)</div>
-<div class="small" style="margin-bottom:9px">All 12 timeframes are always analysed. No checkboxes.</div>
-<div class="tfgrid" id="mtfCards"></div>
-<div class="small" id="mtfSummary" style="margin-top:10px"></div>
-</div>
-</section>
-
-<!-- PAGE 3: CHART + INDICATORS -->
-<section class="page" id="page-chart">
-<button class="alt backBtn">← BACK TO SHORTLIST</button>
-
-<div class="panel">
-<div class="title">PRICE CHART & TECHNICAL INDICATORS</div>
-
-<div class="chartwrap">
-<div class="charttop">
-<b id="chartSymbol">BTCUSDT</b>
-<select id="chartTf">
-<option>1m</option>
-<option>3m</option>
-<option selected>5m</option>
-<option>15m</option>
-<option>30m</option>
-<option>1h</option>
-<option>2h</option>
-<option>4h</option>
-<option>1d</option>
-<option>1w</option>
-<option>1M</option>
-<option>1Y</option>
-</select>
-</div>
-<canvas id="priceChart" class="chartcanvas"></canvas>
-<canvas id="rsiChart" class="subchart"></canvas>
-<canvas id="macdChart" class="subchart"></canvas>
-</div>
-
-<div class="title" style="margin-top:15px">TECHNICAL INDICATORS</div>
-<div class="small" id="indicatorTfLabel">Selected interval: 5m</div>
-<div class="indgrid" id="indicators"></div>
-<div class="small" id="indicatorSummary" style="margin-top:10px"></div>
-</div>
-
-<div class="panel">
-<div class="title">ADJUSTABLE INDICATOR SETTINGS</div>
-<div class="indgrid" id="settings"></div>
-<button class="goldbtn" id="applySettings" style="margin-top:10px">APPLY SETTINGS</button>
-<button id="resetSettings">RESET DEFAULTS</button>
-<div class="small" id="settingsStatus"></div>
-</div>
-</section>
-
-<!-- PAGE 4: TRADE PLAN + DEPTH -->
-<section class="page" id="page-depth">
-<button class="alt backBtn">← BACK TO SHORTLIST</button>
-
-<div class="panel">
-<div class="title">V6 RISK MANAGEMENT · TRADE PLAN</div>
-<div class="row"><span>SIGNAL</span><b id="planSignal" class="gold">WAIT</b></div>
-<div class="row"><span>TIMEFRAMES</span><b id="planTfs">1m, 3m, 5m, 15m, 30m, 1h, 2h, 4h, 1D, 1W, 1M, 1Y</b></div>
-<div class="tradegrid" id="tradeValues"></div>
-<div class="small" style="margin-top:8px">ATR-based estimates · Risk/Reward 1:1 / 1:2 / 1:3 · Not guaranteed.</div>
-</div>
-
-<div class="panel">
-<div class="title">ORDER BOOK · MARKET DEPTH</div>
-<div class="tabs">
-<button id="bookTab" class="active">ORDER BOOK</button>
-<button id="depthTab">DEPTH CHART</button>
-</div>
-
-<div id="orderBookView">
-<div class="depthstats">
-<div class="depthstat"><span class="green">Best Bid</span><b id="bestBid" class="green">--</b></div>
-<div class="depthstat"><span class="red">Best Ask</span><b id="bestAsk" class="red">--</b></div>
-<div class="depthstat"><span>Bid Depth</span><b id="bidDepth">--</b></div>
-<div class="depthstat"><span>Ask Depth</span><b id="askDepth">--</b></div>
-</div>
-
-<div class="depthtables">
-<div>
-<div class="green" style="font-weight:800;margin:5px">BIDS</div>
-<table>
-<thead><tr><th>PRICE</th><th>QTY</th></tr></thead>
-<tbody id="bidRows"></tbody>
-</table>
-</div>
-<div>
-<div class="red" style="font-weight:800;margin:5px">ASKS</div>
-<table>
-<thead><tr><th>PRICE</th><th>QTY</th></tr></thead>
-<tbody id="askRows"></tbody>
-</table>
-</div>
-</div>
-</div>
-
-<div id="depthChartView" class="hidden">
-<canvas id="depthChart" class="depthcanvas"></canvas>
-<div class="depthstats">
-<div class="depthstat"><span class="green">BID DEPTH</span><b id="bidTotal" class="green">--</b></div>
-<div class="depthstat"><span class="red">ASK DEPTH</span><b id="askTotal" class="red">--</b></div>
-</div>
-</div>
-
-<div class="small" id="depthSummary"></div>
-<div class="depthratio">
-<span id="bidRatio" class="bidfill" style="width:50%">50%</span>
-<span id="askRatio" class="askfill" style="width:50%">50%</span>
-</div>
-</div>
-</section>
-
-<!-- PAGE 5: TRADES + ALERTS -->
-<section class="page" id="page-trades">
-<button class="alt backBtn">← BACK TO SHORTLIST</button>
-
-<div class="panel">
-<div class="title">RECENT AGGREGATED TRADES</div>
-<div class="small" id="tradeStatus">Waiting for live trades…</div>
-<div id="recentTrades"></div>
-</div>
-
-<div class="panel">
-<div class="title">ALERT SETTINGS</div>
-<div id="alertToggles"></div>
-<div class="title" style="margin-top:18px">LIVE ALERTS</div>
-<div id="liveAlerts" class="small">No alerts yet.</div>
-<button id="soundToggle" style="margin-top:10px">SOUND: ON</button>
-<button id="clearAlerts">CLEAR ALERTS</button>
-</div>
-
-<p class="note">Alerts run in this browser tab while it remains open. No private API key is used and no orders are executed.</p>
-</section>
-
-</div>
-
-<nav class="bottomnav">
-<button class="active" data-page="shortlist"><b>▥</b>Shortlist</button>
-<button data-page="analysis"><b>◉</b>Analysis</button>
-<button data-page="chart"><b>▤</b>Charts</button>
-<button data-page="depth"><b>⇄</b>Trade Plan</button>
-<button data-page="trades"><b>♧</b>Trades & Alerts</button>
+<nav>
+  <button class="active" onclick="switchPage('shortlist',this)">01 SHORTLIST</button>
+  <button onclick="switchPage('analysis',this)">02 ANALYSIS</button>
+  <button onclick="switchPage('chart',this)">03 CHART</button>
+  <button onclick="switchPage('depth',this)">04 TRADE PLAN</button>
+  <button onclick="switchPage('trades',this)">05 TRADES & ALERTS</button>
 </nav>
 
+<main>
+
+<!-- PAGE 1 -->
+<section id="page-shortlist" class="page active">
+
+<div class="panel">
+  <div class="title">MARKET OVERVIEW</div>
+  <div class="grid">
+    <div class="metric"><div class="k">BTC PRICE</div><div class="v gold" id="btcPrice">--</div></div>
+    <div class="metric"><div class="k">BTC 24H CHANGE</div><div class="v" id="btcChange">--</div></div>
+    <div class="metric"><div class="k">MARKET VOLUME</div><div class="v" id="marketVolume">--</div></div>
+    <div class="metric"><div class="k">LAST UPDATED</div><div class="v" id="lastUpdated">--</div></div>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="title">FUTURES COIN SHORTLIST</div>
+  <div class="row">
+    <input id="searchCoin" placeholder="Search coin..." oninput="renderShortlist()">
+    <select id="sortBy" onchange="renderShortlist()">
+      <option value="volume">Volume</option>
+      <option value="change">24H Change</option>
+      <option value="price">Price</option>
+    </select>
+    <button class="action" onclick="loadMarket()">REFRESH NOW</button>
+  </div>
+  <div class="table-wrap" style="margin-top:12px">
+    <table>
+      <thead><tr>
+        <th>COIN</th><th>PRICE</th><th>24H %</th>
+        <th>VOLUME USDT</th><th>OPEN</th>
+      </tr></thead>
+      <tbody id="shortlistBody">
+        <tr><td colspan="5">Loading market data...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</section>
+
+<!-- PAGE 2 -->
+<section id="page-analysis" class="page">
+<div class="panel">
+  <div class="title">SELECTED COIN ANALYSIS</div>
+  <div class="row">
+    <select id="analysisCoin" onchange="selectCoin(this.value)"></select>
+    <button class="action" onclick="analyseSelected()">ANALYSE</button>
+  </div>
+  <h2 id="selectedName" class="gold">Select a coin</h2>
+  <div class="grid">
+    <div class="metric"><div class="k">CURRENT PRICE</div><div class="v" id="analysisPrice">--</div></div>
+    <div class="metric"><div class="k">24H CHANGE</div><div class="v" id="analysisChange">--</div></div>
+    <div class="metric"><div class="k">24H HIGH</div><div class="v" id="analysisHigh">--</div></div>
+    <div class="metric"><div class="k">24H LOW</div><div class="v" id="analysisLow">--</div></div>
+    <div class="metric"><div class="k">24H VOLUME</div><div class="v" id="analysisVolume">--</div></div>
+    <div class="metric"><div class="k">SIGNAL</div><div class="v gold" id="analysisSignal">WAIT</div></div>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="title">MULTI TIMEFRAME ANALYSIS</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>TIMEFRAME</th><th>PRICE</th><th>EMA 9</th><th>EMA 21</th><th>RSI</th><th>TREND</th></tr></thead>
+      <tbody id="mtfBody"><tr><td colspan="6">Select coin to analyse</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="title">TECHNICAL INDICATORS</div>
+  <div class="grid">
+    <div class="metric"><div class="k">RSI 14</div><div class="v" id="rsiValue">--</div></div>
+    <div class="metric"><div class="k">EMA 9</div><div class="v" id="ema9">--</div></div>
+    <div class="metric"><div class="k">EMA 21</div><div class="v" id="ema21">--</div></div>
+    <div class="metric"><div class="k">MACD</div><div class="v" id="macdValue">--</div></div>
+  </div>
+</div>
+</section>
+
+<!-- PAGE 3 -->
+<section id="page-chart" class="page">
+<div class="panel">
+  <div class="title">CHART & TECHNICAL INDICATORS</div>
+  <div class="row">
+    <select id="chartCoin" onchange="selectCoin(this.value)"></select>
+    <select id="chartInterval" onchange="loadChart()">
+      <option>1m</option><option>3m</option><option>5m</option>
+      <option selected>15m</option><option>30m</option>
+      <option>1h</option><option>2h</option><option>4h</option>
+      <option>1d</option><option>1w</option><option>1M</option>
+    </select>
+    <button class="action" onclick="loadChart()">UPDATE CHART</button>
+  </div>
+  <h3 id="chartTitle" class="gold">BTCUSDT</h3>
+  <canvas id="priceChart" width="1000" height="300"></canvas>
+  <div class="notice">Candlestick-style price visualization using Binance Futures public kline data.</div>
+</div>
+</section>
+
+<!-- PAGE 4 -->
+<section id="page-depth" class="page">
+<div class="panel">
+  <div class="title">TRADE PLAN & MARKET DEPTH</div>
+  <div class="row">
+    <select id="planCoin" onchange="selectCoin(this.value)"></select>
+    <button class="action" onclick="makePlan()">GENERATE PLAN</button>
+  </div>
+  <div class="grid" style="margin-top:12px">
+    <div class="metric"><div class="k">DIRECTION</div><div class="v gold" id="planSignal">WAIT</div></div>
+    <div class="metric"><div class="k">ENTRY PRICE</div><div class="v" id="planEntry">--</div></div>
+    <div class="metric"><div class="k">STOP LOSS</div><div class="v red" id="planSL">--</div></div>
+    <div class="metric"><div class="k">TARGET 1</div><div class="v green" id="planTP1">--</div></div>
+    <div class="metric"><div class="k">TARGET 2</div><div class="v green" id="planTP2">--</div></div>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="title">CAPITAL & LEVERAGE CALCULATOR</div>
+  <div class="calc-grid">
+    <div><label>CAPITAL (USDT)</label><input id="capitalInput" type="number" value="100" min="1" oninput="calculateCapital()"></div>
+    <div><label>RISK PER TRADE (%)</label><input id="riskInput" type="number" value="1" min="0.1" max="5" step="0.1" oninput="calculateCapital()"></div>
+    <div><label>LEVERAGE (MAX 5X)</label><select id="leverageInput" onchange="calculateCapital()"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></div>
+    <div><label>MAINTENANCE MARGIN (%)</label><input id="mmrInput" type="number" value="0.5" step="0.1" oninput="calculateCapital()"></div>
+  </div>
+
+  <div class="grid" style="margin-top:12px">
+    <div class="calc-result"><div class="k">RISK AMOUNT</div><div class="v gold" id="riskAmount">--</div></div>
+    <div class="calc-result"><div class="k">POSITION SIZE</div><div class="v" id="positionSize">--</div></div>
+    <div class="calc-result"><div class="k">MARGIN REQUIRED</div><div class="v" id="marginRequired">--</div></div>
+    <div class="calc-result"><div class="k">QUANTITY</div><div class="v" id="positionQty">--</div></div>
+  </div>
+
+  <div class="title" style="margin-top:18px">⚠ LIQUIDATION SAFETY</div>
+  <div class="grid">
+    <div class="calc-result">
+      <div class="k">EST. LIQUIDATION PRICE</div>
+      <div class="v red" id="liqPrice">--</div>
+    </div>
+    <div class="calc-result">
+      <div class="k">DISTANCE TO LIQUIDATION</div>
+      <div class="v" id="liqDistance">--</div>
+    </div>
+    <div class="calc-result">
+      <div class="k">LIQUIDATION RISK</div>
+      <div class="v gold" id="liqRisk">--</div>
+    </div>
+    <div class="calc-result">
+      <div class="k">STOP LOSS VS LIQUIDATION</div>
+      <div class="v" id="slSafety">--</div>
+    </div>
+  </div>
+  <p class="notice">
+    Important: This is a simplified isolated-margin estimate, not an exchange-exact
+    liquidation calculation. Actual liquidation depends on Binance maintenance
+    margin tiers, maintenance amount, mark price, fees, funding, margin mode
+    and account positions. Always verify the liquidation price on the exchange.
+    This calculator does not place trades.
+  </p>
+</div>
+
+<div class="panel">
+  <div class="title">LIVE ORDER BOOK / MARKET DEPTH</div>
+  <div class="grid">
+    <div>
+      <h4 class="green">BIDS / BUY ORDERS</h4>
+      <div class="table-wrap"><table><thead><tr><th>PRICE</th><th>QTY</th></tr></thead><tbody id="bidsBody"></tbody></table></div>
+    </div>
+    <div>
+      <h4 class="red">ASKS / SELL ORDERS</h4>
+      <div class="table-wrap"><table><thead><tr><th>PRICE</th><th>QTY</th></tr></thead><tbody id="asksBody"></tbody></table></div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- PAGE 5 -->
+<section id="page-trades" class="page">
+<div class="panel">
+  <div class="title">RECENT MARKET TRADES</div>
+  <div class="table-wrap">
+    <table><thead><tr><th>TIME</th><th>PRICE</th><th>QTY</th><th>SIDE</th></tr></thead>
+    <tbody id="tradesBody"></tbody></table>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="title">PRICE ALERT SETTINGS</div>
+  <div class="row">
+    <select id="alertCoin"></select>
+    <select id="alertCondition"><option value="above">Price Above</option><option value="below">Price Below</option></select>
+    <input id="alertPrice" type="number" placeholder="Target price">
+    <button class="action" onclick="addPriceAlert()">ADD ALERT</button>
+  </div>
+  <div id="alertsList" style="margin-top:12px"></div>
+</div>
+
+<div class="panel">
+  <div class="title">SIGNAL ALERTS</div>
+  <div id="signalAlerts" class="notice">Waiting for signals...</div>
+</div>
+</section>
+
+</main>
+
+<footer>
+SHIJU BINANCE V6 • PUBLIC MARKET DATA ONLY • NO AUTOMATED TRADING
+</footer>
+
 <script>
-'use strict';
-
-const API='https://fapi.binance.com';
-const WS='wss://fstream.binance.com/ws/';
-
-const TF=[
-['1m','1m'],['3m','3m'],['5m','5m'],['15m','15m'],
-['30m','30m'],['1h','1h'],['2h','2h'],['4h','4h'],
-['1D','1d'],['1W','1w'],['1M','1M'],['1Y','1Y']
-];
-
-const DEFAULT={
-emaFast:9,
-emaMedium:20,
-emaSlow:50,
-emaTrend:200,
-rsiPeriod:14,
-macdFast:12,
-macdSlow:26,
-macdSignal:9,
-atrPeriod:14,
-bbPeriod:20,
-bbMultiplier:2,
-supertrendPeriod:10,
-supertrendMultiplier:3
-};
-
-let shortlistScroll=0;
-let cfg={...DEFAULT};
-let pairs=[];
-let scanner={};
-let filter='ALL';
-let sortKey='volume';
-let sortDir=-1;
-let page=0;
-let selected='BTCUSDT';
+const API="https://fapi.binance.com";
+let market=[];
 let selectedTicker=null;
-let analysis={};
-let currentChart=null;
-let depthData=null;
-let ws=[];
-let soundOn=true;
-let alertState={price:true,signal:true,volume:false,reversal:true};
-let lastSignal='';
-let lastPrice=0;
-let tradeList=[];
-let alertList=[];
-let planLevels={};
-let exchangeFilters={};
+let selectedCoin="BTCUSDT";
+let chartData=[];
+let socket=null;
+let depthSocket=null;
+let tradeSocket=null;
+let priceAlerts=JSON.parse(localStorage.getItem("shijuAlerts")||"[]");
+let lastSignal="";
+let currentPlan={signal:"WAIT",entry:0,sl:0,tp1:0,tp2:0};
+let refreshTimer=null;
 
 const $=id=>document.getElementById(id);
+const fmt=(n,d=4)=>Number(n).toLocaleString("en-US",{maximumFractionDigits:d});
+const money=n=>"$"+fmt(n,2);
 
-const num=(x,d=4)=>
-Number.isFinite(+x)?(+x).toLocaleString('en-US',{maximumFractionDigits:d}):'--';
-
-const compact=x=>{
-x=+x||0;
-return x>=1e9?(x/1e9).toFixed(2)+'B':
-x>=1e6?(x/1e6).toFixed(2)+'M':
-x>=1e3?(x/1e3).toFixed(2)+'K':num(x,2);
-};
-
-const cl=s=>
-String(s).includes('LONG')?'long':
-String(s).includes('SHORT')?'short':'wait';
-
-async function get(url){
-const r=await fetch(url,{cache:'no-store'});
-if(!r.ok)throw Error('HTTP '+r.status);
-return r.json();
+function switchPage(page,btn){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  $("page-"+page).classList.add("active");
+  document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+  if(page==="chart")loadChart();
+  if(page==="depth"){makePlan();connectDepth();calculateCapital();}
+  if(page==="trades")connectTrades();
 }
 
-function ema(a,p){
-if(!a.length)return[];
-let k=2/(p+1),v=a[0],o=[v];
-for(let i=1;i<a.length;i++){
-v=a[i]*k+v*(1-k);
-o.push(v);
-}
-return o;
-}
-
-function rsi(a,p){
-if(a.length<=p)return 50;
-let g=0,l=0;
-for(let i=1;i<=p;i++){
-let d=a[i]-a[i-1];
-if(d>0)g+=d;else l-=d;
-}
-g/=p;l/=p;
-for(let i=p+1;i<a.length;i++){
-let d=a[i]-a[i-1];
-g=(g*(p-1)+Math.max(d,0))/p;
-l=(l*(p-1)+Math.max(-d,0))/p;
-}
-return l===0?100:100-100/(1+g/l);
-}
-
-function atr(c,p){
-let tr=[];
-for(let i=1;i<c.length;i++){
-let h=+c[i][2],l=+c[i][3],pc=+c[i-1][4];
-tr.push(Math.max(h-l,Math.abs(h-pc),Math.abs(l-pc)));
-}
-if(tr.length<p)return 0;
-let v=tr.slice(0,p).reduce((a,b)=>a+b,0)/p;
-for(let i=p;i<tr.length;i++)v=(v*(p-1)+tr[i])/p;
-return v;
-}
-
-function bb(a,p,m){
-let z=a.slice(-Math.min(p,a.length));
-if(z.length<2)return null;
-let mid=z.reduce((x,y)=>x+y,0)/z.length;
-let sd=Math.sqrt(z.reduce((x,y)=>x+(y-mid)**2,0)/z.length);
-return{mid,upper:mid+m*sd,lower:mid-m*sd};
-}
-
-function macd(a){
-let f=ema(a,cfg.macdFast);
-let s=ema(a,cfg.macdSlow);
-let line=a.map((_,i)=>f[i]-s[i]);
-let sig=ema(line,cfg.macdSignal);
-let i=a.length-1;
-return{
-line:line[i],
-signal:sig[i],
-hist:line[i]-sig[i],
-lines:line,
-signals:sig
-};
-}
-
-function supertrend(c,p,m){
-let av=atr(c,p);
-let mid=(+c.at(-1)[2]+ +c.at(-1)[3])/2;
-let close=+c.at(-1)[4];
-let up=mid+m*av;
-let lo=mid-m*av;
-return{dir:close>=mid?'LONG':'SHORT',value:close>=mid?lo:up};
-}
-
-function calc(c,minBars=210){
-let bars=c.slice(0,-1);
-if(bars.length<minBars)throw Error('Not enough candles for reliable indicator history');
-
-let close=bars.map(x=>+x[4]);
-let i=close.length-1;
-let ef=ema(close,cfg.emaFast);
-let em=ema(close,cfg.emaMedium);
-let es=ema(close,cfg.emaSlow);
-let et=ema(close,cfg.emaTrend);
-let m=macd(close);
-let b=bb(close,cfg.bbPeriod,cfg.bbMultiplier);
-let a=atr(bars,cfg.atrPeriod);
-let st=supertrend(bars,cfg.supertrendPeriod,cfg.supertrendMultiplier);
-
-let v=0,pv=0;
-bars.forEach(x=>{
-let typical=(+x[2]+ +x[3]+ +x[4])/3;
-pv+=typical* +x[5];
-v+= +x[5];
-});
-
-return{
-bars,close,price:close[i],
-ef:ef[i],em:em[i],es:es[i],et:et[i],
-rsi:rsi(close,cfg.rsiPeriod),
-macd:m.line,macdSignal:m.signal,hist:m.hist,
-macdObj:m,atr:a,vwap:v?pv/v:0,
-st,bb:b,
-support:Math.min(...bars.slice(-50).map(x=>+x[3])),
-resistance:Math.max(...bars.slice(-50).map(x=>+x[2]))
-};
-}
-
-function score(x){
-let s=0,why=[];
-const tests=[
-[x.ef>x.em,'EMA fast / medium'],
-[x.em>x.es,'EMA medium / slow'],
-[x.price>x.et,'Price / trend EMA'],
-[x.hist>0,'MACD'],
-[x.st.dir==='LONG','Supertrend'],
-[x.price>x.bb.mid,'Bollinger middle'],
-[x.rsi>=50,'RSI']
-];
-tests.forEach(([v,n])=>{
-s+=v?1:-1;
-why.push(n+(v?' bullish':' bearish'));
-});
-return{s,why};
-}
-
-function signal(s){
-return s>=5?'STRONG LONG':
-s>=2?'LONG':
-s<=-5?'STRONG SHORT':
-s<=-2?'SHORT':'WAIT';
-}
-
-function fmtPrice(v){
-let p=exchangeFilters[selected]?.tickSize||0.0001;
-let d=(String(p).split('.')[1]||'').replace(/0+$/,'').length;
-return num(v,Math.min(10,Math.max(2,d)));
+async function api(path){
+  const r=await fetch(API+path);
+  if(!r.ok)throw new Error("Binance API error "+r.status);
+  return r.json();
 }
 
 async function loadMarket(){
-try{
-let [ex,t]=await Promise.all([
-get(API+'/fapi/v1/exchangeInfo'),
-get(API+'/fapi/v1/ticker/24hr')
-]);
-
-exchangeFilters={};
-
-let valid=new Set(
-ex.symbols
-.filter(x=>x.status==='TRADING'&&x.contractType==='PERPETUAL'&&x.quoteAsset==='USDT')
-.map(x=>{
-let f=x.filters.find(z=>z.filterType==='PRICE_FILTER');
-exchangeFilters[x.symbol]={tickSize:f?.tickSize||'0.0001'};
-return x.symbol;
-})
-);
-
-pairs=t.filter(x=>valid.has(x.symbol));
-
-$('connbadge').textContent='● BINANCE CONNECTED';
-$('connection').textContent='BINANCE CONNECTED · '+pairs.length+' USDT PERPETUAL PAIRS';
-$('paircount').textContent=pairs.length+' USDT PERPETUAL PAIRS';
-
-renderMarkets();
-}catch(e){
-$('connbadge').textContent='● CONNECTION ERROR';
-$('connbadge').className='red';
-$('connection').textContent='Binance API error: '+e.message;
-}
+  try{
+    const data=await api("/fapi/v1/ticker/24hr");
+    market=data.filter(x=>x.symbol.endsWith("USDT"));
+    const btc=market.find(x=>x.symbol==="BTCUSDT");
+    if(btc){
+      $("btcPrice").textContent=fmt(btc.lastPrice,2);
+      $("btcChange").textContent=fmt(btc.priceChangePercent,2)+"%";
+      $("btcChange").className="v "+(Number(btc.priceChangePercent)>=0?"green":"red");
+    }
+    const total=market.reduce((a,x)=>a+Number(x.quoteVolume),0);
+    $("marketVolume").textContent=fmt(total/1e9,2)+"B";
+    $("lastUpdated").textContent=new Date().toLocaleTimeString();
+    $("connection").textContent="● LIVE";
+    $("connection").style.color="var(--green)";
+    updateSelectors();
+    renderShortlist();
+    updateSelectedTicker();
+  }catch(e){
+    $("connection").textContent="● CONNECTION ERROR";
+    $("connection").style.color="var(--red)";
+    console.error(e);
+  }
 }
 
-function sortedPairs(){
-let a=pairs.filter(x=>x.symbol.includes($('search').value.trim().toUpperCase()));
-
-if(filter!=='ALL'){
-a=a.filter(x=>(scanner[x.symbol]||'WAIT')===filter);
+function updateSelectors(){
+  ["analysisCoin","chartCoin","planCoin","alertCoin"].forEach(id=>{
+    const el=$(id);
+    if(!el)return;
+    const old=el.value||selectedCoin;
+    el.innerHTML=market.slice().sort((a,b)=>a.symbol.localeCompare(b.symbol))
+      .map(x=>`<option value="${x.symbol}">${x.symbol}</option>`).join("");
+    el.value=market.some(x=>x.symbol===old)?old:selectedCoin;
+  });
 }
 
-a.sort((x,y)=>{
-if(sortKey==='coin')return x.symbol.localeCompare(y.symbol)*sortDir;
-if(sortKey==='change')return (+x.priceChangePercent- +y.priceChangePercent)*sortDir;
-if(sortKey==='signal')return String(scanner[x.symbol]||'WAIT').localeCompare(String(scanner[y.symbol]||'WAIT'))*sortDir;
-return (+x.quoteVolume- +y.quoteVolume)*sortDir;
-});
-
-return a;
+function renderShortlist(){
+  const search=$("searchCoin").value.toUpperCase();
+  const sort=$("sortBy").value;
+  let list=market.filter(x=>x.symbol.includes(search));
+  list.sort((a,b)=>{
+    if(sort==="change")return Math.abs(b.priceChangePercent)-Math.abs(a.priceChangePercent);
+    if(sort==="price")return Number(b.lastPrice)-Number(a.lastPrice);
+    return Number(b.quoteVolume)-Number(a.quoteVolume);
+  });
+  $("shortlistBody").innerHTML=list.slice(0,100).map(x=>`
+    <tr>
+      <td class="coin" onclick="selectCoin('${x.symbol}')">${x.symbol}</td>
+      <td>${fmt(x.lastPrice,6)}</td>
+      <td class="${Number(x.priceChangePercent)>=0?'green':'red'}">${fmt(x.priceChangePercent,2)}%</td>
+      <td>${fmt(Number(x.quoteVolume)/1e6,2)}M</td>
+      <td><button class="secondary" onclick="selectCoin('${x.symbol}')">OPEN</button></td>
+    </tr>`).join("");
 }
 
-function renderMarkets(){
-let a=sortedPairs();
-let start=page*10;
-let items=a.slice(start,start+10);
-
-$('markets').innerHTML=items.map(x=>{
-let s=scanner[x.symbol]||'WAIT';
-let ch=+x.priceChangePercent;
-
-return `<tr data-symbol="${x.symbol}">
-<td>
-<div class="coin">${x.symbol}</div>
-<div class="subline">Vol: ${compact(x.quoteVolume)}</div>
-</td>
-<td>
-<div class="coin">${num(x.lastPrice,8)}</div>
-<div class="subline ${ch>=0?'green':'red'}">${ch>=0?'↑':'↓'} ${Math.abs(ch).toFixed(2)}%</div>
-</td>
-<td><span class="pill ${cl(s)}">${s}</span></td>
-</tr>`;
-}).join('')||'<tr><td colspan="3">No matching pairs</td></tr>';
-
-$('marketinfo').textContent=
-`Showing ${a.length?start+1:0}–${Math.min(start+10,a.length)} of ${a.length} pairs`;
-
-$('prevPage').disabled=page===0;
-$('nextPage').disabled=start+10>=a.length;
+function updateSelectedTicker(){
+  selectedTicker=market.find(x=>x.symbol===selectedCoin)||null;
+  if(!selectedTicker)return;
+  updateTicker();
 }
 
-async function scanAll(){
-if(!pairs.length)return;
-
-let btn=$('scanAll');
-btn.disabled=true;
-let old=btn.textContent;
-let tf=$('scanTf').value;
-
-for(let i=0;i<pairs.length;i+=5){
-let batch=pairs.slice(i,i+5);
-
-await Promise.all(batch.map(async p=>{
-try{
-let c=await get(API+`/fapi/v1/klines?symbol=${p.symbol}&interval=${tf}&limit=230`);
-scanner[p.symbol]=signal(score(calc(c)).s);
-}catch(e){
-scanner[p.symbol]=scanner[p.symbol]||'WAIT';
-}
-}));
-
-btn.textContent=`SCANNING ${Math.min(i+5,pairs.length)}/${pairs.length}`;
-
-if(i%25===0)renderMarkets();
+function updateTicker(){
+  if(!selectedTicker)return;
+  const t=selectedTicker;
+  $("selectedName").textContent=t.symbol;
+  $("analysisPrice").textContent=fmt(t.lastPrice,6);
+  $("analysisChange").textContent=fmt(t.priceChangePercent,2)+"%";
+  $("analysisChange").className="v "+(Number(t.priceChangePercent)>=0?"green":"red");
+  $("analysisHigh").textContent=fmt(t.highPrice,6);
+  $("analysisLow").textContent=fmt(t.lowPrice,6);
+  $("analysisVolume").textContent=fmt(Number(t.quoteVolume)/1e6,2)+"M";
+  $("chartTitle").textContent=t.symbol;
 }
 
-renderMarkets();
-btn.textContent=old;
-btn.disabled=false;
+function selectCoin(symbol){
+  selectedCoin=symbol;
+  selectedTicker=market.find(x=>x.symbol===symbol)||null;
+  ["analysisCoin","chartCoin","planCoin"].forEach(id=>{if($(id))$(id).value=symbol});
+  updateTicker();
+  analyseSelected();
+  makePlan();
+  if($("page-chart").classList.contains("active"))loadChart();
+  connectDepth();
+  connectTrades();
 }
 
-async function getFrame(tf){
-if(tf==='1Y'){
-let monthly=await get(API+`/fapi/v1/klines?symbol=${selected}&interval=1M&limit=1500`);
-let groups=new Map();
-
-monthly.forEach(k=>{
-let y=new Date(+k[0]).getUTCFullYear();
-if(!groups.has(y))groups.set(y,[]);
-groups.get(y).push(k);
-});
-
-let annual=[...groups.values()].map(g=>[
-g[0][0],
-g[0][1],
-Math.max(...g.map(k=>+k[2])),
-Math.min(...g.map(k=>+k[3])),
-g.at(-1)[4],
-g.reduce((a,k)=>a+ +k[5],0),
-g.at(-1)[6],
-g.reduce((a,k)=>a+ +k[7],0),
-g.reduce((a,k)=>a+ +k[8],0),
-g.reduce((a,k)=>a+ +k[9],0),
-g.reduce((a,k)=>a+ +k[10],0),
-g.at(-1)[11]
-]);
-
-return calc(annual,3);
+function ema(values,period){
+  if(!values.length)return 0;
+  const k=2/(period+1);
+  let result=values[0];
+  for(let i=1;i<values.length;i++)result=values[i]*k+result*(1-k);
+  return result;
 }
 
-let c=await get(API+`/fapi/v1/klines?symbol=${selected}&interval=${tf}&limit=260`);
-return calc(c,tf==='1M'?30:210);
+function rsi(values){
+  if(values.length<15)return 50;
+  let gain=0,loss=0;
+  for(let i=values.length-14;i<values.length;i++){
+    const diff=values[i]-values[i-1];
+    if(diff>0)gain+=diff;else loss-=diff;
+  }
+  if(loss===0)return 100;
+  const rs=(gain/14)/(loss/14);
+  return 100-(100/(1+rs));
 }
 
 async function analyseSelected(){
-try{
-let results=await Promise.all(
-TF.map(async([label,api])=>{
-try{return{label,api,x:await getFrame(api)}}
-catch(e){return{label,api,error:e.message}}
-})
-);
+  try{
+    if(!selectedCoin)return;
+    const candles=await api(`/fapi/v1/klines?symbol=${selectedCoin}&interval=15m&limit=100`);
+    const closes=candles.map(c=>Number(c[4]));
+    const e9=ema(closes.slice(-40),9);
+    const e21=ema(closes.slice(-60),21);
+    const rv=rsi(closes);
+    const price=closes.at(-1);
+    const signal=price>e9&&e9>e21&&rv<70?"BUY":price<e9&&e9<e21&&rv>30?"SELL":"WAIT";
 
-analysis={};
-results.forEach(r=>{if(!r.error)analysis[r.label]=r});
+    $("ema9").textContent=fmt(e9,6);
+    $("ema21").textContent=fmt(e21,6);
+    $("rsiValue").textContent=fmt(rv,2);
+    $("macdValue").textContent=fmt(e9-e21,6);
+    $("analysisSignal").textContent=signal;
+    $("analysisSignal").className="v "+(signal==="BUY"?"green":signal==="SELL"?"red":"gold");
 
-renderMTF(results);
+    $("mtfBody").innerHTML="";
+    for(const tf of ["5m","15m","1h","4h","1d"]){
+      const c=await api(`/fapi/v1/klines?symbol=${selectedCoin}&interval=${tf}&limit=50`);
+      const v=c.map(x=>Number(x[4]));
+      const a=ema(v.slice(-30),9),b=ema(v,21),p=v.at(-1);
+      const trend=p>a&&a>b?"BULLISH":p<a&&a<b?"BEARISH":"SIDEWAYS";
+      $("mtfBody").innerHTML+=`<tr><td>${tf}</td><td>${fmt(p,5)}</td><td>${fmt(a,5)}</td><td>${fmt(b,5)}</td><td>${fmt(rsi(v),1)}</td><td class="${trend==="BULLISH"?"green":trend==="BEARISH"?"red":"gold"}">${trend}</td></tr>`;
+    }
 
-let chart=
-analysis[$('chartTf').value==='1d'?'1D':
-$('chartTf').value==='1w'?'1W':
-$('chartTf').value==='1M'?'1M':
-$('chartTf').value]||
-analysis['5m']||
-Object.values(analysis)[0];
-
-if(chart){
-currentChart=chart;
-renderIndicators(chart.x);
-drawPriceChart(chart.x);
-drawSubCharts(chart.x);
+    if(signal!=="WAIT"&&signal!==lastSignal){
+      pushAlert(`${selectedCoin} ${signal} signal detected`);
+      lastSignal=signal;
+    }
+    loadChart();
+    makePlan();
+  }catch(e){console.error("Analysis:",e)}
 }
 
-makePlan(results);
-}catch(e){
-$('connection').textContent='Analysis error: '+e.message;
-}
-}
-
-function renderMTF(rs){
-let good=rs.filter(r=>!r.error);
-let bull=good.filter(r=>score(r.x).s>=2).length;
-let bear=good.filter(r=>score(r.x).s<=-2).length;
-let wait=good.length-bull-bear;
-let total=good.reduce((a,r)=>a+score(r.x).s,0);
-let max=good.length*7;
-let alignment=max?Math.round(Math.abs(total)/max*100):0;
-let overall=signal(total);
-
-$('score').textContent=total+' / '+max;
-$('alignment').textContent=alignment+'%';
-$('bullCount').textContent=bull+' / 12';
-$('bearCount').textContent=bear+' / 12';
-$('waitCount').textContent=wait+' / 12';
-
-$('topSignal').textContent=overall;
-$('topSignal').className='v '+(
-cl(overall)==='long'?'green':
-cl(overall)==='short'?'red':'gold'
-);
-
-$('mainSignal').textContent=overall;
-$('mainSignal').className='signalbox '+(
-cl(overall)==='long'?'green':
-cl(overall)==='short'?'red':'gold'
-);
-
-$('mtfCards').innerHTML=rs.map(r=>{
-if(r.error){
-return `<div class="tfcard">
-<div class="tfhead">${r.label}<span class="red">DATA ERROR</span></div>
-<div class="detail">${r.error}</div>
-</div>`;
+async function loadChart(){
+  try{
+    const interval=$("chartInterval").value;
+    const data=await api(`/fapi/v1/klines?symbol=${selectedCoin}&interval=${interval}&limit=80`);
+    chartData=data.map(c=>({o:+c[1],h:+c[2],l:+c[3],c:+c[4]}));
+    drawChart();
+  }catch(e){console.error(e)}
 }
 
-let sc=score(r.x);
-let sg=signal(sc.s);
-let trend=r.x.st.dir;
-
-return `<div class="tfcard">
-<div class="tfhead">
-<span>${r.label}</span>
-<span class="${cl(sg)==='long'?'green':cl(sg)==='short'?'red':'gold'}">${sg}</span>
-</div>
-<div class="detail">
-RSI ${r.x.rsi.toFixed(2)}<br>
-Score ${sc.s}/7<br>
-Trend ${trend}
-</div>
-</div>`;
-}).join('');
-
-$('mtfSummary').textContent=
-`${overall} · ${bull} bullish · ${bear} bearish · ${wait} wait · ${alignment}% indicator alignment`;
-
-if(lastSignal&&lastSignal!==overall&&alertState.signal){
-pushAlert(`${selected} signal changed: ${lastSignal} → ${overall}`);
+function drawChart(){
+  const canvas=$("priceChart"),ctx=canvas.getContext("2d");
+  const w=canvas.width,h=canvas.height;
+  ctx.clearRect(0,0,w,h);
+  if(!chartData.length)return;
+  const min=Math.min(...chartData.map(x=>x.l));
+  const max=Math.max(...chartData.map(x=>x.h));
+  const range=max-min||1;
+  const y=p=>h-20-(p-min)/range*(h-40);
+  ctx.strokeStyle="#263b50";ctx.lineWidth=1;
+  for(let i=1;i<5;i++){
+    ctx.beginPath();ctx.moveTo(0,i*h/5);ctx.lineTo(w,i*h/5);ctx.stroke();
+  }
+  const gap=w/chartData.length;
+  chartData.forEach((c,i)=>{
+    const x=i*gap+gap/2;
+    const up=c.c>=c.o;
+    ctx.strokeStyle=up?"#00d99a":"#ff536b";
+    ctx.fillStyle=ctx.strokeStyle;
+    ctx.beginPath();ctx.moveTo(x,y(c.h));ctx.lineTo(x,y(c.l));ctx.stroke();
+    const top=y(Math.max(c.o,c.c)),bottom=y(Math.min(c.o,c.c));
+    ctx.fillRect(x-gap*.3,top,Math.max(2,gap*.6),Math.max(1,bottom-top));
+  });
+  ctx.fillStyle="#f2c45b";ctx.font="12px Arial";
+  ctx.fillText("HIGH "+fmt(max,5),10,15);
+  ctx.fillText("LOW "+fmt(min,5),10,h-5);
 }
 
-lastSignal=overall;
+function makePlan(){
+  if(!selectedTicker)return;
+  const entry=Number(selectedTicker.lastPrice);
+  const change=Number(selectedTicker.priceChangePercent);
+  const signal=change>0.5?"BUY":change< -0.5?"SELL":"WAIT";
+  const slPct=0.015;
+  const targetPct=0.03;
+  const sl=signal==="BUY"?entry*(1-slPct):signal==="SELL"?entry*(1+slPct):entry;
+  const tp1=signal==="BUY"?entry*(1+targetPct):signal==="SELL"?entry*(1-targetPct):entry;
+  const tp2=signal==="BUY"?entry*(1+targetPct*2):signal==="SELL"?entry*(1-targetPct*2):entry;
+  currentPlan={signal,entry,sl,tp1,tp2};
+  $("planSignal").textContent=signal;
+  $("planSignal").className="v "+(signal==="BUY"?"green":signal==="SELL"?"red":"gold");
+  $("planEntry").textContent=fmt(entry,6);
+  $("planSL").textContent=fmt(sl,6);
+  $("planTP1").textContent=fmt(tp1,6);
+  $("planTP2").textContent=fmt(tp2,6);
+  calculateCapital();
 }
 
-function renderIndicators(x){
-let a=[
-['EMA FAST',x.ef],
-['EMA MEDIUM',x.em],
-['EMA SLOW',x.es],
-['EMA TREND',x.et],
-['RSI',x.rsi],
-['MACD',x.macd],
-['MACD SIGNAL',x.macdSignal],
-['MACD HISTOGRAM',x.hist],
-['ATR',x.atr],
-['VWAP',x.vwap],
-['SUPERTREND',x.st.dir],
-['BB UPPER',x.bb.upper],
-['BB MIDDLE',x.bb.mid],
-['BB LOWER',x.bb.lower],
-['SUPPORT',x.support],
-['RESISTANCE',x.resistance]
-];
+function calculateCapital(){
+  const capital=Math.max(0,Number($("capitalInput").value)||0);
+  const riskPct=Math.max(0,Number($("riskInput").value)||0);
+  const leverage=Math.min(5,Math.max(1,Number($("leverageInput").value)||1));
+  const mmr=Math.max(0,Number($("mmrInput").value)||0)/100;
+  const entry=currentPlan.entry||Number(selectedTicker?.lastPrice)||0;
+  const signal=currentPlan.signal;
+  const sl=currentPlan.sl;
+  const riskAmount=capital*riskPct/100;
+  const stopDistance=entry>0&&sl>0?Math.abs(entry-sl)/entry:0.015;
+  let notional=stopDistance>0?riskAmount/stopDistance:0;
+  const maxNotional=capital*leverage;
+  const capped=notional>maxNotional;
+  notional=Math.min(notional,maxNotional);
+  const margin=notional/leverage;
+  const qty=entry>0?notional/entry:0;
 
-$('indicators').innerHTML=a.map(([k,v])=>
-`<div class="ind">
-<div class="k">${k}</div>
-<div class="v ${k==='SUPERTREND'?(v==='LONG'?'green':'red'):''}">${typeof v==='number'?num(v,8):v}</div>
-</div>`
-).join('');
+  $("riskAmount").textContent=money(riskAmount);
+  $("positionSize").textContent=money(notional)+(capped?" (CAPPED)":"");
+  $("marginRequired").textContent=money(margin);
+  $("positionQty").textContent=fmt(qty,6);
 
-$('indicatorTfLabel').textContent='Selected interval: '+$('chartTf').value;
-$('indicatorSummary').textContent=score(x).why.join(' · ');
+  if(!entry||!notional||signal==="WAIT"){
+    ["liqPrice","liqDistance","liqRisk","slSafety"].forEach(id=>$(id).textContent="WAIT");
+    return;
+  }
+
+  // Simplified isolated-margin approximation.
+  const buffer=1/leverage;
+  let liq;
+  if(signal==="BUY"){
+    liq=entry*(1-buffer+mmr);
+  }else{
+    liq=entry*(1+buffer-mmr);
+  }
+
+  const distance=Math.abs(entry-liq)/entry*100;
+  const slDistance=Math.abs(entry-sl)/entry*100;
+  const risk=distance<3?"DANGER":distance<7?"HIGH":distance<15?"MEDIUM":"LOW";
+
+  $("liqPrice").textContent=fmt(liq,6);
+  $("liqDistance").textContent=fmt(distance,2)+"%";
+  $("liqRisk").textContent=risk;
+  $("liqRisk").className="v "+(risk==="DANGER"||risk==="HIGH"?"red":risk==="MEDIUM"?"gold":"green");
+
+  const safe=signal==="BUY"?sl>liq:sl<liq;
+  $("slSafety").textContent=safe?"STOP BEFORE LIQUIDATION":"STOP NOT SAFE";
+  $("slSafety").className="v "+(safe?"green":"red");
 }
 
-function canvasSetup(el){
-let r=el.getBoundingClientRect();
-let dpr=window.devicePixelRatio||1;
-el.width=Math.max(1,Math.floor(r.width*dpr));
-el.height=Math.max(1,Math.floor(r.height*dpr));
-let c=el.getContext('2d');
-c.scale(dpr,dpr);
-return{c,w:r.width,h:r.height};
+async function connectDepth(){
+  if(depthSocket){depthSocket.close();depthSocket=null}
+  const symbol=selectedCoin.toLowerCase();
+  try{
+    const data=await api(`/fapi/v1/depth?symbol=${selectedCoin}&limit=10`);
+    renderDepth(data);
+  }catch(e){console.error(e)}
+  depthSocket=new WebSocket(`wss://fstream.binance.com/ws/${symbol}@depth10@500ms`);
+  depthSocket.onmessage=e=>{
+    try{renderDepth(JSON.parse(e.data))}catch(err){}
+  };
 }
 
-function drawPriceChart(x){
-let {c,w,h}=canvasSetup($('priceChart'));
-c.clearRect(0,0,w,h);
-
-let bars=x.bars.slice(-70);
-let pad={l:8,r:52,t:12,b:24};
-let pw=w-pad.l-pad.r;
-let ph=h-pad.t-pad.b;
-let lo=Math.min(...bars.map(b=>+b[3]))*0.999;
-let hi=Math.max(...bars.map(b=>+b[2]))*1.001;
-let y=v=>pad.t+(hi-v)/(hi-lo)*ph;
-let step=pw/bars.length;
-
-c.strokeStyle='#24384b';
-c.lineWidth=1;
-
-for(let i=0;i<5;i++){
-let yy=pad.t+i*ph/4;
-c.beginPath();
-c.moveTo(pad.l,yy);
-c.lineTo(w-pad.r,yy);
-c.stroke();
-c.fillStyle='#9ba9b9';
-c.font='10px Arial';
-c.fillText(num(hi-(hi-lo)*i/4,3),w-pad.r+4,yy+3);
+function renderDepth(data){
+  if(!data.bids||!data.asks)return;
+  $("bidsBody").innerHTML=data.bids.slice(0,10).map(x=>`<tr><td class="green">${fmt(x[0],6)}</td><td>${fmt(x[1],4)}</td></tr>`).join("");
+  $("asksBody").innerHTML=data.asks.slice(0,10).map(x=>`<tr><td class="red">${fmt(x[0],6)}</td><td>${fmt(x[1],4)}</td></tr>`).join("");
 }
 
-bars.forEach((b,i)=>{
-let xx=pad.l+i*step+step*.18;
-let op=+b[1],clo=+b[4];
-let top=y(Math.max(op,clo));
-let bot=y(Math.min(op,clo));
-let color=clo>=op?'#00d99a':'#ff536b';
-
-c.strokeStyle=color;
-c.fillStyle=color;
-c.beginPath();
-c.moveTo(xx+step*.32,y(+b[2]));
-c.lineTo(xx+step*.32,y(+b[3]));
-c.stroke();
-c.fillRect(xx,top,Math.max(2,step*.64),Math.max(1,bot-top));
-});
-
-let ef=ema(x.close,cfg.emaFast).slice(-70);
-let em=ema(x.close,cfg.emaMedium).slice(-70);
-let es=ema(x.close,cfg.emaSlow).slice(-70);
-
-[[ef,'#ffd34d'],[em,'#54b9ff'],[es,'#db65ef']].forEach(([a,col])=>{
-c.strokeStyle=col;
-c.lineWidth=1.5;
-c.beginPath();
-a.forEach((v,i)=>{
-let xx=pad.l+i*step+step*.32;
-i?c.lineTo(xx,y(v)):c.moveTo(xx,y(v));
-});
-c.stroke();
-});
-
-c.fillStyle='#9ba9b9';
-c.font='10px Arial';
-c.fillText('Candles · EMA Fast / Medium / Slow',pad.l,10);
+function connectTrades(){
+  if(tradeSocket){tradeSocket.close();tradeSocket=null}
+  tradeSocket=new WebSocket(`wss://fstream.binance.com/ws/${selectedCoin.toLowerCase()}@trade`);
+  tradeSocket.onmessage=e=>{
+    const t=JSON.parse(e.data);
+    addTrade(t);
+  };
 }
 
-function drawSubCharts(x){
-let a=x.close.slice(-70);
-let r=[];
-
-for(let i=1;i<=a.length;i++){
-r.push(rsi(x.close.slice(0,x.close.length-a.length+i),cfg.rsiPeriod));
+function addTrade(t){
+  const side=t.m?"SELL":"BUY";
+  const row=document.createElement("tr");
+  row.innerHTML=`<td>${new Date(t.T).toLocaleTimeString()}</td><td>${fmt(t.p,6)}</td><td>${fmt(t.q,4)}</td><td class="${side==="BUY"?"green":"red"}">${side}</td>`;
+  $("tradesBody").prepend(row);
+  while($("tradesBody").children.length>40)$("tradesBody").lastChild.remove();
 }
 
-let {c,w,h}=canvasSetup($('rsiChart'));
-c.clearRect(0,0,w,h);
-c.strokeStyle='#35465a';
-
-[30,50,70].forEach(v=>{
-let y=h-(v/100)*h;
-c.beginPath();
-c.moveTo(0,y);
-c.lineTo(w,y);
-c.stroke();
-});
-
-c.strokeStyle='#d36bff';
-c.beginPath();
-
-r.forEach((v,i)=>{
-let xx=i/(r.length-1)*w;
-let yy=h-v/100*h;
-i?c.lineTo(xx,yy):c.moveTo(xx,yy);
-});
-
-c.stroke();
-c.fillStyle='#ddd';
-c.font='10px Arial';
-c.fillText('RSI (14) '+x.rsi.toFixed(2),8,13);
-
-let m=x.macdObj.lines.slice(-70);
-let sig=x.macdObj.signals.slice(-70);
-let {c:mc,w:mw,h:mh}=canvasSetup($('macdChart'));
-
-mc.clearRect(0,0,mw,mh);
-let max=Math.max(1,...m.map(Math.abs),...sig.map(Math.abs));
-let mid=mh/2;
-
-mc.strokeStyle='#526176';
-mc.beginPath();
-mc.moveTo(0,mid);
-mc.lineTo(mw,mid);
-mc.stroke();
-
-[[m,'#00d99a'],[sig,'#ffbf45']].forEach(([arr,col])=>{
-mc.strokeStyle=col;
-mc.beginPath();
-arr.forEach((v,i)=>{
-let xx=i/(arr.length-1)*mw;
-let yy=mid-v/max*(mh*.42);
-i?mc.lineTo(xx,yy):mc.moveTo(xx,yy);
-});
-mc.stroke();
-});
-
-mc.fillStyle='#ddd';
-mc.font='10px Arial';
-mc.fillText('MACD '+num(x.macd,4)+' · Signal '+num(x.macdSignal,4),8,13);
+function addPriceAlert(){
+  const symbol=$("alertCoin").value;
+  const condition=$("alertCondition").value;
+  const price=Number($("alertPrice").value);
+  if(!price||price<=0){alert("Enter a valid target price");return}
+  priceAlerts.push({symbol,condition,price,triggered:false});
+  saveAlerts();
+  renderAlerts();
+  $("alertPrice").value="";
 }
 
-function initSettings(){
-let saved=JSON.parse(localStorage.getItem('shijuV6Settings')||'null');
-if(saved)cfg={...DEFAULT,...saved};
-
-$('settings').innerHTML=Object.entries(cfg).map(([k,v])=>
-`<label class="ind">
-<span class="k">${k.replace(/([A-Z])/g,' $1').toUpperCase()}</span>
-<input data-setting="${k}" type="number" min="1" step="${k.toLowerCase().includes('multiplier')?'.1':'1'}" value="${v}">
-</label>`
-).join('');
+function saveAlerts(){
+  localStorage.setItem("shijuAlerts",JSON.stringify(priceAlerts));
 }
 
-function makePlan(rs){
-let good=rs.filter(r=>!r.error);
-let five=analysis['5m']||good[0];
-if(!five)return;
-
-let total=good.reduce((a,r)=>a+score(r.x).s,0);
-let sig=signal(total);
-let x=five.x;
-let dir=sig.includes('LONG')?1:sig.includes('SHORT')?-1:0;
-let entry=selectedTicker?+selectedTicker.lastPrice:x.price;
-let sl=dir?entry-dir*x.atr*1.5:null;
-let risk=sl?Math.abs(entry-sl):0;
-
-planLevels=dir?{
-dir,
-sl,
-tp1:entry+dir*risk,
-tp2:entry+dir*risk*2,
-tp3:entry+dir*risk*3
-}:{};
-
-$('planSignal').textContent=sig;
-$('planSignal').className=
-cl(sig)==='long'?'green':
-cl(sig)==='short'?'red':'gold';
-
-let vals=[
-['ENTRY',entry],
-['STOP LOSS',sl],
-['TAKE PROFIT 1',planLevels.tp1],
-['TAKE PROFIT 2',planLevels.tp2],
-['TAKE PROFIT 3',planLevels.tp3]
-];
-
-$('tradeValues').innerHTML=vals.map(([k,v])=>
-`<div class="tradeval">
-<div class="k">${k}</div>
-<div class="v ${v==null?'muted':''}">
-${v==null?'--':`<span class="copyval" data-copy="${k}">${fmtPrice(v)} ⧉</span>`}
-</div>
-</div>`
-).join('');
+function renderAlerts(){
+  $("alertsList").innerHTML=priceAlerts.map((a,i)=>`
+    <div class="metric" style="margin-bottom:7px">
+      ${a.symbol} ${a.condition} ${fmt(a.price,6)}
+      <span class="gold">${a.triggered?"TRIGGERED":"ACTIVE"}</span>
+      <button class="secondary" onclick="removeAlert(${i})">REMOVE</button>
+    </div>`).join("")||"No active alerts";
 }
 
-function loadSelected(){}
-
-async function loadSelected(){
-closeSockets();
-tradeList=[];
-$('recentTrades').innerHTML='';
-$('coinName').textContent=selected+' ⧉';
-$('chartSymbol').textContent=selected;
-$('connection').textContent='Loading '+selected+'…';
-
-try{
-selectedTicker=await get(API+'/fapi/v1/ticker/24hr?symbol='+selected);
-updateTicker(selectedTicker);
-
-let [depth]=await Promise.all([
-get(API+'/fapi/v1/depth?symbol='+selected+'&limit=20')
-]);
-
-renderDepth(depth);
-await analyseSelected();
-startSockets();
-
-$('connection').textContent='LIVE · '+selected+' · Binance Futures public data';
-}catch(e){
-$('connection').textContent='Selected coin data error: '+e.message;
-}
+function removeAlert(i){
+  priceAlerts.splice(i,1);
+  saveAlerts();
+  renderAlerts();
 }
 
-function updateTicker(t){
-$('coinPrice').textContent=fmtPrice(+t.lastPrice);
-let p=+t.priceChangePercent;
-$('coinChange').textContent=(p>=0?'↑ ':'↓ ')+Math.abs(p).toFixed(2)+'%';
-$('coinChange').className='v '+(p>=0?'green':'red');
-$('coinVolume').textContent=compact(t.quoteVolume);
-lastPrice=+t.lastPrice;
+function checkPriceAlerts(){
+  priceAlerts.forEach(a=>{
+    if(a.triggered)return;
+    const t=market.find(x=>x.symbol===a.symbol);
+    if(!t)return;
+    const p=Number(t.lastPrice);
+    if((a.condition==="above"&&p>=a.price)||(a.condition==="below"&&p<=a.price)){
+      a.triggered=true;
+      pushAlert(`${a.symbol} reached ${fmt(p,6)}`);
+      notify(`${a.symbol} price alert`,`${a.condition} ${a.price}`);
+    }
+  });
+  saveAlerts();
+  renderAlerts();
 }
 
-function renderDepth(d){
-depthData=d;
-
-let bids=(d.bids||[]).slice(0,10);
-let asks=(d.asks||[]).slice(0,10);
-
-let bv=(d.bids||[]).reduce((s,x)=>s+ +x[1],0);
-let av=(d.asks||[]).reduce((s,x)=>s+ +x[1],0);
-let tot=bv+av;
-let bp=tot?bv/tot*100:50;
-
-$('bestBid').textContent=bids.length?fmtPrice(+bids[0][0]):'--';
-$('bestAsk').textContent=asks.length?fmtPrice(+asks[0][0]):'--';
-$('bidDepth').textContent=compact(bv);
-$('askDepth').textContent=compact(av);
-$('bidTotal').textContent=compact(bv);
-$('askTotal').textContent=compact(av);
-
-$('bidRows').innerHTML=bids.map(x=>
-`<tr><td class="green">${fmtPrice(+x[0])}</td><td>${num(x[1],3)}</td></tr>`
-).join('');
-
-$('askRows').innerHTML=asks.map(x=>
-`<tr><td class="red">${fmtPrice(+x[0])}</td><td>${num(x[1],3)}</td></tr>`
-).join('');
-
-$('bidRatio').style.width=bp+'%';
-$('askRatio').style.width=(100-bp)+'%';
-$('bidRatio').textContent=bp.toFixed(1)+'%';
-$('askRatio').textContent=(100-bp).toFixed(1)+'%';
-
-$('depthSummary').textContent=
-`Bid ${compact(bv)} USDT · Ask ${compact(av)} USDT · Depth ratio ${bp.toFixed(1)}% / ${(100-bp).toFixed(1)}%`;
-
-drawDepth();
+function pushAlert(message){
+  const el=$("signalAlerts");
+  const item=document.createElement("div");
+  item.className="metric";
+  item.style.marginBottom="7px";
+  item.textContent=new Date().toLocaleTimeString()+" — "+message;
+  el.prepend(item);
+  while(el.children.length>30)el.lastChild.remove();
 }
 
-function drawDepth(){
-if(!depthData)return;
-
-let {c,w,h}=canvasSetup($('depthChart'));
-c.clearRect(0,0,w,h);
-
-let bids=(depthData.bids||[]).slice(0,20).reverse();
-let asks=(depthData.asks||[]).slice(0,20);
-let all=[...bids,...asks];
-if(!all.length)return;
-
-let min=Math.min(...all.map(x=>+x[0]));
-let max=Math.max(...all.map(x=>+x[0]));
-let mid=lastPrice||(+bids.at(-1)?.[0]+ +asks[0]?.[0])/2;
-let top=Math.max(1,...all.map(x=>+x[1]))*20;
-let base=h-25,left=8,right=w-8;
-
-let scaleX=p=>left+(p-min)/(max-min||1)*(right-left);
-let scaleY=q=>base-q/top*(h-45);
-
-c.strokeStyle='#33475b';
-for(let i=0;i<5;i++){
-let yy=20+i*(base-20)/4;
-c.beginPath();
-c.moveTo(left,yy);
-c.lineTo(right,yy);
-c.stroke();
+function notify(title,message){
+  if("Notification" in window&&Notification.permission==="granted"){
+    new Notification(title,{body:message});
+  }
 }
 
-function area(arr,color,reverse){
-let cum=0,pts=[];
-arr.forEach(x=>{
-cum+=+x[1];
-pts.push([scaleX(+x[0]),scaleY(cum)]);
-});
-if(!pts.length)return;
-
-c.beginPath();
-c.moveTo(pts[0][0],base);
-pts.forEach(p=>c.lineTo(p[0],p[1]));
-c.lineTo(pts.at(-1)[0],base);
-c.closePath();
-c.fillStyle=color;
-c.fill();
-
-c.strokeStyle=reverse?'#ff536b':'#00d99a';
-c.lineWidth=2;
-c.beginPath();
-pts.forEach((p,i)=>i?c.lineTo(...p):c.moveTo(...p));
-c.stroke();
+function requestNotifications(){
+  if("Notification" in window&&Notification.permission==="default"){
+    Notification.requestPermission();
+  }
 }
-
-area(bids,'#00d99a44',false);
-area(asks,'#ff536b44',true);
-
-let xx=scaleX(mid);
-c.strokeStyle='#f2c45b';
-c.setLineDash([5,4]);
-c.beginPath();
-c.moveTo(xx,10);
-c.lineTo(xx,base);
-c.stroke();
-c.setLineDash([]);
-
-c.fillStyle='#f2c45b';
-c.font='11px Arial';
-c.fillText('LAST '+fmtPrice(mid),Math.max(5,Math.min(w-100,xx-35)),14);
-c.fillStyle='#00d99a';
-c.fillText('BIDS',8,h-7);
-c.fillStyle='#ff536b';
-c.fillText('ASKS',w-45,h-7);
-}
-
-function addTrade(d){
-let side=d.m?'SELL':'BUY';
-let item={
-side,
-price:+d.p,
-qty:+d.q,
-value:+d.p* +d.q,
-time:new Date(+d.T).toLocaleTimeString()
-};
-
-tradeList.unshift(item);
-tradeList=tradeList.slice(0,30);
-
-$('recentTrades').innerHTML=tradeList.map(t=>
-`<div class="tradeitem">
-<span>${t.time} · <b class="${t.side==='BUY'?'green':'red'}">${t.side}</b></span>
-<span>${fmtPrice(t.price)} · ${compact(t.value)} USDT</span>
-</div>`
-).join('');
-
-$('tradeStatus').textContent='LIVE · '+tradeList.length+' latest aggregated trades';
-}
-
-function pushAlert(msg){
-alertList.unshift({time:new Date().toLocaleTimeString(),msg});
-alertList=alertList.slice(0,30);
-
-$('liveAlerts').innerHTML=alertList.map(a=>
-`<div class="alertitem">
-<span class="green">● ${a.time}</span>
-<span>${a.msg}</span>
-</div>`
-).join('');
-
-if(soundOn)beep();
-}
-
-function beep(){
-try{
-let a=new AudioContext();
-let o=a.createOscillator();
-let g=a.createGain();
-o.connect(g);
-g.connect(a.destination);
-g.gain.value=.04;
-o.frequency.value=780;
-o.start();
-o.stop(a.currentTime+.14);
-o.onended=()=>a.close();
-}catch(e){}
-}
-
-function checkPrice(p){
-if(!planLevels.dir)return;
-
-let z=planLevels;
-let hit=z.dir===1?
-{SL:p<=z.sl,TP1:p>=z.tp1,TP2:p>=z.tp2,TP3:p>=z.tp3}:
-{SL:p>=z.sl,TP1:p<=z.tp1,TP2:p<=z.tp2,TP3:p<=z.tp3};
-
-Object.entries(hit).forEach(([k,v])=>{
-if(v&&!z[k]){
-z[k]=true;
-if(alertState.price)pushAlert(`${selected} ${k} touched near ${fmtPrice(p)}`);
-}
-});
-}
-
-function closeSockets(){
-ws.forEach(s=>{try{s.close()}catch(e){}});
-ws=[];
-}
-
-function openSocket(stream,fn){
-let s=new WebSocket(WS+stream);
-ws.push(s);
-s.onmessage=e=>{
-let d=JSON.parse(e.data);
-fn(d);
-};
-s.onclose=()=>{
-if(selected&&document.visibilityState==='visible'){
-setTimeout(()=>{
-if(selected)openSocket(stream,fn);
-},3500);
-}
-};
-}
-
-function startSockets(){
-let sym=selected.toLowerCase();
-
-openSocket(sym+'@ticker',d=>{
-selectedTicker={
-...selectedTicker,
-lastPrice:d.c,
-priceChangePercent:d.P,
-quoteVolume:d.q
-};
-updateTicker(selectedTicker);
-checkPrice(+d.c);
-});
-
-openSocket(sym+'@depth20@100ms',d=>
-renderDepth({bids:d.b,asks:d.a})
-);
-
-openSocket(sym+'@aggTrade',addTrade);
-}
-
-function selectCoin(sym){
-shortlistScroll=window.scrollY;
-selected=sym;
-switchPage('analysis');
-loadSelected();
-}
-
-function switchPage(p){
-document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
-$('page-'+p).classList.add('active');
-
-document.querySelectorAll('.bottomnav button').forEach(x=>
-x.classList.toggle('active',x.dataset.page===p)
-);
-
-if(p==='chart'&&currentChart){
-drawPriceChart(currentChart.x);
-drawSubCharts(currentChart.x);
-}
-
-if(p==='depth')drawDepth();
-
-window.scrollTo({top:0,behavior:'instant'});
-}
-
-$('coinName').addEventListener('click',async()=>{
-try{
-await navigator.clipboard.writeText(selected);
-}catch(e){
-let t=document.createElement('textarea');
-t.value=selected;
-document.body.append(t);
-t.select();
-document.execCommand('copy');
-t.remove();
-}
-pushAlert(selected+' copied');
-});
-
-$('markets').addEventListener('click',e=>{
-let tr=e.target.closest('tr[data-symbol]');
-if(tr)selectCoin(tr.dataset.symbol);
-});
-
-$('search').addEventListener('input',()=>{
-page=0;
-renderMarkets();
-});
-
-document.querySelectorAll('[data-filter]').forEach(b=>{
-b.onclick=()=>{
-filter=b.dataset.filter;
-document.querySelectorAll('[data-filter]').forEach(x=>
-x.classList.toggle('active',x===b)
-);
-page=0;
-renderMarkets();
-};
-});
-
-document.querySelectorAll('[data-sort]').forEach(b=>{
-b.onclick=()=>{
-let k=b.dataset.sort;
-if(sortKey===k)sortDir*=-1;
-else{sortKey=k;sortDir=1}
-renderMarkets();
-};
-});
-
-$('prevPage').onclick=()=>{
-page=Math.max(0,page-1);
-renderMarkets();
-};
-
-$('nextPage').onclick=()=>{
-page++;
-renderMarkets();
-};
-
-$('scanAll').onclick=scanAll;
-
-$('backShortlist').onclick=()=>{
-switchPage('shortlist');
-window.scrollTo({top:shortlistScroll,behavior:'instant'});
-};
-
-document.querySelectorAll('.backBtn').forEach(b=>{
-b.onclick=()=>{
-switchPage('shortlist');
-window.scrollTo({top:shortlistScroll,behavior:'instant'});
-};
-});
-
-document.querySelectorAll('.bottomnav button').forEach(b=>{
-b.onclick=()=>switchPage(b.dataset.page);
-});
-
-$('chartTf').onchange=async()=>{
-try{
-let x=await getFrame($('chartTf').value);
-currentChart={x};
-renderIndicators(x);
-drawPriceChart(x);
-drawSubCharts(x);
-}catch(e){
-$('indicatorSummary').textContent=e.message;
-}
-};
-
-$('applySettings').onclick=()=>{
-document.querySelectorAll('[data-setting]').forEach(i=>{
-let v=+i.value;
-if(v>0)cfg[i.dataset.setting]=v;
-});
-
-if(cfg.macdFast>=cfg.macdSlow){
-$('settingsStatus').textContent='MACD Fast must be lower than MACD Slow.';
-return;
-}
-
-localStorage.setItem('shijuV6Settings',JSON.stringify(cfg));
-$('settingsStatus').textContent='Settings saved. Refreshing analysis…';
-loadSelected();
-};
-
-$('resetSettings').onclick=()=>{
-cfg={...DEFAULT};
-localStorage.removeItem('shijuV6Settings');
-initSettings();
-$('settingsStatus').textContent='Default settings restored.';
-loadSelected();
-};
-
-$('tradeValues').onclick=async e=>{
-let b=e.target.closest('[data-copy]');
-if(!b)return;
-
-let k=b.dataset.copy;
-let v=k==='ENTRY'?selectedTicker?.lastPrice:
-k==='STOP LOSS'?planLevels.sl:
-k==='TAKE PROFIT 1'?planLevels.tp1:
-k==='TAKE PROFIT 2'?planLevels.tp2:
-planLevels.tp3;
-
-if(v==null)return;
-
-try{
-await navigator.clipboard.writeText(fmtPrice(v));
-pushAlert(k+' copied');
-}catch(err){
-let t=document.createElement('textarea');
-t.value=fmtPrice(v);
-document.body.append(t);
-t.select();
-document.execCommand('copy');
-t.remove();
-}
-};
-
-$('bookTab').onclick=()=>{
-$('bookTab').classList.add('active');
-$('depthTab').classList.remove('active');
-$('orderBookView').classList.remove('hidden');
-$('depthChartView').classList.add('hidden');
-};
-
-$('depthTab').onclick=()=>{
-$('depthTab').classList.add('active');
-$('bookTab').classList.remove('active');
-$('orderBookView').classList.add('hidden');
-$('depthChartView').classList.remove('hidden');
-drawDepth();
-};
-
-$('soundToggle').onclick=()=>{
-$('soundToggle').textContent='SOUND: '+(soundOn?'OFF':'ON');
-soundOn=!soundOn;
-};
-
-$('clearAlerts').onclick=()=>{
-alertList=[];
-$('liveAlerts').textContent='Alerts cleared.';
-};
-
-$('alertToggles').innerHTML=Object.entries({
-price:'Price Alert (Entry / SL / TP)',
-signal:'Signal Change Alert',
-volume:'Volume Spike Alert',
-reversal:'Trend Reversal Alert'
-}).map(([k,v])=>
-`<label class="row">
-<span>${v}</span>
-<input type="checkbox" data-alert="${k}" ${alertState[k]?'checked':''} style="width:20px">
-</label>`
-).join('');
-
-$('alertToggles').onchange=e=>{
-if(e.target.dataset.alert){
-alertState[e.target.dataset.alert]=e.target.checked;
-}
-};
 
 async function boot(){
-initSettings();
-await loadMarket();
-await selectInitial();
-setInterval(loadMarket,60000);
-}
+  renderAlerts();
+  requestNotifications();
+  await loadMarket();
+  await analyseSelected();
+  connectDepth();
+  connectTrades();
 
-async function selectInitial(){
-selected='BTCUSDT';
-await loadSelected();
-}
+  // Ticker refresh every 30 seconds.
+  setInterval(loadMarket,30000);
 
-window.addEventListener('resize',()=>{
-if(currentChart){
-drawPriceChart(currentChart.x);
-drawSubCharts(currentChart.x);
+  // Selected coin analysis refresh every 90 seconds.
+  setInterval(analyseSelected,90000);
+
+  // Price alerts checked with ticker refresh.
+  setInterval(checkPriceAlerts,10000);
 }
-if(depthData)drawDepth();
-});
 
 boot();
 </script>
 </body>
-                                                     </html>
+  </html>
